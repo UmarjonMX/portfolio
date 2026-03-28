@@ -18,18 +18,11 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
   const springConfig = { type: 'spring', stiffness: 300, damping: 30 };
 
   return (
-    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[200] w-[92%] max-w-[1200px] transition-all duration-500 ease-in-out">
+    <div className="sticky top-0 z-50 w-full backdrop-blur-md bg-white/50 dark:bg-black/50 transition-all duration-500 ease-in-out border-b border-black/10 dark:border-white/10">
       <motion.nav
         layout
         transition={springConfig}
-        className={`w-full flex flex-col overflow-hidden border border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.15)] hover:shadow-[0_0_24px_rgba(8,203,0,0.22)] transition-shadow duration-300 ${
-          isOpen ? 'rounded-[2rem]' : 'rounded-full'
-        }`}
-        style={{
-          background: isDarkMode ? 'rgba(33,33,33,0.75)' : 'rgba(246,240,240,0.75)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-        }}
+        className={`w-full max-w-[1200px] mx-auto flex flex-col overflow-hidden transition-shadow duration-300 ${isOpen ? 'pb-2' : ''}`}
       >
         {/* Always-visible bar */}
         <motion.div layout className="flex items-center justify-between px-6 md:px-8 h-14 w-full">

@@ -49,8 +49,8 @@ export default function About() {
             <motion.div 
               animate={{ y: [0, -10, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              style={{ transform: "translateZ(50px)", aspectRatio: "1/1" }} 
-              className="relative w-48 h-48 xl:w-56 xl:h-56 mb-8 mt-2 drop-shadow-[0_0_20px_rgba(8,203,0,0.4)]"
+              style={{ transform: "translateZ(50px)" }} 
+              className="relative w-full max-w-sm aspect-square mb-8 mt-2 drop-shadow-[0_0_20px_rgba(8,203,0,0.4)]"
             >
               {/* Rotating outer ring for depth */}
               <div className="absolute inset-0 rounded-full border border-[#08CB00]/20 animate-[spin_8s_linear_infinite] border-t-[#08CB00] border-b-[#08CB00]"></div>
@@ -61,10 +61,10 @@ export default function About() {
                 style={{ clipPath: 'circle(50% at 50% 50%)' }}
               >
                 <motion.img 
-                  src="/image/Umar.png" 
+                  src="/image/Umar.jpeg" 
                   alt="Muhammad Umar"
                   loading="lazy"
-                  className="w-full h-full object-cover scale-110" // Scales up to push checkers out of bounds
+                  className="w-full max-w-lg h-auto aspect-square object-cover scale-110 transition-all duration-300" 
                   whileHover={{ scale: 1.15 }}
                   transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 />
