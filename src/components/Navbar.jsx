@@ -18,7 +18,7 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
   const springConfig = { type: 'spring', stiffness: 300, damping: 30 };
 
   return (
-    <div className="sticky top-0 z-50 w-full backdrop-blur-md bg-white/50 dark:bg-black/50 transition-all duration-500 ease-in-out border-b border-black/10 dark:border-white/10">
+    <div className="sticky top-0 z-50 w-full bg-white/10 dark:bg-black/10 backdrop-blur-sm transition-all duration-500 ease-in-out">
       <motion.nav
         layout
         transition={springConfig}

@@ -50,7 +50,7 @@ export default function About() {
               animate={{ y: [0, -10, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
               style={{ transform: "translateZ(50px)" }} 
-              className="relative w-full max-w-sm aspect-square mb-8 mt-2 drop-shadow-[0_0_20px_rgba(8,203,0,0.4)]"
+              className="relative w-full max-w-[200px] md:max-w-[240px] xl:max-w-[280px] aspect-square mb-8 mt-2 drop-shadow-[0_0_20px_rgba(8,203,0,0.4)] mx-auto"
             >
               {/* Rotating outer ring for depth */}
               <div className="absolute inset-0 rounded-full border border-[#08CB00]/20 animate-[spin_8s_linear_infinite] border-t-[#08CB00] border-b-[#08CB00]"></div>
