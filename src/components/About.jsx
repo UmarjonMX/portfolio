@@ -27,7 +27,7 @@ export default function About() {
   return (
     <section id="about" className="py-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto" style={{ position: 'relative', zIndex: 10, isolation: 'isolate' }}>
       <div className="mb-16">
-        <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-primary-text dark:text-primary-text-dark font-martian">{t('about.title')}</h2>
+        <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 text-primary-text dark:text-primary-text-dark font-martian opacity-0 animate-fadeInUp delay-100">{t('about.title')}</h2>
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -37,7 +37,7 @@ export default function About() {
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
           style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-          className="col-span-1 lg:col-span-1 flex flex-col items-center justify-center relative group cursor-crosshair h-full mx-auto w-full max-w-sm lg:max-w-none justify-self-center"
+          className="col-span-1 lg:col-span-1 flex flex-col items-center justify-center relative group cursor-crosshair h-full mx-auto w-full max-w-sm lg:max-w-none justify-self-center opacity-0 animate-fadeInUp delay-300"
         >
           <BentoCard 
             containerClassName="w-full h-full relative" 
@@ -83,7 +83,7 @@ export default function About() {
         </motion.div>
 
         {/* Bio Text */}
-        <BentoCard containerClassName="col-span-1 lg:col-span-2" className="h-full p-8 sm:p-10">
+        <BentoCard containerClassName="col-span-1 lg:col-span-2 opacity-0 animate-fadeInUp delay-500" className="h-full p-8 sm:p-10">
           <h3 className="text-2xl font-semibold mb-6 text-primary-text dark:text-primary-text-dark font-martian">{t('about.bioTitle')}</h3>
           <p className="text-primary-text/80 dark:text-primary-text-dark/80 leading-relaxed text-lg mb-6 font-funnel">
             {t('about.bio1')}
@@ -94,7 +94,7 @@ export default function About() {
         </BentoCard>
         
         {/* Hobbies / Interests */}
-        <BentoCard containerClassName="col-span-1 lg:col-span-1" className="h-full p-8 sm:p-10">
+        <BentoCard containerClassName="col-span-1 lg:col-span-1 opacity-0 animate-fadeInUp delay-700" className="h-full p-8 sm:p-10">
           <h3 className="text-2xl font-semibold mb-8 text-primary-text dark:text-primary-text-dark font-martian">{t('about.hobbiesTitle')}</h3>
           <ul className="space-y-5 text-primary-text/80 dark:text-primary-text-dark/80 font-medium font-funnel text-base">
             <li className="flex items-center"><span className="w-2 h-2 rounded-full bg-[#08CB00] mr-4 shadow-[0_0_8px_rgba(8,203,0,0.6)]"></span>{t('about.hobby1')}</li>

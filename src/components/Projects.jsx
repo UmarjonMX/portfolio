@@ -18,8 +18,7 @@ export default function Projects() {
     >
       <div className="mb-16 border-t border-border-light dark:border-border-dark pt-16">
         <h2
-          className="text-4xl font-bold tracking-tight mb-4"
-          style={{ opacity: 1, visibility: 'visible' }}
+          className="text-4xl font-bold tracking-tight mb-4 opacity-0 animate-fadeInUp delay-100"
         >
           {t('projects.title')}
         </h2>
@@ -27,11 +26,12 @@ export default function Projects() {
 
       {/* Cards — using animate (not whileInView) so they ALWAYS render */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {projects.map((project, index) => (
-          <motion.div
+        {projects.map((project, index) => {
+          const delayClass = ['delay-100', 'delay-200', 'delay-300', 'delay-500', 'delay-700', 'delay-1000'][index % 6];
+          return (
+          <div
             key={index}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, delay: index * 0.12, ease: 'easeOut' }}
+            className={`opacity-0 animate-fadeInUp ${delayClass}`}
             style={{ position: 'relative', zIndex: 10, isolation: 'isolate' }}
           >
             <BentoCard className="p-8 flex flex-col justify-between h-full">
@@ -59,8 +59,8 @@ export default function Projects() {
                 {t('projects.viewDetails')}
               </button>
             </BentoCard>
-          </motion.div>
-        ))}
+          </div>
+        )})}
       </div>
 
       {/* Modal */}

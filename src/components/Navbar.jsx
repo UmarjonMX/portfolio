@@ -18,14 +18,14 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
   const springConfig = { type: 'spring', stiffness: 300, damping: 30 };
 
   return (
-    <div className="sticky top-0 z-50 w-full bg-white/10 dark:bg-black/10 backdrop-blur-sm transition-all duration-500 ease-in-out">
-      <motion.nav
+    <nav className="fixed top-4 left-0 right-0 z-50 flex justify-center pointer-events-none">
+      <motion.div
         layout
         transition={springConfig}
-        className={`w-full max-w-[1200px] mx-auto flex flex-col overflow-hidden transition-shadow duration-300 ${isOpen ? 'pb-2' : ''}`}
+        className={`pointer-events-auto w-full max-w-7xl mx-4 flex flex-col overflow-hidden backdrop-blur-lg bg-white/20 dark:bg-black/30 border border-white/10 dark:border-black/20 shadow-lg transition-all duration-300 ${isOpen ? 'rounded-[2rem] px-6 py-3 pb-5' : 'rounded-full px-6 py-3'}`}
       >
         {/* Always-visible bar */}
-        <motion.div layout className="flex items-center justify-between px-6 md:px-8 h-14 w-full">
+        <motion.div layout className="flex items-center justify-between w-full h-10">
           {/* Logo */}
           <span className="font-bold text-lg sm:text-xl tracking-tight font-martian text-primary-text dark:text-primary-text-dark whitespace-nowrap">
             UmarjonMX
@@ -91,7 +91,7 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.nav>
-    </div>
+      </motion.div>
+    </nav>
   );
 }

@@ -17,29 +17,20 @@ export default function Hero() {
         <ActivityStatus />
       </motion.div>
       <div className="relative z-10 text-center px-4 w-full pointer-events-none">
-        <motion.h1 
-          className="text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tighter mb-6 text-primary-text dark:text-primary-text-dark"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+        <h1 
+          className="text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tighter mb-6 text-primary-text dark:text-primary-text-dark opacity-0 animate-fadeInUp delay-100"
         >
           {t('hero.title')}
-        </motion.h1>
-        <motion.p 
-          className="text-lg sm:text-xl lg:text-2xl text-primary-text/80 dark:text-primary-text-dark/80 max-w-2xl mx-auto font-medium leading-relaxed"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
+        </h1>
+        <p 
+          className="text-lg sm:text-xl lg:text-2xl text-primary-text/80 dark:text-primary-text-dark/80 max-w-2xl mx-auto font-medium leading-relaxed opacity-0 animate-fadeInUp delay-300"
         >
           {t('hero.subtitle')}
-        </motion.p>
+        </p>
         
         {/* Resume CV Download Button */}
-        <motion.div
-           className="mt-12 flex justify-center w-full pointer-events-auto relative z-20"
-           initial={{ opacity: 0, y: 20 }}
-           animate={{ opacity: 1, y: 0 }}
-           transition={{ duration: 0.8, delay: 0.4 }}
+        <div
+           className="mt-12 flex justify-center w-full pointer-events-auto relative z-20 opacity-0 animate-fadeInUp delay-500"
         >
           <a 
             href="/resume.pdf" 
@@ -49,7 +40,7 @@ export default function Hero() {
             <Download size={20} />
             <span>Download CV</span>
           </a>
-        </motion.div>
+        </div>
       </div>
     </section>
   );
