@@ -4,6 +4,11 @@ import { Download } from 'lucide-react';
 
 export default function Hero() {
   const { t } = useLanguage();
+  const [language, setLanguage] = useState('uz');
+
+  const uzBio = ['Junior Dasturchi 🧑🏻💻', 'Backend⚙️ & Frontend🖌️', 'Startapchi📝', 'IT ixlosmandi🌐', 'Kontent maker💻', 'Mobilograf📱', 'Kitobxon📚', 'IELTS holder', 'Junior Full-Stack Developer, AI', 'Mnemonist', 'Art, Literature, Astronomy, Philosophy', 'Football, Volleyball, Chess, Ping pong', 'Cinema, Music, Rubik\'s cube', 'Ambivert'];
+  const enBio = ['Junior Developer 🧑🏻💻', 'Backend⚙️ & Frontend🖌️', 'Startup Enthusiast📝', 'IT Fan🌐', 'Content Creator💻', 'Mobilographer📱', 'Bookworm📚', 'IELTS holder', 'Junior Full-Stack Developer, AI', 'Mnemonist', 'Art, Literature, Astronomy, Philosophy', 'Football, Volleyball, Chess, Ping pong', 'Cinema, Music, Rubik\'s cube', 'Ambivert'];
+  const currentBio = language === 'uz' ? uzBio : enBio;
 
   const words = ['UmarjonMX', 'Developer', '11th Grade Student', 'IELTS Candidate', 'Innovator'];
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
@@ -11,30 +16,26 @@ export default function Hero() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
+    let timer;
     const typeSpeed = 100;
     const deleteSpeed = 50;
     const delayBetweenWords = 1500;
-
     const currentWord = words[currentWordIndex];
-    
-    let timer;
-    if (isDeleting) {
-      timer = setTimeout(() => {
-        setCurrentText(prev => prev.slice(0, -1));
-        if (currentText === '') {
-          setIsDeleting(false);
-          setCurrentWordIndex((prev) => (prev + 1) % words.length);
-        }
-      }, deleteSpeed);
-    } else {
-      timer = setTimeout(() => {
-        setCurrentText(currentWord.slice(0, currentText.length + 1));
-        if (currentText === currentWord) {
-          timer = setTimeout(() => setIsDeleting(true), delayBetweenWords);
-        }
-      }, typeSpeed);
-    }
 
+    if (isDeleting) {
+      if (currentText === '') {
+        setIsDeleting(false);
+        setCurrentWordIndex((prev) => (prev + 1) % words.length);
+      } else {
+        timer = setTimeout(() => setCurrentText(currentWord.slice(0, currentText.length - 1)), deleteSpeed);
+      }
+    } else {
+      if (currentText === currentWord) {
+        timer = setTimeout(() => setIsDeleting(true), delayBetweenWords);
+      } else {
+        timer = setTimeout(() => setCurrentText(currentWord.slice(0, currentText.length + 1)), typeSpeed);
+      }
+    }
     return () => clearTimeout(timer);
   }, [currentText, isDeleting, currentWordIndex]);
 
@@ -44,18 +45,39 @@ export default function Hero() {
         
         {/* Dynamic Typewriter Header */}
         <h1 className="text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tighter mb-4 text-primary-text dark:text-primary-text-dark flex flex-col items-center md:flex-row md:justify-center gap-2 opacity-0 animate-fadeInUp delay-100">
-          <span>Welcome to</span>
+          <span>Hi, I'm</span>
           <span className="text-accent flex items-center min-h-[1.2em]">
             {currentText}
             <span className="inline-block border-r-4 border-accent h-[70%] sm:h-[80%] animate-pulse ml-1 translate-y-[10%]"></span>
           </span>
         </h1>
 
-        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tighter mb-6 text-primary-text/70 dark:text-primary-text-dark/70 opacity-0 animate-fadeInUp delay-200">
+        {/* Bio Section with Toggle */}
+        <div className="flex flex-col items-center max-w-3xl mx-auto w-full mb-8 opacity-0 animate-fadeInUp delay-200">
+          <button 
+            onClick={() => setLanguage(prev => prev === 'uz' ? 'en' : 'uz')}
+            className="mb-4 px-4 py-1.5 rounded-full border border-gray-300 dark:border-gray-700 bg-white/30 dark:bg-black/30 backdrop-blur-sm font-bold text-xs tracking-widest text-primary-text dark:text-primary-text-dark hover:bg-accent/20 transition-colors pointer-events-auto shadow-sm"
+          >
+            {language === 'uz' ? '[ UZ | EN ]' : '[ EN | UZ ]'}
+          </button>
+          
+          <div className="flex flex-wrap gap-2 mt-2 justify-center md:justify-center w-full">
+            {currentBio.map((item, idx) => (
+              <span 
+                key={idx} 
+                className="px-3 py-1.5 rounded-full border border-gray-300 dark:border-gray-700 bg-white/50 dark:bg-black/50 backdrop-blur-sm text-sm md:text-base font-funnel font-medium text-primary-text/90 dark:text-primary-text-dark/90 text-center shadow-sm"
+              >
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tighter mb-6 text-primary-text/70 dark:text-primary-text-dark/70 opacity-0 animate-fadeInUp delay-300">
           {t('hero.title')}
         </h2>
         <p 
-          className="text-lg sm:text-xl lg:text-2xl text-primary-text/80 dark:text-primary-text-dark/80 max-w-2xl mx-auto font-medium leading-relaxed opacity-0 animate-fadeInUp delay-300"
+          className="text-lg sm:text-xl lg:text-2xl text-primary-text/80 dark:text-primary-text-dark/80 max-w-2xl mx-auto font-medium leading-relaxed opacity-0 animate-fadeInUp delay-400"
         >
           {t('hero.subtitle')}
         </p>
