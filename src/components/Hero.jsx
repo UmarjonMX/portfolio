@@ -6,50 +6,19 @@ export default function Hero() {
   const { t } = useLanguage();
   const [language, setLanguage] = useState('uz');
 
-  const uzBio = ['Junior Dasturchi 🧑🏻💻', 'Backend⚙️ & Frontend🖌️', 'Startapchi📝', 'IT ixlosmandi🌐', 'Kontent maker💻', 'Mobilograf📱', 'Kitobxon📚', 'IELTS holder', 'Junior Full-Stack Developer, AI', 'Mnemonist', 'Art, Literature, Astronomy, Philosophy', 'Football, Volleyball, Chess, Ping pong', 'Cinema, Music, Rubik\'s cube', 'Ambivert'];
-  const enBio = ['Junior Developer 🧑🏻💻', 'Backend⚙️ & Frontend🖌️', 'Startup Enthusiast📝', 'IT Fan🌐', 'Content Creator💻', 'Mobilographer📱', 'Bookworm📚', 'IELTS holder', 'Junior Full-Stack Developer, AI', 'Mnemonist', 'Art, Literature, Astronomy, Philosophy', 'Football, Volleyball, Chess, Ping pong', 'Cinema, Music, Rubik\'s cube', 'Ambivert'];
+  const uzBio = ["Junior Full-Stack Dasturchi", "AI Ixlosmandi", "Startap Asoschisi", "Falsafa Qiziquvchisi", "Adabiyot Shaydosi", "Astronomiya Havaskori", "Mnemonist", "Kino Ishqibozi", "Musiqa Shaydosi", "Shaxmatchi", "Spidkuber", "Sport Ixlosmandi", "IELTS Sohibi", "Ambivert"];
+  const enBio = ["Junior Full-Stack Developer", "AI Enthusiast", "Startup Founder", "Philosophy Student", "Literature Lover", "Astronomy Buff", "Mnemonist", "Cinephile", "Melophile", "Chess Player", "Speedcuber", "Sports Enthusiast", "IELTS Holder", "Ambivert"];
   const currentBio = language === 'uz' ? uzBio : enBio;
 
-  const words = ['UmarjonMX', 'Developer', '11th Grade Student', 'IELTS Candidate', 'Innovator'];
-  const [currentWordIndex, setCurrentWordIndex] = useState(0);
-  const [currentText, setCurrentText] = useState('');
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  useEffect(() => {
-    let timer;
-    const typeSpeed = 100;
-    const deleteSpeed = 50;
-    const delayBetweenWords = 1500;
-    const currentWord = words[currentWordIndex];
-
-    if (isDeleting) {
-      if (currentText === '') {
-        setIsDeleting(false);
-        setCurrentWordIndex((prev) => (prev + 1) % words.length);
-      } else {
-        timer = setTimeout(() => setCurrentText(currentWord.slice(0, currentText.length - 1)), deleteSpeed);
-      }
-    } else {
-      if (currentText === currentWord) {
-        timer = setTimeout(() => setIsDeleting(true), delayBetweenWords);
-      } else {
-        timer = setTimeout(() => setCurrentText(currentWord.slice(0, currentText.length + 1)), typeSpeed);
-      }
-    }
-    return () => clearTimeout(timer);
-  }, [currentText, isDeleting, currentWordIndex]);
+  // Removed typewriter effect state and logic to create more space for the greeting.
 
   return (
     <section className="relative min-h-[100dvh] flex flex-col items-center justify-center overflow-hidden pt-16 z-10 w-full">
       <div className="relative z-10 text-center px-4 w-full pointer-events-none flex flex-col items-center">
         
-        {/* Dynamic Typewriter Header */}
-        <h1 className="text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tighter mb-4 text-primary-text dark:text-primary-text-dark flex flex-col items-center md:flex-row md:justify-center gap-2 opacity-0 animate-fadeInUp delay-100">
-          <span>Hi, I'm</span>
-          <span className="text-accent flex items-center min-h-[1.2em]">
-            {currentText}
-            <span className="inline-block border-r-4 border-accent h-[70%] sm:h-[80%] animate-pulse ml-1 translate-y-[10%]"></span>
-          </span>
+        {/* Static Greeting Header */}
+        <h1 className="text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tighter mb-4 text-primary-text dark:text-primary-text-dark flex flex-col items-center md:flex-row md:justify-center opacity-0 animate-fadeInUp delay-100">
+          <span>{language === 'uz' ? 'Salom, men' : "Hi, I'm"}</span>
         </h1>
 
         {/* Bio Section with Toggle */}
@@ -74,7 +43,7 @@ export default function Hero() {
         </div>
 
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tighter mb-6 text-primary-text/70 dark:text-primary-text-dark/70 opacity-0 animate-fadeInUp delay-300">
-          {t('hero.title')}
+          {language === 'uz' ? 'Junior Full-Stack Dasturchi' : 'A Junior Full-Stack Developer'}
         </h2>
         <p 
           className="text-lg sm:text-xl lg:text-2xl text-primary-text/80 dark:text-primary-text-dark/80 max-w-2xl mx-auto font-medium leading-relaxed opacity-0 animate-fadeInUp delay-400"
