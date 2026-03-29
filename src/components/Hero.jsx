@@ -10,15 +10,58 @@ export default function Hero() {
   const enBio = ["Junior Full-Stack Developer", "AI Enthusiast", "Startup Founder", "Philosophy Student", "Literature Lover", "Astronomy Buff", "Mnemonist", "Cinephile", "Melophile", "Chess Player", "Speedcuber", "Sports Enthusiast", "IELTS Holder", "Ambivert"];
   const currentBio = language === 'uz' ? uzBio : enBio;
 
-  // Removed typewriter effect state and logic to create more space for the greeting.
+  const typewriterWordsUz = ["UmarjonMX", "Dasturchi", "11-sinf o'quvchisi", "IELTS nomzodi", "Innovator"];
+  const typewriterWordsEn = ["UmarjonMX", "Developer", "11th Grade Student", "IELTS Candidate", "Innovator"];
+  const currentWords = language === 'en' ? typewriterWordsEn : typewriterWordsUz;
+
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [currentText, setCurrentText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Reset typewriter when language changes
+  useEffect(() => {
+    setCurrentWordIndex(0);
+    setCurrentText('');
+    setIsDeleting(false);
+  }, [language]);
+
+  useEffect(() => {
+    let timer;
+    const typeSpeed = 100;
+    const deleteSpeed = 50;
+    const delayBetweenWords = 1500;
+    const currentWord = currentWords[currentWordIndex];
+
+    if (!currentWord) return;
+
+    if (isDeleting) {
+      if (currentText === '') {
+        setIsDeleting(false);
+        setCurrentWordIndex((prev) => (prev + 1) % currentWords.length);
+      } else {
+        timer = setTimeout(() => setCurrentText(currentWord.slice(0, currentText.length - 1)), deleteSpeed);
+      }
+    } else {
+      if (currentText === currentWord) {
+        timer = setTimeout(() => setIsDeleting(true), delayBetweenWords);
+      } else {
+        timer = setTimeout(() => setCurrentText(currentWord.slice(0, currentText.length + 1)), typeSpeed);
+      }
+    }
+    return () => clearTimeout(timer);
+  }, [currentText, isDeleting, currentWordIndex, currentWords]);
 
   return (
     <section className="relative min-h-[100dvh] flex flex-col items-center justify-center overflow-hidden pt-16 z-10 w-full">
       <div className="relative z-10 text-center px-4 w-full pointer-events-none flex flex-col items-center">
         
-        {/* Static Greeting Header */}
-        <h1 className="text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tighter mb-4 text-primary-text dark:text-primary-text-dark flex flex-col items-center md:flex-row md:justify-center opacity-0 animate-fadeInUp delay-100">
+        {/* Greeting Header */}
+        <h1 className="text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tighter mb-4 text-primary-text dark:text-primary-text-dark flex flex-col items-center md:flex-row md:justify-center gap-2 opacity-0 animate-fadeInUp delay-100">
           <span>{language === 'uz' ? 'Salom, men' : "Hi, I'm"}</span>
+          <span className="text-accent flex items-center min-h-[1.2em]">
+            {currentText}
+            <span className="inline-block border-r-4 border-accent h-[70%] sm:h-[80%] animate-pulse ml-1 translate-y-[10%]"></span>
+          </span>
         </h1>
 
         {/* Bio Section with Toggle */}
