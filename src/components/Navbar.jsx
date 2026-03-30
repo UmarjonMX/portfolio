@@ -1,6 +1,5 @@
-import { useState } from 'react';
-import { Moon, Sun, Menu, X, Globe } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { Moon, Sun, Globe } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function Navbar({ toggleTheme, isDarkMode }) {
@@ -15,24 +14,69 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
     { title: t('nav.contact'), href: '#contact' },
   ];
 
-  const springConfig = { type: 'spring', stiffness: 300, damping: 30 };
+  // Prevent background scrolling when mobile menu is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   return (
-    <nav className="fixed top-4 left-0 right-0 z-50 flex justify-center pointer-events-none">
-      <motion.div
-        layout
-        transition={springConfig}
-        className={`pointer-events-auto w-full max-w-7xl mx-4 flex flex-col overflow-hidden backdrop-blur-lg bg-white/20 dark:bg-black/30 border border-white/10 dark:border-black/20 shadow-lg transition-all duration-300 ${isOpen ? 'rounded-[2rem] px-6 py-3 pb-5' : 'rounded-full px-6 py-3'}`}
+    <>
+      {/* Mobile Overlay */}
+      <div 
+        className={`fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 md:hidden z-40 ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+        onClick={() => setIsOpen(false)}
+        aria-hidden="true"
+      />
+
+      {/* Mobile Menu Panel */}
+      <div 
+        className={`fixed top-0 right-0 h-[100dvh] w-[80vw] max-w-sm backdrop-blur-lg bg-white/50 dark:bg-black/50 border-l border-white/10 dark:border-black/20 z-40 transform transition-transform duration-300 ease-out md:hidden flex flex-col pt-24 px-8 shadow-2xl ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
       >
-        {/* Always-visible bar */}
-        <motion.div layout className="flex items-center justify-between w-full h-10">
+        <div className="flex flex-col space-y-6">
+          {navLinks.map((link, i) => (
+            <a 
+               key={i} 
+               href={link.href} 
+               onClick={() => setIsOpen(false)}
+               className="text-2xl font-funnel font-bold tracking-widest text-primary-text dark:text-primary-text-dark hover:text-accent dark:hover:text-accent transition-colors border-b border-primary-text/10 dark:border-primary-text-dark/10 pb-4"
+            >
+              {link.title}
+            </a>
+          ))}
+        </div>
+      </div>
+
+      {/* Top Navbar */}
+      <nav className="fixed top-4 left-0 right-0 z-50 flex justify-center pointer-events-none">
+        <div className="pointer-events-auto relative w-full max-w-7xl mx-4 flex items-center justify-between backdrop-blur-lg bg-white/20 dark:bg-black/30 border border-white/10 dark:border-black/20 shadow-lg rounded-full px-6 py-3 transition-colors duration-300">
+          
           {/* Logo */}
           <span className="font-bold text-lg sm:text-xl tracking-tight font-martian text-primary-text dark:text-primary-text-dark whitespace-nowrap">
             UmarjonMX
           </span>
 
+          {/* Desktop Nav Links (Hidden on mobile) */}
+          <div className="hidden md:flex items-center space-x-8">
+            {navLinks.map((link, i) => (
+              <a 
+                 key={i} 
+                 href={link.href} 
+                 className="font-funnel font-bold tracking-widest text-sm text-primary-text dark:text-primary-text-dark hover:text-accent dark:hover:text-accent transition-colors"
+              >
+                {link.title}
+              </a>
+            ))}
+          </div>
+
           {/* Controls */}
-          <div className="flex items-center space-x-1 text-primary-text dark:text-primary-text-dark">
+          <div className="flex items-center space-x-1 sm:space-x-2 text-primary-text dark:text-primary-text-dark">
             <button
               onClick={toggleLanguage}
               aria-label="Change Language"
@@ -50,48 +94,19 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
               {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
             </button>
 
+            {/* iOS-Style Burger Icon (Hidden on md) */}
             <button
               onClick={() => setIsOpen(!isOpen)}
               aria-label="Toggle Menu"
-              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+              className="md:hidden relative w-10 h-10 flex flex-col justify-center items-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors p-2 z-50"
             >
-              <motion.div layout transition={springConfig}>
-                {isOpen ? <X size={20} /> : <Menu size={20} />}
-              </motion.div>
+              <div className={`w-5 h-[2px] bg-primary-text dark:bg-primary-text-dark transition-all duration-300 ease-out absolute ${isOpen ? 'rotate-45' : '-translate-y-1.5'}`} />
+              <div className={`w-5 h-[2px] bg-primary-text dark:bg-primary-text-dark transition-all duration-300 ease-out absolute ${isOpen ? 'opacity-0 scale-75' : 'opacity-100'}`} />
+              <div className={`w-5 h-[2px] bg-primary-text dark:bg-primary-text-dark transition-all duration-300 ease-out absolute ${isOpen ? '-rotate-45' : 'translate-y-1.5'}`} />
             </button>
           </div>
-        </motion.div>
-
-        {/* Expanding menu */}
-        <AnimatePresence mode="popLayout">
-          {isOpen && (
-            <motion.div
-              layout
-              key="menu"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={springConfig}
-              className="flex flex-col items-center w-full px-4 pb-5"
-            >
-              <div className="w-full h-px bg-[#08CB00]/20 mb-4" />
-              {navLinks.map((link, i) => (
-                <motion.a
-                  key={i}
-                  href={link.href}
-                  onClick={() => setIsOpen(false)}
-                  initial={{ opacity: 0, y: -6 }}
-                  animate={{ opacity: 1, y: 0, transition: { delay: i * 0.05 } }}
-                  whileHover={{ scale: 1.04, color: '#08CB00' }}
-                  className="w-full text-center py-3 rounded-2xl font-funnel font-bold tracking-widest text-primary-text dark:text-primary-text-dark hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-                >
-                  {link.title}
-                </motion.a>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
-    </nav>
+        </div>
+      </nav>
+    </>
   );
 }
