@@ -5,13 +5,9 @@ import { Download } from 'lucide-react';
 export default function Hero() {
   const { t, lang: language, toggleLanguage } = useLanguage();
 
-  const uzBio = ["Junior Full-Stack Dasturchi", "AI Ixlosmandi", "Startap Asoschisi", "Falsafa Qiziquvchisi", "Adabiyot Shaydosi", "Astronomiya Havaskori", "Mnemonist", "Kino Ishqibozi", "Musiqa Shaydosi", "Shaxmatchi", "Spidkuber", "Sport Ixlosmandi", "IELTS Sohibi", "Ambivert"];
-  const enBio = ["Junior Full-Stack Developer", "AI Enthusiast", "Startup Founder", "Philosophy Student", "Literature Lover", "Astronomy Buff", "Mnemonist", "Cinephile", "Melophile", "Chess Player", "Speedcuber", "Sports Enthusiast", "IELTS Holder", "Ambivert"];
-  const currentBio = language === 'uz' ? uzBio : enBio;
-
-  const typewriterWordsUz = ["UmarjonMX", "Dasturchi", "11-sinf o'quvchisi", "IELTS nomzodi", "Innovator"];
-  const typewriterWordsEn = ["UmarjonMX", "Developer", "11th Grade Student", "IELTS Candidate", "Innovator"];
-  const currentWords = language === 'en' ? typewriterWordsEn : typewriterWordsUz;
+  const wordsUz = ["Junior Full-Stack Dasturchi", "AI Ixlosmandi", "Startap Asoschisi", "Falsafa Qiziquvchisi", "Adabiyot Shaydosi", "Astronomiya Havaskori", "Mnemonist", "Kino Ishqibozi", "Musiqa Shaydosi", "Shaxmatchi", "Spidkuber", "Sport Ixlosmandi", "IELTS Sohibi", "Ambivert"];
+  const wordsEn = ["Junior Full-Stack Developer", "AI Enthusiast", "Startup Founder", "Philosophy Student", "Literature Lover", "Astronomy Buff", "Mnemonist", "Cinephile", "Melophile", "Chess Player", "Speedcuber", "Sports Enthusiast", "IELTS Holder", "Ambivert"];
+  const currentWords = language === 'en' ? wordsEn : wordsUz;
 
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [currentText, setCurrentText] = useState('');
@@ -56,7 +52,7 @@ export default function Hero() {
         
         {/* Greeting Header */}
         <h1 className="text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tighter mb-4 text-primary-text dark:text-primary-text-dark flex flex-col items-center md:flex-row md:justify-center gap-2 opacity-0 animate-fadeInUp delay-100">
-          <span>{language === 'uz' ? 'Salom, men' : "Hi, I'm"}</span>
+          <span>{language === 'en' ? "Hi, I'm " : "Salom, men "}</span>
           <span className="text-accent flex items-center min-h-[1.2em]">
             {currentText}
             <span className="inline-block border-r-4 border-accent h-[70%] sm:h-[80%] animate-pulse ml-1 translate-y-[10%]"></span>
@@ -71,17 +67,7 @@ export default function Hero() {
           >
             {language === 'uz' ? '[ UZ | EN ]' : '[ EN | UZ ]'}
           </button>
-          
-          <div className="flex flex-wrap gap-2 mt-2 justify-center md:justify-center w-full">
-            {currentBio.map((item, idx) => (
-              <span 
-                key={idx} 
-                className="px-3 py-1.5 rounded-full border border-gray-300 dark:border-gray-700 bg-white/50 dark:bg-black/50 backdrop-blur-sm text-sm md:text-base font-funnel font-medium text-primary-text/90 dark:text-primary-text-dark/90 text-center shadow-sm"
-              >
-                {item}
-              </span>
-            ))}
-          </div>
+
         </div>
 
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tighter mb-6 text-primary-text/70 dark:text-primary-text-dark/70 opacity-0 animate-fadeInUp delay-300">
