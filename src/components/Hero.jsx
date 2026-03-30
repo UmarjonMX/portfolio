@@ -3,8 +3,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { Download } from 'lucide-react';
 
 export default function Hero() {
-  const { t } = useLanguage();
-  const [language, setLanguage] = useState('uz');
+  const { t, lang: language, toggleLanguage } = useLanguage();
 
   const uzBio = ["Junior Full-Stack Dasturchi", "AI Ixlosmandi", "Startap Asoschisi", "Falsafa Qiziquvchisi", "Adabiyot Shaydosi", "Astronomiya Havaskori", "Mnemonist", "Kino Ishqibozi", "Musiqa Shaydosi", "Shaxmatchi", "Spidkuber", "Sport Ixlosmandi", "IELTS Sohibi", "Ambivert"];
   const enBio = ["Junior Full-Stack Developer", "AI Enthusiast", "Startup Founder", "Philosophy Student", "Literature Lover", "Astronomy Buff", "Mnemonist", "Cinephile", "Melophile", "Chess Player", "Speedcuber", "Sports Enthusiast", "IELTS Holder", "Ambivert"];
@@ -67,7 +66,7 @@ export default function Hero() {
         {/* Bio Section with Toggle */}
         <div className="flex flex-col items-center max-w-3xl mx-auto w-full mb-8 opacity-0 animate-fadeInUp delay-200">
           <button 
-            onClick={() => setLanguage(prev => prev === 'uz' ? 'en' : 'uz')}
+            onClick={toggleLanguage}
             className="mb-4 px-4 py-1.5 rounded-full border border-gray-300 dark:border-gray-700 bg-white/30 dark:bg-black/30 backdrop-blur-sm font-bold text-xs tracking-widest text-primary-text dark:text-primary-text-dark hover:bg-accent/20 transition-colors pointer-events-auto shadow-sm"
           >
             {language === 'uz' ? '[ UZ | EN ]' : '[ EN | UZ ]'}
