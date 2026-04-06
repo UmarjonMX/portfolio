@@ -54,11 +54,10 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
       </div>
 
       {/* Top Navbar */}
-      <nav className="fixed top-4 left-0 right-0 z-50 flex justify-center pointer-events-none">
-        <div className="pointer-events-auto relative w-full max-w-7xl mx-4 flex items-center justify-between backdrop-blur-lg bg-white/20 dark:bg-black/30 border border-white/10 dark:border-black/20 shadow-lg rounded-full px-6 py-3 transition-colors duration-300">
+      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center justify-between px-6 py-3 rounded-full w-[90%] max-w-5xl bg-white/5 dark:bg-black/10 backdrop-blur-3xl backdrop-saturate-150 border border-white/20 dark:border-white/10 shadow-2xl transition-all duration-300">
           
           {/* Logo */}
-          <span className="font-bold text-lg sm:text-xl tracking-tight font-martian text-primary-text dark:text-primary-text-dark whitespace-nowrap">
+          <span className="font-bold text-lg sm:text-xl tracking-tight font-martian text-black dark:text-white whitespace-nowrap">
             UmarjonMX
           </span>
 
@@ -68,7 +67,7 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
               <a 
                  key={i} 
                  href={link.href} 
-                 className="font-funnel font-bold tracking-widest text-sm text-primary-text dark:text-primary-text-dark hover:text-accent dark:hover:text-accent transition-colors"
+                 className="font-funnel font-bold tracking-widest text-sm text-black dark:text-white hover:text-accent dark:hover:text-accent transition-colors"
               >
                 {link.title}
               </a>
@@ -76,7 +75,7 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
           </div>
 
           {/* Controls */}
-          <div className="flex items-center space-x-1 sm:space-x-2 text-primary-text dark:text-primary-text-dark">
+          <div className="flex items-center space-x-1 sm:space-x-2 text-black dark:text-white">
             <button
               onClick={toggleLanguage}
               aria-label="Change Language"
@@ -100,12 +99,11 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
               aria-label="Toggle Menu"
               className="md:hidden relative w-10 h-10 flex flex-col justify-center items-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors p-2 z-50"
             >
-              <div className={`w-5 h-[2px] bg-primary-text dark:bg-primary-text-dark transition-all duration-300 ease-out absolute ${isOpen ? 'rotate-45' : '-translate-y-1.5'}`} />
-              <div className={`w-5 h-[2px] bg-primary-text dark:bg-primary-text-dark transition-all duration-300 ease-out absolute ${isOpen ? 'opacity-0 scale-75' : 'opacity-100'}`} />
-              <div className={`w-5 h-[2px] bg-primary-text dark:bg-primary-text-dark transition-all duration-300 ease-out absolute ${isOpen ? '-rotate-45' : 'translate-y-1.5'}`} />
+              <div className={`w-5 h-[2px] bg-black dark:bg-white transition-all duration-300 ease-out absolute ${isOpen ? 'rotate-45' : '-translate-y-1.5'}`} />
+              <div className={`w-5 h-[2px] bg-black dark:bg-white transition-all duration-300 ease-out absolute ${isOpen ? 'opacity-0 scale-75' : 'opacity-100'}`} />
+              <div className={`w-5 h-[2px] bg-black dark:bg-white transition-all duration-300 ease-out absolute ${isOpen ? '-rotate-45' : 'translate-y-1.5'}`} />
             </button>
           </div>
-        </div>
       </nav>
     </>
   );
