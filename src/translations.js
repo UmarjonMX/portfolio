@@ -19,6 +19,11 @@ export default {
       mockupPlaceholder: 'Interactive Mockup',
       items: [
         {
+          title: 'Anonymous Chat Telegram Bot',
+          description: 'A modern and secure Telegram bot integrated with Vercel Serverless Functions. Features include a robust user identification system, anti-spam (rate limiting) mechanisms, and high-speed memory management using Redis.',
+          tech: ['Node.js', 'Telegraf', 'Redis', 'Vercel Serverless']
+        },
+        {
           title: "Muhammad Umar's Blog",
           description: "A personal space for IT, literature, and philosophy articles — thoughts from a builder's mind.",
           tech: ["React", "Tailwind"],
@@ -83,6 +88,11 @@ export default {
       viewDetails: "Batafsil ko'rish",
       mockupPlaceholder: 'Interaktiv Maket',
       items: [
+        {
+          title: 'Anonim Chat Telegram Boti',
+          description: "Vercel bilan integratsiya qilingan zamonaviy va xavfsiz Telegram bot. Loyihada foydalanuvchilarni aniqlash tizimi, anti-spam (rate limiting) qoidalari va Redis ma'lumotlar bazasi orqali tezkor xotira boshqaruvi yo'lga qo'yilgan.",
+          tech: ['Node.js', 'Telegraf', 'Redis', 'Vercel Serverless']
+        },
         {
           title: "Muhammad Umarning Blogi",
           description: "IT, adabiyot va falsafa haqida maqolalar ulashish uchun shaxsiy maydon — quruvchi aqlidan fikrlar.",

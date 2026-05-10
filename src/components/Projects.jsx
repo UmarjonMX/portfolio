@@ -34,9 +34,18 @@ export default function Projects() {
             className={`opacity-0 animate-fadeInUp ${delayClass}`}
             style={{ position: 'relative', zIndex: 10, isolation: 'isolate' }}
           >
-            <BentoCard className="p-8 flex flex-col justify-between h-full">
+            <div
+              className="flex flex-col justify-between h-full bg-white/50 dark:bg-slate-900/50 backdrop-blur-md rounded-2xl p-6 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all"
+            >
               <div>
-                <div className="flex flex-wrap gap-2 mb-6">
+                <h3 className="text-2xl font-semibold mb-3">{project.title}</h3>
+                <p className="text-sm text-primary-text/70 dark:text-primary-text-dark/70 leading-relaxed mb-6">
+                  {project.description}
+                </p>
+              </div>
+
+              <div className="mt-auto flex flex-col gap-6">
+                <div className="flex flex-wrap gap-2">
                   {(project.tech || []).map((tItem, i) => (
                     <span
                       key={i}
@@ -46,19 +55,14 @@ export default function Projects() {
                     </span>
                   ))}
                 </div>
-                <h3 className="text-2xl font-semibold mb-3">{project.title}</h3>
-                <p className="text-sm text-primary-text/70 dark:text-primary-text-dark/70 leading-relaxed mb-8">
-                  {project.description}
-                </p>
+                <button
+                  onClick={() => setSelectedProject(project)}
+                  className="w-full py-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-accent hover:text-white dark:hover:text-background transition-colors text-sm font-semibold"
+                >
+                  {t('projects.viewDetails')}
+                </button>
               </div>
-
-              <button
-                onClick={() => setSelectedProject(project)}
-                className="mt-auto w-full py-3 rounded-xl border border-border-light dark:border-border-dark hover:bg-accent hover:text-white dark:hover:text-background transition-colors text-sm font-semibold"
-              >
-                {t('projects.viewDetails')}
-              </button>
-            </BentoCard>
+            </div>
           </div>
         )})}
       </div>
