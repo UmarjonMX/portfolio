@@ -57,9 +57,7 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
       <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center justify-between px-6 py-3 rounded-full w-[90%] max-w-5xl bg-white/5 dark:bg-black/10 backdrop-blur-3xl backdrop-saturate-150 border border-white/20 dark:border-white/10 shadow-2xl transition-all duration-300">
           
           {/* Logo */}
-          <span className="font-bold text-lg sm:text-xl tracking-tight font-martian text-black dark:text-white whitespace-nowrap">
-            UmarjonMX
-          </span>
+          <img src={isDarkMode ? '/images/logo_light.png' : '/images/logo_dark.png'} alt='UMX Logo' className='h-8 md:h-10 w-auto object-contain' />
 
           {/* Desktop Nav Links (Hidden on mobile) */}
           <div className="hidden md:flex items-center space-x-8">
