@@ -33,9 +33,10 @@ export default function Contact() {
   const handleEmailSend = (e) => {
     e.preventDefault();
     if (!isFormValid) return;
-    const subject = encodeURIComponent('Portfolio Contact');
+    const subject = encodeURIComponent(`Message from ${formData.name}`);
     const body = encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\nMessage: ${formData.message}`);
     window.location.href = `mailto:umarmx2008@gmail.com?subject=${subject}&body=${body}`;
+    setFormData({ name: '', email: '', message: '' });
   };
 
   return (

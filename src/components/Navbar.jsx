@@ -10,7 +10,7 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
     { title: t('nav.home'), href: '#' },
     { title: t('nav.about'), href: '#about' },
     { title: t('nav.projects'), href: '#projects' },
-    { title: t('nav.resume'), href: '#resume' },
+    { title: t('nav.resume'), href: '/resume.pdf' },
     { title: t('nav.contact'), href: '#contact' },
   ];
 

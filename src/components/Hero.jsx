@@ -52,7 +52,7 @@ export default function Hero() {
         
         {/* Greeting Header */}
         <h1 className="text-5xl sm:text-7xl lg:text-8xl font-bold tracking-tighter mb-4 text-primary-text dark:text-primary-text-dark flex flex-col items-center md:flex-row md:justify-center gap-2 opacity-0 animate-fadeInUp delay-100">
-          <span>{language === 'en' ? "Hi, I'm " : "Salom, men "}</span>
+          <span>{language === 'en' ? "Hi, I'm Umar (Muhammad Umar). " : "Salom, men Umar (Muhammad Umar). "}</span>
           <span className="text-accent flex items-center min-h-[1.2em]">
             {currentText}
             <span className="inline-block border-r-4 border-accent h-[70%] sm:h-[80%] animate-pulse ml-1 translate-y-[10%]"></span>
