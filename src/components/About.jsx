@@ -61,7 +61,7 @@ export default function About() {
                 style={{ clipPath: 'circle(50% at 50% 50%)' }}
               >
                 <motion.img 
-                  src="/image/Umar.jpeg" 
+                  src="/images/Umar.jpeg" 
                   alt="Muhammad Umar"
                   loading="lazy"
                   className="w-full max-w-lg h-auto aspect-square object-cover scale-110 transition-all duration-300" 
