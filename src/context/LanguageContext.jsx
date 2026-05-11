@@ -6,13 +6,13 @@ const LanguageContext = createContext();
 export function LanguageProvider({ children }) {
   const [lang, setLang] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('lang') || 'en';
+      return localStorage.getItem('language') || 'en';
     }
     return 'en';
   });
 
   useEffect(() => {
-    localStorage.setItem('lang', lang);
+    localStorage.setItem('language', lang);
   }, [lang]);
 
   const toggleLanguage = () => setLang(prev => prev === 'en' ? 'uz' : 'en');
