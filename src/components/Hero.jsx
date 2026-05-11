@@ -47,16 +47,18 @@ export default function Hero() {
   }, [currentText, isDeleting, currentWordIndex, currentWords]);
 
   return (
-    <section className="relative min-h-[100dvh] flex flex-col items-center justify-center overflow-hidden pt-16 z-10 w-full">
-      <div className="relative z-10 px-4 w-full max-w-4xl mx-auto pointer-events-none flex flex-col items-start justify-center">
+    <section className="relative min-h-[100dvh] flex flex-col overflow-hidden pt-16 z-10 w-full text-left">
+      <div className="relative z-10 px-6 w-full max-w-5xl mx-auto pointer-events-none flex flex-col items-start text-left mt-auto mb-auto">
         
         {/* Greeting Header */}
-        <div className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-left tracking-tighter mb-4 text-primary-text dark:text-primary-text-dark flex flex-col md:flex-row md:items-center items-start justify-start gap-2 md:gap-4 w-full opacity-0 animate-fadeInUp delay-100">
-          <span className="whitespace-nowrap">{language === 'en' ? "Hi, I'm" : "Salom, men"}</span>
-          <div className="flex items-center min-w-[280px] md:min-w-[400px]">
-            <span className="text-accent whitespace-nowrap">{currentText}</span>
-            <span className="inline-block border-r-4 border-accent h-[70%] sm:h-[80%] animate-pulse ml-1 translate-y-[10%]"></span>
-          </div>
+        <div className="flex flex-col md:flex-row items-start md:items-center gap-x-3 text-left w-full opacity-0 animate-fadeInUp delay-100 mb-6 mt-12">
+           <h1 className="text-4xl md:text-6xl font-bold whitespace-nowrap text-primary-text dark:text-primary-text-dark">
+             {language === 'en' ? "Hi, I'm" : "Salom, men"}
+           </h1>
+           <div className="text-4xl md:text-6xl font-bold text-accent flex items-center min-w-[280px] md:min-w-[400px]">
+              <span className="whitespace-nowrap">{currentText}</span>
+              <span className="inline-block border-r-4 border-accent h-[70%] sm:h-[80%] animate-pulse ml-1 translate-y-[10%]"></span>
+           </div>
         </div>
 
         {/* Bio Section with Toggle */}
