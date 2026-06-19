@@ -3,7 +3,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { Download } from 'lucide-react';
 
 export default function Hero() {
-  const { t, lang: language, toggleLanguage } = useLanguage();
+  const { t, lang: language } = useLanguage();
 
   const wordsUz = ["Umar (Muhammad Umar)", "Junior Full-Stack Dasturchi", "AI Ixlosmandi", "Startap Asoschisi", "Falsafa Qiziquvchisi", "Adabiyot Shaydosi", "Astronomiya Havaskori", "Mnemonist", "Kino Ishqibozi", "Musiqa Shaydosi", "Shaxmatchi", "Spidkuber", "Sport Ixlosmandi", "IELTS Sohibi", "Ambivert"];
   const wordsEn = ["Umar (Muhammad Umar)", "Junior Full-Stack Developer", "AI Enthusiast", "Startup Founder", "Philosophy Student", "Literature Lover", "Astronomy Buff", "Mnemonist", "Cinephile", "Melophile", "Chess Player", "Speedcuber", "Sports Enthusiast", "IELTS Holder", "Ambivert"];
@@ -13,6 +13,11 @@ export default function Hero() {
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [currentText, setCurrentText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Reset typewriter when language changes
   useEffect(() => {
@@ -22,6 +27,8 @@ export default function Hero() {
   }, [language]);
 
   useEffect(() => {
+    if (!mounted) return;
+
     let timer;
     const typeSpeed = 100;
     const deleteSpeed = 50;
@@ -45,28 +52,22 @@ export default function Hero() {
       }
     }
     return () => clearTimeout(timer);
-  }, [currentText, isDeleting, currentWordIndex, currentWords]);
+  }, [currentText, isDeleting, currentWordIndex, currentWords, mounted]);
 
   return (
     <section className="relative min-h-[100dvh] flex flex-col items-center justify-center overflow-hidden pt-16 z-10 w-full">
       <div className="relative z-10 text-left px-6 sm:px-10 lg:px-16 w-full max-w-5xl mx-auto pointer-events-none flex flex-col items-start justify-center">
         
-        {/* Language Toggle */}
-        <div className="opacity-0 animate-fadeInUp delay-100 mb-8">
-          <button 
-            onClick={toggleLanguage}
-            className="px-4 py-1.5 rounded-full border border-gray-300 dark:border-gray-700 bg-white/30 dark:bg-black/30 backdrop-blur-sm font-bold text-xs tracking-widest text-primary-text dark:text-primary-text-dark hover:bg-accent/20 transition-colors pointer-events-auto shadow-sm"
-          >
-            {language === 'uz' ? '[ UZ | EN ]' : '[ EN | UZ ]'}
-          </button>
-        </div>
-
         {/* Greeting Header */}
         <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-left text-primary-text dark:text-primary-text-dark flex flex-col md:flex-row items-start md:items-center justify-start gap-2 md:gap-4 w-full mb-6 opacity-0 animate-fadeInUp delay-200">
           <span className="whitespace-nowrap">{greeting}</span>
           <div className="flex items-center min-w-[280px] md:min-w-[400px]">
-            <span className="text-accent whitespace-nowrap">{currentText}</span>
-            <span className="inline-block border-r-4 border-accent h-[70%] sm:h-[80%] animate-pulse ml-1 translate-y-[10%]"></span>
+            {mounted && (
+              <>
+                <span className="text-accent whitespace-nowrap">{currentText}</span>
+                <span className="inline-block border-r-4 border-accent h-[70%] sm:h-[80%] animate-pulse ml-1 translate-y-[10%]"></span>
+              </>
+            )}
           </div>
         </h1>
 
@@ -86,7 +87,7 @@ export default function Hero() {
             className="inline-flex items-center gap-4 px-8 py-4 bg-glass-light dark:bg-glass-dark border border-white/10 dark:border-white/10 backdrop-blur-md rounded-full font-funnel font-bold tracking-widest uppercase hover:bg-accent dark:hover:bg-accent hover:border-accent hover:text-white dark:hover:text-background transition-all duration-300 shadow-[0_0_20px_rgba(0,0,0,0.05)] hover:shadow-[0_0_30px_rgba(8,203,0,0.3)] hover:-translate-y-1"
           >
             <Download size={20} />
-            <span>Download CV</span>
+            <span>Download CV (PDF, ~45KB)</span>
           </a>
         </div>
       </div>

@@ -47,7 +47,7 @@ export default {
       subtitle: 'My journey and technical arsenal.',
       downloadText: 'Download Resume',
       items: [
-        { type: 'edu', title: 'Languages & Certifications', company: 'Self-Education', date: 'Present', desc: 'Uzbek (Native), English (IELTS candidate - May 2026). Currently focusing on expanding my software engineering stack and preparing for higher education in IT/AI.' },
+        { type: 'edu', title: 'Languages & Certifications', company: 'Self-Education', date: 'Present', desc: 'Uzbek (Native), English: Upper-Intermediate (B2). Currently focusing on expanding my software engineering stack and preparing for higher education in IT/AI.' },
         { type: 'edu', title: '11th Grade Student', company: 'Specialized Boarding School No. 1, Namangan', date: '2022 – Present', desc: 'Currently completing my final year at a specialized boarding school in the Norin district of Namangan. I actively balance my academic preparations with building Full-Stack applications, developing Telegram bots with Redis integration, and optimizing Linux/Ubuntu environments.' }
       ],
       skillsTitle: 'Technical Arsenal',
@@ -117,7 +117,7 @@ export default {
       subtitle: "Mening yo'lim va texnik arsenalim.",
       downloadText: 'Rezyumeni Yuklab Olish',
       items: [
-        { type: 'edu', title: "Tillar va Sertifikatlar", company: "O'z-o'zini rivojlantirish", date: 'Hozirda', desc: "O'zbek tili (Ona tili), Ingliz tili (IELTS nomzodi - May 2026). Hozirda dasturlash ko'nikmalarimni kengaytirish va IT/AI yo'nalishida oliy ta'limga tayyorgarlik ko'rishga e'tibor qaratmoqdaman." },
+        { type: 'edu', title: "Tillar va Sertifikatlar", company: "O'z-o'zini rivojlantirish", date: 'Hozirda', desc: "O'zbek tili (Ona tili), Ingliz tili: Upper-Intermediate (B2). Hozirda dasturlash ko'nikmalarimni kengaytirish va IT/AI yo'nalishida oliy ta'limga tayyorgarlik ko'rishga e'tibor qaratmoqdaman." },
         { type: 'edu', title: "11-sinf O'quvchisi", company: "1-sonli ixtisoslashtirilgan maktab-internati, Namangan", date: '2022 – Hozirda', desc: "Hozirda Namangan viloyati Norin tumanidagi ixtisoslashtirilgan maktab-internatida bitiruvchi sinf o'quvchisiman. Akademik tayyorgarlikni Full-Stack ilovalar yaratish, Redis integratsiyali Telegram botlar ishlab chiqish va Linux/Ubuntu muhitlarini optimallashtirish bilan muvaffaqiyatli bog'lab bormoqdaman." }
       ],
       skillsTitle: "Texnik Ko'nikmalar",

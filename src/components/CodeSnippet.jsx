@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 export default function CodeSnippet() {
   const [copied, setCopied] = useState(false);
+  const [input, setInput] = useState('');
+  const [output, setOutput] = useState('');
+  const inputRef = useRef(null);
 
   const codeString = `def solve_cube(state):
     """
@@ -24,6 +27,20 @@ export default function CodeSnippet() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      const val = input.trim().toLowerCase();
+      if (val === 'python solver.py' || val === './solver.py') {
+        setOutput('> Initialization complete. Stack loaded: React, Node.js, AI, Linux. Ready to build the future.');
+      } else if (val === '') {
+        // Do nothing
+      } else {
+        setOutput('> Command not found. Try: python solver.py');
+      }
+      setInput('');
+    }
+  };
+
   return (
     <div className="mt-20 max-w-3xl mx-auto bg-[#16161a] rounded-2xl overflow-hidden shadow-2xl relative group transform transition-transform hover:scale-[1.01] duration-500 font-martian z-20">
       
@@ -38,15 +55,15 @@ export default function CodeSnippet() {
       </div>
 
       {/* Code Body */}
-      <div className="p-6 md:p-8 relative">
+      <div className="p-6 md:p-8 relative flex flex-col h-full">
         <button 
           onClick={handleCopy} 
-          className="absolute top-5 right-5 bg-white/10 hover:bg-[#08CB00]/20 hover:text-[#08CB00] text-white/80 text-xs px-4 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all cursor-pointer font-bold tracking-wider"
+          className="absolute top-5 right-5 bg-white/10 hover:bg-[#08CB00]/20 hover:text-[#08CB00] text-white/80 text-xs px-4 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all cursor-pointer font-bold tracking-wider z-10"
         >
           {copied ? 'COPIED!' : 'COPY CODE'}
         </button>
         
-        <pre className="text-[#a9b2c3] text-sm md:text-base leading-relaxed overflow-x-auto whitespace-pre-wrap break-words">
+        <pre className="text-[#a9b2c3] text-sm md:text-base leading-relaxed overflow-x-auto whitespace-pre-wrap break-words pb-4">
           <code>
             <span className="text-[#c678dd]">def</span> <span className="text-[#61afef]">solve_cube</span>(state):{'\n'}
             <span className="text-[#98c379]">    """{'\n'}</span>
@@ -63,6 +80,37 @@ export default function CodeSnippet() {
             <span className="text-[#c678dd]">    return</span> [<span className="text-[#98c379]">'R'</span>, <span className="text-[#98c379]">'U'</span>, <span className="text-[#98c379]">"R'"</span>, <span className="text-[#98c379]">"U'"</span>]{'\n'}
           </code>
         </pre>
+
+        {/* Interactive Terminal Line */}
+        <div className="border-t border-white/10 mt-auto pt-4 flex flex-col space-y-2">
+          {output && (
+            <div className={`text-sm ${output.includes('Initialization') ? 'text-[#08CB00]' : 'text-[#ff5f56]'} animate-pulse`}>
+              {output}
+            </div>
+          )}
+          <div className="flex items-center text-[#a9b2c3] text-sm md:text-base font-mono w-full cursor-text" onClick={() => inputRef.current?.focus()}>
+            <span className="text-[#27c93f] mr-2 shrink-0">umar@umarjonmx:~$</span>
+            <div className="relative flex-1 flex items-center">
+              <input
+                ref={inputRef}
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                spellCheck="false"
+                autoComplete="off"
+                className="bg-transparent outline-none flex-1 text-[#a9b2c3] min-w-0 caret-transparent"
+              />
+              {/* Custom blinking cursor that stays attached to text */}
+              <span 
+                className="absolute w-2 h-[1em] bg-[#a9b2c3] animate-pulse pointer-events-none"
+                style={{
+                  left: `calc(${input.length} * 0.6em)` // Approximate char width for mono fonts
+                }}
+              ></span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Decorative Glow Outline */}
