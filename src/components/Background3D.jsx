@@ -1,6 +1,7 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { Timer } from 'three/addons/misc/Timer.js';
 
 function StarField() {
   const groupRef = useRef(null);
@@ -59,15 +60,19 @@ function StarField() {
     speed: 0
   });
 
-  // Modern R3F clock equivalent (avoids THREE.Clock deprecation warnings)
-  const elapsedRef = useRef(0);
+  // Modern Timer instance
+  const timer = useMemo(() => new Timer(), []);
+  useEffect(() => {
+    // connect timer to document to handle page visibility
+    timer.connect(document);
+    return () => timer.dispose();
+  }, [timer]);
 
   // Dust configuration
   const dustCount = 5000;
   const dustPositions = useMemo(() => {
     const positions = new Float32Array(dustCount * 3);
     for (let i = 0; i < dustCount; i++) {
-        // Spread evenly across a deep Z axis block
         positions[i * 3] = (Math.random() - 0.5) * 100;
         positions[i * 3 + 1] = (Math.random() - 0.5) * 100;
         positions[i * 3 + 2] = (Math.random() - 0.5) * 100 - 20;
@@ -75,9 +80,14 @@ function StarField() {
     return positions;
   }, [dustCount]);
 
-  useFrame((state, delta) => {
+  useFrame((state) => {
     if (!groupRef.current) return;
     
+    // Update Timer manually
+    timer.update();
+    const delta = timer.getDelta();
+    const time = timer.getElapsed();
+
     // 1. Scroll Parallax (Vertical Position)
     const scrollYOffset = window.scrollY * 0.003;
     groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, scrollYOffset, 0.1);
@@ -88,10 +98,6 @@ function StarField() {
     
     groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, targetRotX, 0.05);
     groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetRotY, 0.05);
-    
-    // Modern Timer Replacement
-    elapsedRef.current += delta;
-    const time = elapsedRef.current;
     
     // Update all instanced meshes
     const updateMesh = (meshRef, meshData, count) => {

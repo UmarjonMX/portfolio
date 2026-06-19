@@ -10,17 +10,11 @@ export default function CodeSnippet() {
     :param state: dict representing cube state
     :return: list of required moves
     """
-    # 1. Solve Cross (First Layer)
-    solve_cross(state)
-    
-    # 2. Solve F2L (First Two Layers)
-    solve_f2l(state)
-    
-    # 3. Solve OLL (Orientation of Last Layer)
-    orient_last_layer(state)
-    
-    # 4. Solve PLL (Permutation of Last Layer)
-    permute_last_layer(state)
+    # Placeholder functions - Full Rubik's Cube solving algorithm integrating computer vision coming soon.
+    # solve_cross(state)
+    # solve_f2l(state)
+    # orient_last_layer(state)
+    # permute_last_layer(state)
     
     return ['R', 'U', "R'", "U'"]`;
 
@@ -61,14 +55,11 @@ export default function CodeSnippet() {
             <span className="text-[#98c379]">    :param state: dict representing cube state{'\n'}</span>
             <span className="text-[#98c379]">    :return: list of required moves{'\n'}</span>
             <span className="text-[#98c379]">    """</span>{'\n'}
-            <span className="text-[#5c6370] italic">    # 1. Solve Cross (First Layer)</span>{'\n'}
-            <span className="text-[#61afef]">    solve_cross</span>(state){'\n\n'}
-            <span className="text-[#5c6370] italic">    # 2. Solve F2L (First Two Layers)</span>{'\n'}
-            <span className="text-[#61afef]">    solve_f2l</span>(state){'\n\n'}
-            <span className="text-[#5c6370] italic">    # 3. Solve OLL (Orientation of Last Layer)</span>{'\n'}
-            <span className="text-[#61afef]">    orient_last_layer</span>(state){'\n\n'}
-            <span className="text-[#5c6370] italic">    # 4. Solve PLL (Permutation of Last Layer)</span>{'\n'}
-            <span className="text-[#61afef]">    permute_last_layer</span>(state){'\n\n'}
+            <span className="text-[#5c6370] italic">    # Placeholder functions - Full Rubik's Cube solving algorithm integrating computer vision coming soon.</span>{'\n'}
+            <span className="text-[#5c6370] italic">    # solve_cross(state)</span>{'\n'}
+            <span className="text-[#5c6370] italic">    # solve_f2l(state)</span>{'\n'}
+            <span className="text-[#5c6370] italic">    # orient_last_layer(state)</span>{'\n'}
+            <span className="text-[#5c6370] italic">    # permute_last_layer(state)</span>{'\n\n'}
             <span className="text-[#c678dd]">    return</span> [<span className="text-[#98c379]">'R'</span>, <span className="text-[#98c379]">'U'</span>, <span className="text-[#98c379]">"R'"</span>, <span className="text-[#98c379]">"U'"</span>]{'\n'}
           </code>
         </pre>

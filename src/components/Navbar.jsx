@@ -90,6 +90,10 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
             >
               {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
             </button>
+            
+            <kbd className="hidden lg:inline-block px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-black/5 dark:bg-white/10 text-black/60 dark:text-white/60 border border-black/10 dark:border-white/20 pointer-events-none select-none">
+              Ctrl K
+            </kbd>
 
             {/* iOS-Style Burger Icon (Hidden on md) */}
             <button
