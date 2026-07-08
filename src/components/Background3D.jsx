@@ -1,7 +1,7 @@
 import { useMemo, useRef, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { Timer } from 'three/addons/misc/Timer.js';
+import { Timer } from 'three';
 
 function StarField() {
   const groupRef = useRef(null);
