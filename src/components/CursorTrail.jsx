@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
+import useHoverPointerEvents from '../hooks/useHoverPointerEvents';
 
 export default function CursorTrail() {
   const slowX = useMotionValue(-100);
@@ -15,19 +15,13 @@ export default function CursorTrail() {
   const extraSlowX = useSpring(slowX, smoothSpring);
   const extraSlowY = useSpring(slowY, smoothSpring);
 
-  useEffect(() => {
-    const handleMouseMove = (e) => {
+  useHoverPointerEvents({
+    mousemove: (e) => {
       // Offset by radius (24px) to center the 48px/96px circles
       slowX.set(e.clientX - 24);
       slowY.set(e.clientY - 24);
-    };
-    
-    // Only bind on non-touch devices
-    if (window.matchMedia("(hover: hover)").matches) {
-      window.addEventListener("mousemove", handleMouseMove);
-    }
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [slowX, slowY]);
+    },
+  });
 
   return (
     <div className="pointer-events-none fixed inset-0 z-[9999] overflow-hidden hidden md:block">

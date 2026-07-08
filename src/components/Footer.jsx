@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Mail } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { footerSocialLinks } from '../data/socialLinks';
 
 export default function Footer() {
   const { t } = useLanguage();
@@ -36,18 +37,17 @@ export default function Footer() {
           </a>
           
           <div className="flex items-center gap-4 mt-4">
-            <motion.a whileHover={{ y: -3, scale: 1.1 }} href="https://github.com/UmarjonMX" target="_blank" rel="noopener noreferrer" className="p-2 bg-black/5 dark:bg-white/5 rounded-full hover:bg-accent/20 transition-colors">
-              <img src="/icons/github.png" alt="GitHub" className="w-5 h-5 object-contain" />
-            </motion.a>
-            <motion.a whileHover={{ y: -3, scale: 1.1 }} href="https://www.linkedin.com/in/umarjon-muhammadjonov-4ba177281" target="_blank" rel="noopener noreferrer" className="p-2 bg-black/5 dark:bg-white/5 rounded-full hover:bg-accent/20 transition-colors">
-              <img src="/icons/linkedin.png" alt="LinkedIn" className="w-5 h-5 object-contain" />
-            </motion.a>
-            <motion.a whileHover={{ y: -3, scale: 1.1 }} href="https://t.me/UmarjonMX" target="_blank" rel="noopener noreferrer" className="p-2 bg-black/5 dark:bg-white/5 rounded-full hover:bg-accent/20 transition-colors">
-              <img src="/icons/telegram.png" alt="Telegram" className="w-5 h-5 object-contain" />
-            </motion.a>
-            <motion.a whileHover={{ y: -3, scale: 1.1 }} href="https://instagram.com/umarjonmx" target="_blank" rel="noopener noreferrer" className="p-2 bg-black/5 dark:bg-white/5 rounded-full hover:bg-accent/20 transition-colors">
-              <img src="/icons/instagram.png" alt="Instagram" className="w-5 h-5 object-contain" />
-            </motion.a>
+            {footerSocialLinks.map((link) => (
+              <motion.a
+                key={link.id}
+                whileHover={{ y: -3, scale: 1.1 }}
+                href={link.href}
+                {...(link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                className="p-2 bg-black/5 dark:bg-white/5 rounded-full hover:bg-accent/20 transition-colors"
+              >
+                <img src={link.icon} alt={link.label} className="w-5 h-5 object-contain" />
+              </motion.a>
+            ))}
           </div>
         </div>
 
