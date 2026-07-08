@@ -1,18 +1,17 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import translations from '../translations';
+import { getStoredValue, setStoredValue } from '../utils/safeStorage';
 
 const LanguageContext = createContext();
 
 export function LanguageProvider({ children }) {
   const [lang, setLang] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('language') || 'en';
-    }
-    return 'en';
+    const saved = getStoredValue('language');
+    return saved && translations[saved] ? saved : 'en';
   });
 
   useEffect(() => {
-    localStorage.setItem('language', lang);
+    setStoredValue('language', lang);
     document.documentElement.lang = lang;
   }, [lang]);
 
@@ -20,9 +19,9 @@ export function LanguageProvider({ children }) {
 
   const t = (path) => {
     const keys = path.split('.');
-    let value = translations[lang];
+    let value = translations[lang] ?? translations.en;
     for (const key of keys) {
-      if (value[key] === undefined) return path;
+      if (value == null || value[key] === undefined) return path;
       value = value[key];
     }
     return value;
