@@ -1,0 +1,10 @@
+// SSR-safe localStorage helpers.
+export function getStoredValue(key) {
+  if (typeof window === 'undefined') return null;
+  return window.localStorage.getItem(key);
+}
+
+export function setStoredValue(key, value) {
+  if (typeof window === 'undefined') return;
+  window.localStorage.setItem(key, value);
+}

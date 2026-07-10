@@ -1,18 +1,14 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import translations from '../translations';
+import { getStoredValue, setStoredValue } from '../utils/storage';
 
 const LanguageContext = createContext();
 
 export function LanguageProvider({ children }) {
-  const [lang, setLang] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('language') || 'en';
-    }
-    return 'en';
-  });
+  const [lang, setLang] = useState(() => getStoredValue('language') || 'en');
 
   useEffect(() => {
-    localStorage.setItem('language', lang);
+    setStoredValue('language', lang);
     document.documentElement.lang = lang;
   }, [lang]);
 

@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
+import useHoverPointerEvents from '../hooks/useHoverPointerEvents';
 
 export default function Cursor() {
   const [isHovering, setIsHovering] = useState(false);
@@ -11,29 +12,18 @@ export default function Cursor() {
   const mouseX = useSpring(cursorX, springConfig);
   const mouseY = useSpring(cursorY, springConfig);
 
-  useEffect(() => {
-    const handleMouseMove = (e) => {
+  useHoverPointerEvents({
+    mousemove: (e) => {
       // Offset calculated automatically in render step
       cursorX.set(e.clientX);
       cursorY.set(e.clientY);
-    };
-    
-    const handleMouseOver = (e) => {
+    },
+    mouseover: (e) => {
       const target = e.target;
       const isClickable = target.closest('a') || target.closest('button') || target.closest('input') || target.closest('textarea') || target.closest('[data-hover="true"]');
       setIsHovering(!!isClickable);
-    };
-
-    if (window.matchMedia("(hover: hover)").matches) {
-      window.addEventListener("mousemove", handleMouseMove);
-      window.addEventListener("mouseover", handleMouseOver);
-    }
-    
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseover", handleMouseOver);
-    };
-  }, [cursorX, cursorY]);
+    },
+  });
 
   // Adjust radius
   const size = isHovering ? 48 : 12;
