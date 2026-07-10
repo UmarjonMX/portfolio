@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 
 export default function CodeSnippet() {
   const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const inputRef = useRef(null);
@@ -21,10 +22,20 @@ export default function CodeSnippet() {
     
     return ['R', 'U', "R'", "U'"]`;
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(codeString);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopy = async () => {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(codeString);
+      } else {
+        throw new Error('Clipboard API unavailable');
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy code to clipboard:', error);
+      setCopyFailed(true);
+      setTimeout(() => setCopyFailed(false), 2000);
+    }
   };
 
   const handleKeyDown = (e) => {
@@ -60,7 +71,7 @@ export default function CodeSnippet() {
           onClick={handleCopy} 
           className="absolute top-5 right-5 bg-white/10 hover:bg-[#08CB00]/20 hover:text-[#08CB00] text-white/80 text-xs px-4 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all cursor-pointer font-bold tracking-wider z-10"
         >
-          {copied ? 'COPIED!' : 'COPY CODE'}
+          {copied ? 'COPIED!' : copyFailed ? 'COPY FAILED' : 'COPY CODE'}
         </button>
         
         <pre className="text-[#a9b2c3] text-sm md:text-base leading-relaxed overflow-x-auto whitespace-pre-wrap break-words pb-4">
