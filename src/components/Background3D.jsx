@@ -1,7 +1,6 @@
 import { useMemo, useRef, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { Timer } from 'three/addons/misc/Timer.js';
 
 function StarField() {
   const groupRef = useRef(null);
@@ -61,7 +60,7 @@ function StarField() {
   });
 
   // Modern Timer instance
-  const timer = useMemo(() => new Timer(), []);
+  const timer = useMemo(() => new THREE.Timer(), []);
   useEffect(() => {
     // connect timer to document to handle page visibility
     timer.connect(document);
