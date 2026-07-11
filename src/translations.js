@@ -80,15 +80,29 @@ export default {
       ]
     },
     resume: {
-      title: 'Changelog',
-      subtitle: 'Weekly log of builds, learning, and architectural focus.',
-      downloadText: 'Download PDF Log',
-      items: [
-        { type: 'build', title: 'Payload Tuning & Frame Rate Optimization', company: 'Portfolio Performance', date: 'Week 28', desc: 'Pruned custom web font files down to active WOFF2 subsets saving 98.5% payload. Relocated layout metrics out of Three.js frame render loops to eliminate forced synchronous layouts and layout thrashing.' },
-        { type: 'build', title: 'In-Memory Session Caching & Scalability', company: 'Anonymous Chat Bot', date: 'Week 27', desc: 'Configured Redis key-value caching pipelines for anonymous messaging servers, optimizing query response rates for high-throughput messaging down to sub-millisecond ranges.' },
-        { type: 'learn', title: 'Async Chunk Splitting & Dynamic Bundling', company: 'Three.js Visualizers', date: 'Week 26', desc: 'Implemented lazy dynamic imports for heavy three-dimensional vector graphics chunks, protecting initial DOM paints, FCP, and interactive latency metrics.' },
-        { type: 'learn', title: 'Algorithmic Complexity & Build Systems', company: 'C++ Systems Architecture', date: 'Week 25', desc: 'Tuned data structures complexity in algorithm challenges, and optimized local automated compilation routines inside Linux terminal workspaces.' }
-      ],
+      title: 'Builder Dashboard',
+      subtitle: 'A product-focused map of active builds, focus stack, and long-term directions.',
+      downloadText: 'Download Timeline PDF',
+      activeBuild: {
+        label: 'Active Build',
+        title: 'What I\'m building',
+        desc: 'Designing distraction-free communication tools and lightweight developer utilities that respect user privacy, attention, and time.'
+      },
+      activeFocus: {
+        label: 'Active Focus',
+        title: 'What I\'m learning',
+        desc: 'Deep-diving into low-level backend memory caching (Redis architectures), WebGL shader graphics, and the foundations of client-side performance.'
+      },
+      sandbox: {
+        label: 'Mental Sandbox',
+        title: 'What I\'m thinking about',
+        desc: 'How software can quietly integrate into daily routines, disappearing into the background rather than competing for human focus.'
+      },
+      mission: {
+        label: 'North Star',
+        title: 'Long-Term Mission',
+        desc: 'To ship reliable, accessible products that solve real human problems—proving that software that makes life simpler can start from Namangan.'
+      },
       skillsTitle: 'Technical Arsenal',
       frontend: 'Frontend',
       backend: 'Backend',
@@ -189,15 +203,29 @@ export default {
       ]
     },
     resume: {
-      title: 'Changelog',
-      subtitle: 'Haftalik ishlanmalar, o\'rganish va arxitekturaviy markaz.',
-      downloadText: 'PDF Hisobotini Yuklab Olish',
-      items: [
-        { type: 'build', title: 'Shrift yuklamalarini qisqartirish va optimallashtirish', company: 'Portfolio unumdorligi', date: 'Iyul (28-hafta)', desc: 'Custom shrift fayllarini WOFF2 formatiga o\'tkazib, 98.5% hajmni tejab qoldim. Three.js loopidagi reflow yukini kamaytirish uchun scroll tracking tizimini qurdik.' },
-        { type: 'build', title: 'Redis kesh integratsiyasi va masshtablashtirish', company: 'Anonim chat boti', date: 'Iyun (27-hafta)', desc: 'Anonim xabar almashish serverlari uchun Redis kesh tizimini integratsiya qildim va ma\'lumot uzatish tezligini millisekund darajasiga tushirdim.' },
-        { type: 'learn', title: 'Vite asinxron kod-ajratish va chunklarni boshqarish', company: 'Three.js vizualizatsiyasi', date: 'Iyun (26-hafta)', desc: 'Og\'ir WebGL va 3D grafika modullarini dinamik import yordamida yuklash tizimini qurdim. Bu dastlabki renderlash va FCP vaqtini saqlab qolishga yordam berdi.' },
-        { type: 'learn', title: 'Algoritmik murakkablik va build tizimlarini sozlash', company: 'C++ tizimlar arxitekturasi', date: 'May (25-hafta)', desc: 'Algoritmlarning vaqt va xotira murakkabligini optimallashtirdim, hamda Linux terminal muhitida ishlash uchun build tizimini sozladim.' }
-      ],
+      title: 'Yaratuvchi Paneli',
+      subtitle: 'Amaldagi loyihalar, o\'rganish yo\'nalishlari va uzoq muddatli maqsadlarning mahsulotga yo\'naltirilgan xaritasi.',
+      downloadText: 'PDF Xronologiyani Yuklab Olish',
+      activeBuild: {
+        label: 'Amaldagi Loyiha',
+        title: 'Nima yaratyapman',
+        desc: 'Foydalanuvchilarning maxfiyligi, diqqat-e\'tibor va vaqtini hurmat qiladigan, chalg\'itishdan xoli aloqa vositalari va yengil tizimli dasturlarni loyihalash.'
+      },
+      activeFocus: {
+        label: 'Amaldagi Diqqat',
+        title: 'Nima o\'rganyapman',
+        desc: 'Past darajali backend xotira keshini optimallashtirish (Redis arxitekturasi), WebGL shader grafikasi va mijoz tomoni (client-side) unumdorligi asoslari.'
+      },
+      sandbox: {
+        label: 'Falsafiy Sandbox',
+        title: 'Nima haqida o\'ylayapman',
+        desc: 'Dasturiy ta\'minot odamlarning diqqatini jalb qilish uchun kurashish o\'rniga, qanday qilib kunlik hayotga ohista integratsiya bo\'lib, fonga o\'tishi mumkinligi haqida.'
+      },
+      mission: {
+        label: 'Temir Qoziq',
+        title: 'Uzoq Muddatli Missiya',
+        desc: 'Haqiqiy insoniy muammolarni hal qiladigan ishonchli, sodda va qulay mahsulotlarni yaratish—hayotni soddalashtiruvchi dasturlar Namangandan boshlanishi mumkinligini isbotlash.'
+      },
       skillsTitle: "Texnik Ko'nikmalar",
       frontend: 'Frontend',
       backend: 'Backend',

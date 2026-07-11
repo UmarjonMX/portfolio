@@ -3,7 +3,7 @@ import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import About from './components/About';
 import Projects from './components/Projects';
-import ShipLog from './components/ShipLog';
+import BuilderDashboard from './components/BuilderDashboard';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import CursorTrail from './components/CursorTrail';
@@ -90,7 +90,7 @@ function AppContent() {
         <Hero />
         <About />
         <Projects />
-        <ShipLog />
+        <BuilderDashboard />
         <Contact />
       </main>
       
