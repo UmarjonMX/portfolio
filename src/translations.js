@@ -1,9 +1,13 @@
 export default {
   en: {
     nav: { home: 'Home', about: 'About', projects: 'Projects', resume: 'Resume', contact: 'Contact' },
-    hero: { 
-      title: 'Crafting Digital Experiences.', 
-      subtitle: "Hi, I am Umar (Muhammad Umar). A Full-Stack Developer blending code, AI, and minimalist design to build the future." 
+    hero: {
+      tagline: 'Product-first engineering.',
+      headline: 'Building products people actually use.',
+      supporting1: 'Software Engineer focused on AI, Backend and Product Engineering.',
+      supporting2: 'Turning ambitious ideas into products that solve real problems.',
+      primaryCTA: 'Explore Projects',
+      secondaryCTA: 'Get in Touch'
     },
     about: {
       title: 'About Me',
@@ -71,9 +75,13 @@ export default {
   },
   uz: {
     nav: { home: 'Bosh sahifa', about: 'Haqimda', projects: 'Loyihalar', resume: 'Rezyume', contact: 'Aloqa' },
-    hero: { 
-      title: "Raqamli tajribalar yaratuvchisi.",
-      subtitle: "Salom, men Umar (Muhammad Umar). Kod, Sun'iy Intellekt va minimalist dizaynni birlashtirgan Full-Stack dasturchiman."
+    hero: {
+      tagline: 'Mahsulotga yo\'naltirilgan muhandislik.',
+      headline: 'Odamlar haqiqatan ham foydalanadigan mahsulotlar yarataman.',
+      supporting1: 'AI, Backend va Mahsulot muhandisligiga yo\'naltirilgan Dasturiy Injiniring.',
+      supporting2: 'Katta g\'oyalarni haqiqiy muammolarni hal qiladigan mahsulotlarga aylantiraman.',
+      primaryCTA: 'Loyihalarni Ko\'rish',
+      secondaryCTA: 'Bog\'lanish'
     },
     about: {
       title: 'Haqimda',
