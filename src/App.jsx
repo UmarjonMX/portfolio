@@ -6,7 +6,6 @@ import Projects from './components/Projects';
 import BuilderDashboard from './components/BuilderDashboard';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
-import CursorTrail from './components/CursorTrail';
 import CommandPalette from './components/CommandPalette';
 import { LanguageProvider } from './context/LanguageContext';
 
@@ -73,7 +72,6 @@ function AppContent() {
 
   return (
     <div className="min-h-screen relative selection:bg-accent selection:text-white bg-transparent text-primary-text dark:text-primary-text-dark flex flex-col overflow-x-hidden">
-      <CursorTrail />
       <CommandPalette isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
       
       {shouldMount3D && (
