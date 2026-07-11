@@ -22,6 +22,8 @@ function AppContent() {
     return false;
   });
 
+  const [shouldMount3D, setShouldMount3D] = useState(false);
+
   useEffect(() => {
     const root = window.document.documentElement;
     if (isDarkMode) {
@@ -33,15 +35,55 @@ function AppContent() {
     }
   }, [isDarkMode]);
 
+  useEffect(() => {
+    let timeoutId;
+    let idleId;
+
+    const mountBackground = () => {
+      setShouldMount3D(true);
+    };
+
+    // Check motion preference first
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const queueMount = () => {
+      if ('requestIdleCallback' in window) {
+        idleId = requestIdleCallback(() => mountBackground(), { timeout: 2000 });
+      } else {
+        requestAnimationFrame(() => mountBackground());
+      }
+    };
+
+    if (prefersReducedMotion) {
+      queueMount();
+    } else {
+      // Delay mounting until after the Hero page-entry slide animations (~1200ms)
+      timeoutId = setTimeout(queueMount, 1200);
+    }
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      if (idleId && 'cancelIdleCallback' in window) {
+        cancelIdleCallback(idleId);
+      }
+    };
+  }, []);
+
   const toggleTheme = () => setIsDarkMode(!isDarkMode);
 
   return (
     <div className="min-h-screen relative selection:bg-accent selection:text-white bg-transparent text-primary-text dark:text-primary-text-dark flex flex-col overflow-x-hidden">
       <CursorTrail />
       <CommandPalette isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
-      <Suspense fallback={null}>
-        <Background3D />
-      </Suspense>
+      
+      {shouldMount3D && (
+        <Suspense fallback={null}>
+          <div className="animate-fadeIn">
+            <Background3D />
+          </div>
+        </Suspense>
+      )}
+
       <Navbar isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
       
       <main style={{ position: 'relative', zIndex: 10 }} className="flex-grow pt-20 w-full overflow-x-hidden">

@@ -254,3 +254,12 @@ html {
   .delay-700 { transition-delay: 700ms; animation-delay: 700ms; }
   .delay-1000 { transition-delay: 1000ms; animation-delay: 1000ms; }
 }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 1.5s ease-out forwards;
+}
