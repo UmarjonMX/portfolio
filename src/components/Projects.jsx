@@ -39,22 +39,55 @@ export default function Projects() {
             >
               <div>
                 <h3 className="text-2xl font-semibold mb-3">{project.title}</h3>
-                <p className="text-sm text-primary-text/70 dark:text-primary-text-dark/70 leading-relaxed mb-6">
-                  {project.description}
-                </p>
+                
+                {/* Problem */}
+                <div className="mb-4">
+                  <p className="text-xs font-martian font-bold tracking-widest uppercase text-accent mb-2">Problem</p>
+                  <p className="text-sm text-primary-text/80 dark:text-primary-text-dark/80 leading-relaxed">
+                    {project.problem}
+                  </p>
+                </div>
+
+                {/* Solution */}
+                <div className="mb-4">
+                  <p className="text-xs font-martian font-bold tracking-widest uppercase text-primary-text/60 dark:text-primary-text-dark/60 mb-2">Solution</p>
+                  <p className="text-sm text-primary-text/80 dark:text-primary-text-dark/80 leading-relaxed">
+                    {project.solution}
+                  </p>
+                </div>
+
+                {/* Impact */}
+                <div className="mb-4">
+                  <p className="text-xs font-martian font-bold tracking-widest uppercase text-primary-text/60 dark:text-primary-text-dark/60 mb-2">Impact</p>
+                  <p className="text-sm text-primary-text/70 dark:text-primary-text-dark/70 leading-relaxed">
+                    {project.impact}
+                  </p>
+                </div>
               </div>
 
-              <div className="mt-auto flex flex-col gap-6">
+              <div className="mt-auto flex flex-col gap-4">
+                {/* Engineering Highlight */}
+                {project.engineering && (
+                  <div className="pt-4 border-t border-gray-200 dark:border-gray-800">
+                    <p className="text-xs font-martian font-bold tracking-widest uppercase text-primary-text/50 dark:text-primary-text-dark/50 mb-2">Engineering</p>
+                    <p className="text-xs text-primary-text/60 dark:text-primary-text-dark/60 leading-relaxed">
+                      {project.engineering}
+                    </p>
+                  </div>
+                )}
+
+                {/* Technology Badges (Secondary) */}
                 <div className="flex flex-wrap gap-2">
                   {(project.tech || []).map((tItem, i) => (
                     <span
                       key={i}
-                      className="font-martian text-[10px] font-bold tracking-widest uppercase px-3 py-1 bg-black/5 dark:bg-white/10 rounded-full text-accent"
+                      className="font-martian text-[9px] font-bold tracking-widest uppercase px-2 py-1 bg-black/3 dark:bg-white/5 rounded-full text-primary-text/40 dark:text-primary-text-dark/40"
                     >
                       {tItem}
                     </span>
                   ))}
                 </div>
+
                 <button
                   onClick={() => setSelectedProject(project)}
                   className="w-full py-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-accent hover:text-white dark:hover:text-background transition-colors text-sm font-semibold"
@@ -89,10 +122,43 @@ export default function Projects() {
                 <X size={24} />
               </button>
 
-              <h3 className="text-3xl font-bold mb-4 pr-12">{selectedProject.title}</h3>
-              <p className="text-lg text-primary-text/80 dark:text-primary-text-dark/80 mb-6 leading-relaxed">
-                {selectedProject.description}
-              </p>
+              <h3 className="text-3xl font-bold mb-6 pr-12">{selectedProject.title}</h3>
+              
+              {/* Problem */}
+              <div className="mb-6">
+                <p className="text-xs font-martian font-bold tracking-widest uppercase text-accent mb-3">Problem</p>
+                <p className="text-base text-primary-text/90 dark:text-primary-text-dark/90 leading-relaxed">
+                  {selectedProject.problem}
+                </p>
+              </div>
+
+              {/* Solution */}
+              <div className="mb-6">
+                <p className="text-xs font-martian font-bold tracking-widest uppercase text-primary-text/60 dark:text-primary-text-dark/60 mb-3">Solution</p>
+                <p className="text-base text-primary-text/90 dark:text-primary-text-dark/90 leading-relaxed">
+                  {selectedProject.solution}
+                </p>
+              </div>
+
+              {/* Impact */}
+              <div className="mb-6">
+                <p className="text-xs font-martian font-bold tracking-widest uppercase text-primary-text/60 dark:text-primary-text-dark/60 mb-3">Impact</p>
+                <p className="text-base text-primary-text/80 dark:text-primary-text-dark/80 leading-relaxed">
+                  {selectedProject.impact}
+                </p>
+              </div>
+
+              {/* Engineering */}
+              {selectedProject.engineering && (
+                <div className="mb-8 pt-6 border-t border-border-light dark:border-border-dark">
+                  <p className="text-xs font-martian font-bold tracking-widest uppercase text-primary-text/50 dark:text-primary-text-dark/50 mb-3">Engineering</p>
+                  <p className="text-sm text-primary-text/70 dark:text-primary-text-dark/70 leading-relaxed">
+                    {selectedProject.engineering}
+                  </p>
+                </div>
+              )}
+
+              {/* Technology */}
               <div className="flex flex-wrap gap-2 mb-8">
                 {(selectedProject.tech || []).map((tItem, i) => (
                   <span key={i} className="font-martian text-xs font-bold uppercase px-3 py-1 bg-accent/20 text-accent rounded-full">
