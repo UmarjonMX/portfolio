@@ -67,6 +67,17 @@ function StarField() {
     return () => timer.dispose();
   }, [timer]);
 
+  // Track scroll position passively to prevent layout reflows inside the useFrame loop
+  const scrollYRef = useRef(0);
+  useEffect(() => {
+    scrollYRef.current = window.scrollY;
+    const handleScroll = () => {
+      scrollYRef.current = window.scrollY;
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   // Dust configuration
   const dustCount = 5000;
   const dustPositions = useMemo(() => {
@@ -87,8 +98,8 @@ function StarField() {
     const delta = timer.getDelta();
     const time = timer.getElapsed();
 
-    // 1. Scroll Parallax (Vertical Position)
-    const scrollYOffset = window.scrollY * 0.003;
+    // 1. Scroll Parallax (Vertical Position) using cached ref
+    const scrollYOffset = scrollYRef.current * 0.003;
     groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, scrollYOffset, 0.1);
 
     // 2. Mouse Parallax (Opposite Direction Rotation)
