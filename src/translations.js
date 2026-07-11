@@ -10,12 +10,34 @@ export default {
       secondaryCTA: 'Get in Touch'
     },
     about: {
-      title: 'About Me',
-      bioTitle: 'Profile',
-      bio1: "Based in Namangan, I am an 11th-grade student with a deep passion for IT, Astronomy, and Philosophy. I don't just write code — I solve problems and create impact.",
-      bio2: "When I'm not at my desk, you'll find me on the football pitch or mastering the Rubik's cube.",
-      hobbiesTitle: 'Interests',
-      hobby1: 'Chess', hobby2: 'Football', hobby2Hint: '(Hala Madrid / Mia San Mia)', hobby3: "Rubik's Cube", hobby4: 'Volleyball', hobby5: 'Biking', hobby6: 'Music', hobby7: 'Astronomy & Philosophy'
+      title: 'Principles',
+      introduction: 'The products we build reflect the principles we choose. These are the ideas that guide every engineering and product decision I make.',
+      principles: [
+        {
+          title: 'Build What Matters',
+          description: "I don't build software because a technology is interesting. I build products because a real problem deserves a better solution."
+        },
+        {
+          title: 'AI With Responsibility',
+          description: "AI should expand human capability. Never replace human judgment where lives, trust or dignity are at stake."
+        },
+        {
+          title: 'Quality Creates Trust',
+          description: "Fast products are useful. Reliable products are remembered. I optimize for both."
+        },
+        {
+          title: 'Simplicity Wins',
+          description: "Every feature should justify its existence. Every line of code should earn its place."
+        },
+        {
+          title: 'Think Globally',
+          description: "Great products can start anywhere. Including Namangan. What matters is the problem, not the postcode."
+        },
+        {
+          title: 'Build With Integrity',
+          description: "Not everything that can be built should be built. Technology should improve people's lives, never exploit them."
+        }
+      ]
     },
     projects: {
       title: 'Selected Works',
@@ -95,12 +117,34 @@ export default {
       secondaryCTA: 'Bog\'lanish'
     },
     about: {
-      title: 'Haqimda',
-      bioTitle: 'Biografiya',
-      bio1: "Namanganlik 11-sinf o'quvchisiman. IT, Astronomiya va Falsafaga chuqur qiziqaman. Men shunchaki kod yozmayman — muammolarga yechim topaman va o'zgarish yarataman.",
-      bio2: "Bo'sh vaqtimda futbol maydonchasida yoki kubik-rubik yig'ishda topasiz.",
-      hobbiesTitle: 'Qiziqishlar',
-      hobby1: 'Shaxmat', hobby2: 'Futbol', hobby2Hint: '(Hala Madrid / Mia San Mia)', hobby3: "Kubik-Rubik", hobby4: 'Voleybol', hobby5: 'Velosport', hobby6: 'Musiqa', hobby7: 'Astronomiya va Falsafa'
+      title: 'Prinsiplar',
+      introduction: "Quradigan mahsulotlarimiz tanlagan prinsiplarimizni aks ettiradi. Bu mening har bir muhandislik va mahsulot qarorimni yo'naltiradigan g'oyalar.",
+      principles: [
+        {
+          title: 'Muhim Narsalarni Qur',
+          description: "Men texnologiya qiziqarli bo'lgani uchun dasturiy ta'minot yozmayman. Haqiqiy muammo yaxshiroq yechimni kutgani uchun mahsulotlar yarataman."
+        },
+        {
+          title: 'AI bilan Mas\'uliyat',
+          description: "AI inson qobiliyatini kengaytirishi kerak. Hayot, ishonch yoki obro' o'yinda bo'lgan joylarda inson hukmini hech qachon almashtirmasligi kerak."
+        },
+        {
+          title: 'Sifat Ishonch Yaratadi',
+          description: "Tez mahsulotlar foydali. Ishonchli mahsulotlar esda qoladi. Men ikkalasiga ham optimallashtiraman."
+        },
+        {
+          title: 'Soddalik G\'alaba Qiladi',
+          description: "Har bir xususiyat o'z mavjudligini asoslashi kerak. Har bir kod satri o'rnini qozonishi kerak."
+        },
+        {
+          title: 'Global O\'yla',
+          description: "Ajoyib mahsulotlar hamma joyda boshlanishi mumkin. Namanganni ham o'z ichiga oladi. Muhimi muammo, pochta indeksi emas."
+        },
+        {
+          title: 'Integratsiya bilan Qur',
+          description: "Qurilishi mumkin bo'lgan hamma narsa qurilishi shart emas. Texnologiya odamlarning hayotini yaxshilashi kerak, ularni hech qachon ekspluatatsiya qilmasligi kerak."
+        }
+      ]
     },
     projects: {
       title: 'Tanlangan Loyihalar',
