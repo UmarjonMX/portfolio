@@ -6,7 +6,6 @@ export default function Hero() {
   const { t, lang: language } = useLanguage();
   const heroRef = useRef(null);
   const decorativeLayerRef = useRef(null);
-  const glowRef = useRef(null);
 
   const wordsUz = ["Umar (Muhammad Umar)", "Junior Full-Stack Dasturchi", "AI Ixlosmandi", "Startap Asoschisi", "Falsafa Qiziquvchisi", "Adabiyot Shaydosi", "Astronomiya Havaskori", "Mnemonist", "Kino Ishqibozi", "Musiqa Shaydosi", "Shaxmatchi", "Spidkuber", "Sport Ixlosmandi", "IELTS Sohibi", "Ambivert"];
   const wordsEn = ["Umar (Muhammad Umar)", "Junior Full-Stack Developer", "AI Enthusiast", "Startup Founder", "Philosophy Student", "Literature Lover", "Astronomy Buff", "Mnemonist", "Cinephile", "Melophile", "Chess Player", "Speedcuber", "Sports Enthusiast", "IELTS Holder", "Ambivert"];
@@ -25,10 +24,9 @@ export default function Hero() {
   useEffect(() => {
     const hero = heroRef.current;
     const decorativeLayer = decorativeLayerRef.current;
-    const glow = glowRef.current;
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    if (!hero || !decorativeLayer || !glow || prefersReducedMotion) return undefined;
+    if (!hero || !decorativeLayer || prefersReducedMotion) return undefined;
 
     let frameId;
     let bounds = hero.getBoundingClientRect();
@@ -45,8 +43,8 @@ export default function Hero() {
       const x = (event.clientX - bounds.left) / bounds.width - 0.5;
       const y = (event.clientY - bounds.top) / bounds.height - 0.5;
 
-      target.x = Math.max(-20, Math.min(20, x * 40));
-      target.y = Math.max(-20, Math.min(20, y * 40));
+      target.x = Math.max(-1, Math.min(1, x * 2));
+      target.y = Math.max(-1, Math.min(1, y * 2));
       target.glowX = event.clientX - bounds.left;
       target.glowY = event.clientY - bounds.top;
     };
@@ -64,8 +62,14 @@ export default function Hero() {
       current.glowX += (target.glowX - current.glowX) * 0.1;
       current.glowY += (target.glowY - current.glowY) * 0.1;
 
-      decorativeLayer.style.transform = `translate3d(${current.x}px, ${current.y}px, 0)`;
-      glow.style.transform = `translate3d(${current.glowX - 272}px, ${current.glowY - 272}px, 0)`;
+      decorativeLayer.style.setProperty('--hero-parallax-5-x', `${(current.x * 5).toFixed(2)}px`);
+      decorativeLayer.style.setProperty('--hero-parallax-5-y', `${(current.y * 5).toFixed(2)}px`);
+      decorativeLayer.style.setProperty('--hero-parallax-10-x', `${(current.x * 10).toFixed(2)}px`);
+      decorativeLayer.style.setProperty('--hero-parallax-10-y', `${(current.y * 10).toFixed(2)}px`);
+      decorativeLayer.style.setProperty('--hero-parallax-15-x', `${(current.x * 15).toFixed(2)}px`);
+      decorativeLayer.style.setProperty('--hero-parallax-15-y', `${(current.y * 15).toFixed(2)}px`);
+      decorativeLayer.style.setProperty('--hero-glow-x', `${current.glowX.toFixed(2)}px`);
+      decorativeLayer.style.setProperty('--hero-glow-y', `${current.glowY.toFixed(2)}px`);
       frameId = requestAnimationFrame(animate);
     };
 
@@ -122,11 +126,17 @@ export default function Hero() {
   return (
     <section ref={heroRef} className="hero-ambient relative min-h-[100dvh] flex flex-col items-center justify-center overflow-hidden pt-16 z-10 w-full">
       <div ref={decorativeLayerRef} className="hero-decorative-layer" aria-hidden="true">
-        <div className="hero-gradient" />
-        <div ref={glowRef} className="hero-mouse-glow" />
-        <div className="hero-geometry hero-geometry-orbit" />
-        <div className="hero-geometry hero-geometry-square" />
-        <div className="hero-geometry hero-geometry-dot" />
+        <div className="hero-parallax-layer hero-parallax-background">
+          <div className="hero-gradient" />
+        </div>
+        <div className="hero-mouse-glow" />
+        <div className="hero-parallax-layer hero-parallax-middle">
+          <div className="hero-geometry hero-geometry-orbit" />
+        </div>
+        <div className="hero-parallax-layer hero-parallax-foreground">
+          <div className="hero-geometry hero-geometry-square" />
+          <div className="hero-geometry hero-geometry-dot" />
+        </div>
       </div>
       <div className="relative z-10 text-left px-6 sm:px-10 lg:px-16 w-full max-w-5xl mx-auto pointer-events-none flex flex-col items-start justify-center">
         
