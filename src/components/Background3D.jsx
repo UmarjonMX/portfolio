@@ -217,15 +217,58 @@ function AmbientSynapse() {
     linesRef.current.geometry.attributes.color.needsUpdate = true;
     linesRef.current.geometry.setDrawRange(0, lineIdx * 2);
 
-    // 3. Scroll depth shift
-    const targetY = scrollYRef.current * 0.0015;
-    groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, targetY, 0.08);
+    // 3. Scroll-Driven 3D Camera Dolly Spline
+    const sp = scrollPercentRef.current;
+    let targetCamX = 0;
+    let targetCamY = 0;
+    let targetCamZ = 5;
+    
+    let targetCamRotX = 0;
+    let targetCamRotY = 0;
 
-    // 4. Subtle camera coordinate tilt (perspective rotation)
-    const targetRotX = state.pointer.y * -0.06;
-    const targetRotY = state.pointer.x * 0.06;
-    groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, targetRotX, 0.04);
-    groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetRotY, 0.04);
+    // Piecewise camera spline interpolation based on narrative milestones
+    if (sp <= 0.30) {
+      // Transition from Hero to About (0.0 -> 0.3)
+      const t = sp / 0.30;
+      targetCamX = 0;
+      targetCamY = THREE.MathUtils.lerp(0, 1.2, t);
+      targetCamZ = THREE.MathUtils.lerp(5, 7.5, t);
+      targetCamRotX = THREE.MathUtils.lerp(0, -0.08, t); // Pitch downward
+    } else if (sp <= 0.65) {
+      // Transition from About to Projects (0.3 -> 0.65)
+      const t = (sp - 0.30) / 0.35;
+      targetCamX = THREE.MathUtils.lerp(0, 2.8, t); // Pan laterally
+      targetCamY = THREE.MathUtils.lerp(1.2, 0, t);
+      targetCamZ = THREE.MathUtils.lerp(7.5, 7.0, t);
+      targetCamRotX = THREE.MathUtils.lerp(-0.08, 0, t);
+      targetCamRotY = THREE.MathUtils.lerp(0, 0.08, t); // Yaw angle tilt
+    } else {
+      // Transition from Projects to Dashboard/Footer (0.65 -> 1.0)
+      const t = (sp - 0.65) / 0.35;
+      targetCamX = THREE.MathUtils.lerp(2.8, 0, t);
+      targetCamY = THREE.MathUtils.lerp(0, -3.2, t);
+      targetCamZ = THREE.MathUtils.lerp(7.0, 4.5, t); // Close dolly-in
+      targetCamRotX = THREE.MathUtils.lerp(0, 0.05, t);
+      targetCamRotY = THREE.MathUtils.lerp(0.08, 0, t);
+    }
+
+    // Dynamic mouse parallax influence overlay on camera position & rotation
+    const mouseOffsetX = state.pointer.x * 0.8;
+    const mouseOffsetY = state.pointer.y * 0.6;
+    
+    const finalCamX = targetCamX + mouseOffsetX;
+    const finalCamY = targetCamY + mouseOffsetY;
+    
+    const mouseRotX = state.pointer.y * -0.05;
+    const mouseRotY = state.pointer.x * 0.05;
+
+    // Apply smooth interpolation (Damped Spring feel) directly to WebGL camera
+    state.camera.position.x = THREE.MathUtils.lerp(state.camera.position.x, finalCamX, 0.05);
+    state.camera.position.y = THREE.MathUtils.lerp(state.camera.position.y, finalCamY, 0.05);
+    state.camera.position.z = THREE.MathUtils.lerp(state.camera.position.z, targetCamZ, 0.05);
+
+    state.camera.rotation.x = THREE.MathUtils.lerp(state.camera.rotation.x, targetCamRotX + mouseRotX, 0.04);
+    state.camera.rotation.y = THREE.MathUtils.lerp(state.camera.rotation.y, targetCamRotY + mouseRotY, 0.04);
 
     // 5. Breathing scale cycle (15-second loop, freq = 0.4 rad/s)
     const breath = 1.0 + Math.sin(time * 0.4) * 0.035;

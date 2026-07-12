@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense, lazy } from 'react';
+import { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import About from './components/About';
@@ -10,6 +10,67 @@ import CommandPalette from './components/CommandPalette';
 import { LanguageProvider } from './context/LanguageContext';
 
 const Background3D = lazy(() => import('./components/Background3D'));
+
+function FadeSection({ children }) {
+  const ref = useRef(null);
+  const [style, setStyle] = useState({ opacity: 0, transform: 'translateY(15px)' });
+
+  useEffect(() => {
+    let isVisible = false;
+
+    const handleScroll = () => {
+      if (!isVisible || !ref.current) return;
+      const rect = ref.current.getBoundingClientRect();
+      const viewHeight = window.innerHeight;
+      
+      const threshold = 180; // boundary limit for progressive fading
+      let opacity = 1;
+      let translateY = 0;
+
+      if (rect.top > viewHeight - threshold) {
+        const factor = Math.max(0, Math.min(1, (viewHeight - rect.top) / threshold));
+        opacity = factor;
+        translateY = (1 - factor) * 15;
+      } else if (rect.bottom < threshold) {
+        const factor = Math.max(0, Math.min(1, rect.bottom / threshold));
+        opacity = factor;
+        translateY = (1 - factor) * -15;
+      }
+
+      setStyle({
+        opacity: opacity,
+        transform: `translateY(${translateY}px)`,
+        transition: 'opacity 0.25s ease-out, transform 0.25s ease-out'
+      });
+    };
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry.isIntersecting;
+        if (isVisible) {
+          handleScroll();
+        } else {
+          setStyle({ opacity: 0, transform: 'translateY(15px)' });
+        }
+      },
+      { rootMargin: '50px 0px' }
+    );
+
+    if (ref.current) observer.observe(ref.current);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      if (ref.current) observer.unobserve(ref.current);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  return (
+    <div ref={ref} style={style} className="w-full">
+      {children}
+    </div>
+  );
+}
 
 function AppContent() {
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -121,11 +182,21 @@ function AppContent() {
       <Navbar isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
       
       <main style={{ position: 'relative', zIndex: 10 }} className="flex-grow pt-20 w-full overflow-x-hidden">
-        <Hero />
-        <About />
-        <Projects />
-        <BuilderDashboard />
-        <Contact />
+        <FadeSection>
+          <Hero />
+        </FadeSection>
+        <FadeSection>
+          <About />
+        </FadeSection>
+        <FadeSection>
+          <Projects />
+        </FadeSection>
+        <FadeSection>
+          <BuilderDashboard />
+        </FadeSection>
+        <FadeSection>
+          <Contact />
+        </FadeSection>
       </main>
       
       <Footer />
