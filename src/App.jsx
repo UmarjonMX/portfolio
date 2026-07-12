@@ -22,6 +22,29 @@ function AppContent() {
   });
 
   const [shouldMount3D, setShouldMount3D] = useState(false);
+  const [pulse, setPulse] = useState(null);
+
+  useEffect(() => {
+    const handleFirstInteraction = (e) => {
+      let clientX, clientY;
+      if (e.type === 'touchstart') {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+      }
+      setPulse({ x: clientX, y: clientY });
+      window.removeEventListener('mousemove', handleFirstInteraction);
+      window.removeEventListener('touchstart', handleFirstInteraction);
+    };
+    window.addEventListener('mousemove', handleFirstInteraction, { passive: true });
+    window.addEventListener('touchstart', handleFirstInteraction, { passive: true });
+    return () => {
+      window.removeEventListener('mousemove', handleFirstInteraction);
+      window.removeEventListener('touchstart', handleFirstInteraction);
+    };
+  }, []);
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -73,6 +96,19 @@ function AppContent() {
   return (
     <div className="min-h-screen relative selection:bg-accent selection:text-white bg-transparent text-primary-text dark:text-primary-text-dark flex flex-col overflow-x-hidden">
       <CommandPalette isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
+      
+      {/* Moment 1: Resonating Pulse */}
+      {pulse && (
+        <div className="fixed inset-0 pointer-events-none z-[100] mix-blend-screen">
+          <svg className="w-full h-full">
+            <circle
+              cx={pulse.x}
+              cy={pulse.y}
+              className="fill-none stroke-accent stroke-[1.5] animate-[pulseRing_1.5s_cubic-bezier(0.1,0.8,0.3,1)_forwards]"
+            />
+          </svg>
+        </div>
+      )}
       
       {shouldMount3D && (
         <Suspense fallback={null}>

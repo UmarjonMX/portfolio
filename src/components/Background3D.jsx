@@ -80,10 +80,13 @@ function AmbientSynapse() {
 
   // Track scroll position passively to prevent layout reflows inside the useFrame loop
   const scrollYRef = useRef(0);
+  const scrollPercentRef = useRef(0);
   useEffect(() => {
     scrollYRef.current = window.scrollY;
     const handleScroll = () => {
       scrollYRef.current = window.scrollY;
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      scrollPercentRef.current = maxScroll > 0 ? window.scrollY / maxScroll : 0;
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
@@ -107,6 +110,9 @@ function AmbientSynapse() {
 
     const positions = pointsRef.current.geometry.attributes.position.array;
 
+    // Moment 3: Gravitational Alignment factor (starts at 90% scroll height, fully aligned at 100%)
+    const alignFactor = Math.max(0, Math.min(1, (scrollPercentRef.current - 0.90) / 0.10));
+
     // 1. Update node coordinates
     for (let i = 0; i < nodeCount; i++) {
       const node = nodes[i];
@@ -128,10 +134,19 @@ function AmbientSynapse() {
         targetY = THREE.MathUtils.lerp(targetY, mouse3D.y, pull);
       }
 
+      // Settle into a clean horizontal horizon at the bottom of the page
+      const settledX = ((i / (nodeCount - 1)) - 0.5) * 32;
+      const settledY = -8.5; // Positions it low behind the North Star footer section
+      const settledZ = -4.5;
+
+      const finalTargetX = THREE.MathUtils.lerp(targetX, settledX, alignFactor);
+      const finalTargetY = THREE.MathUtils.lerp(targetY, settledY, alignFactor);
+      const finalTargetZ = THREE.MathUtils.lerp(targetZ, settledZ, alignFactor);
+
       // Smooth interpolation for physical lag
-      positions[i * 3] = THREE.MathUtils.lerp(positions[i * 3] || targetX, targetX, 0.05);
-      positions[i * 3 + 1] = THREE.MathUtils.lerp(positions[i * 3 + 1] || targetY, targetY, 0.05);
-      positions[i * 3 + 2] = THREE.MathUtils.lerp(positions[i * 3 + 2] || targetZ, targetZ, 0.05);
+      positions[i * 3] = THREE.MathUtils.lerp(positions[i * 3] || finalTargetX, finalTargetX, 0.05);
+      positions[i * 3 + 1] = THREE.MathUtils.lerp(positions[i * 3 + 1] || finalTargetY, finalTargetY, 0.05);
+      positions[i * 3 + 2] = THREE.MathUtils.lerp(positions[i * 3 + 2] || finalTargetZ, finalTargetZ, 0.05);
     }
     pointsRef.current.geometry.attributes.position.needsUpdate = true;
 

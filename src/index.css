@@ -263,3 +263,31 @@ html {
 .animate-fadeIn {
   animation: fadeIn 1.5s ease-out forwards;
 }
+
+@keyframes caretBreath {
+  0%, 100% {
+    background-color: #08CB00;
+    opacity: 0.25;
+    box-shadow: 0 0 2px rgba(8, 203, 0, 0.2);
+  }
+  50% {
+    background-color: #08CB00;
+    opacity: 0.9;
+    box-shadow: 0 0 8px rgba(8, 203, 0, 0.8);
+  }
+}
+
+.animate-caretBreath {
+  animation: caretBreath 15s ease-in-out infinite;
+}
+
+@keyframes pulseRing {
+  0% {
+    r: 0;
+    opacity: 0.15;
+  }
+  100% {
+    r: 280;
+    opacity: 0;
+  }
+}

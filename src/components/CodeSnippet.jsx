@@ -101,9 +101,9 @@ export default function CodeSnippet() {
                 autoComplete="off"
                 className="bg-transparent outline-none flex-1 text-[#a9b2c3] min-w-0 caret-transparent"
               />
-              {/* Custom blinking cursor that stays attached to text */}
+              {/* Custom breathing cursor synced to the canvas cycle */}
               <span 
-                className="absolute w-2 h-[1em] bg-[#a9b2c3] animate-pulse pointer-events-none"
+                className="absolute w-2 h-[1em] animate-caretBreath pointer-events-none"
                 style={{
                   left: `calc(${input.length} * 0.6em)` // Approximate char width for mono fonts
                 }}
