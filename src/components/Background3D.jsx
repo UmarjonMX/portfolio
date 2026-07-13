@@ -1,90 +1,48 @@
-import { useMemo, useRef, useEffect } from 'react';
+import { useMemo, useRef, useEffect, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
-function AmbientSynapse() {
+function DraftingTable() {
   const groupRef = useRef(null);
-  const pointsRef = useRef(null);
-  const linesRef = useRef(null);
+  const ringsRef = useRef(null);
+  const meshRef = useRef(null);
+  const meshInnerRef = useRef(null);
 
-  // Configuration
-  const nodeCount = 85;
-  const maxLines = 450;
-  
-  // Custom Canvas Texture for a soft, out-of-focus bokeh dot glow
-  const dotTexture = useMemo(() => {
-    const canvas = document.createElement('canvas');
-    canvas.width = 64;
-    canvas.height = 64;
-    const ctx = canvas.getContext('2d');
-    const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
-    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-    gradient.addColorStop(0.2, 'rgba(255, 255, 255, 0.8)');
-    gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.25)');
-    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, 64, 64);
-    
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.minFilter = THREE.LinearFilter;
-    return texture;
-  }, []);
-
-  // Initialize nodes with random positions, drift speeds, phases, and colors
-  const nodes = useMemo(() => {
-    const list = [];
-    for (let i = 0; i < nodeCount; i++) {
-      list.push({
-        x: (Math.random() - 0.5) * 35,
-        y: (Math.random() - 0.5) * 25,
-        z: (Math.random() - 0.5) * 18 - 8,
-        baseX: 0,
-        baseY: 0,
-        baseZ: 0,
-        speedX: 0.05 + Math.random() * 0.1,
-        speedY: 0.05 + Math.random() * 0.1,
-        phase: Math.random() * Math.PI * 2,
-        colorType: Math.random() > 0.45 ? 'teal' : 'cream'
-      });
-      list[i].baseX = list[i].x;
-      list[i].baseY = list[i].y;
-      list[i].baseZ = list[i].z;
-    }
-    return list;
-  }, []);
-
-  // Pre-allocate buffer arrays to avoid garbage collection and GPU re-allocations
-  const pointsPositions = useMemo(() => new Float32Array(nodeCount * 3), []);
-  const pointsColors = useMemo(() => {
-    const colors = new Float32Array(nodeCount * 3);
-    for (let i = 0; i < nodeCount; i++) {
-      const isTeal = nodes[i].colorType === 'teal';
-      // Muted mint-teal: [0.35, 0.78, 0.62]
-      // Soft warm cream: [0.93, 0.90, 0.82]
-      colors[i * 3] = isTeal ? 0.35 : 0.93;
-      colors[i * 3 + 1] = isTeal ? 0.78 : 0.90;
-      colors[i * 3 + 2] = isTeal ? 0.62 : 0.82;
-    }
-    return colors;
-  }, [nodes]);
-
-  const linePositions = useMemo(() => new Float32Array(maxLines * 2 * 3), []);
-  const lineColors = useMemo(() => new Float32Array(maxLines * 2 * 3), []);
-
-  // Modern Timer instance
-  const timer = useMemo(() => new THREE.Timer(), []);
+  // Check if dark mode is active
+  const [isDark, setIsDark] = useState(false);
   useEffect(() => {
-    timer.connect(document);
-    return () => timer.dispose();
-  }, [timer]);
+    const checkDark = () => {
+      setIsDark(document.documentElement.classList.contains('dark'));
+    };
+    checkDark();
+    const observer = new MutationObserver(checkDark);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
 
-  // Track scroll position passively to prevent layout reflows inside the useFrame loop
-  const scrollYRef = useRef(0);
+  // Concentric compass drafting rings
+  const ringsGeometry = useMemo(() => {
+    const points = [];
+    const ringCount = 3;
+    const segments = 80;
+    for (let r = 0; r < ringCount; r++) {
+      const radius = 2.0 + r * 1.0;
+      for (let i = 0; i < segments; i++) {
+        const theta = (i / segments) * Math.PI * 2;
+        const nextTheta = ((i + 1) / segments) * Math.PI * 2;
+        // Segment start
+        points.push(new THREE.Vector3(Math.cos(theta) * radius, 0, Math.sin(theta) * radius));
+        // Segment end
+        points.push(new THREE.Vector3(Math.cos(nextTheta) * radius, 0, Math.sin(nextTheta) * radius));
+      }
+    }
+    return new THREE.BufferGeometry().setFromPoints(points);
+  }, []);
+
+  // Track scroll position passively to adjust cameras
   const scrollPercentRef = useRef(0);
   useEffect(() => {
-    scrollYRef.current = window.scrollY;
     const handleScroll = () => {
-      scrollYRef.current = window.scrollY;
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
       scrollPercentRef.current = maxScroll > 0 ? window.scrollY / maxScroll : 0;
     };
@@ -92,237 +50,125 @@ function AmbientSynapse() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const mouse3D = useMemo(() => new THREE.Vector3(), []);
-  const tempPos = useMemo(() => new THREE.Vector3(), []);
+  // Temporary vectors to avoid allocation overhead in useFrame
+  const targetCam = useMemo(() => new THREE.Vector3(), []);
+  const targetLookAt = useMemo(() => new THREE.Vector3(), []);
+  const tempCam = useMemo(() => new THREE.Vector3(), []);
+  const tempLook = useMemo(() => new THREE.Vector3(1.6, -0.2, 0), []);
 
   useFrame((state) => {
-    if (!groupRef.current || !pointsRef.current || !linesRef.current) return;
-    
-    timer.update();
-    const time = timer.getElapsed();
+    if (!groupRef.current) return;
 
-    // Map 2D pointer coordinates to 3D space targets based on viewport dimensions
-    mouse3D.set(
-      (state.pointer.x * state.viewport.width) / 2,
-      (state.pointer.y * state.viewport.height) / 2,
-      -5
-    );
-
-    const positions = pointsRef.current.geometry.attributes.position.array;
-
-    // Moment 3: Gravitational Alignment factor (starts at 90% scroll height, fully aligned at 100%)
-    const alignFactor = Math.max(0, Math.min(1, (scrollPercentRef.current - 0.90) / 0.10));
-
-    // 1. Update node coordinates
-    for (let i = 0; i < nodeCount; i++) {
-      const node = nodes[i];
-      
-      // Gentle floating drift
-      const driftX = Math.sin(time * node.speedX + node.phase) * 1.5;
-      const driftY = Math.cos(time * node.speedY + node.phase) * 1.5;
-      
-      let targetX = node.baseX + driftX;
-      let targetY = node.baseY + driftY;
-      let targetZ = node.baseZ;
-
-      // Damped cursor attraction (thoughts drift towards attention)
-      tempPos.set(targetX, targetY, targetZ);
-      const distToMouse = tempPos.distanceTo(mouse3D);
-      if (distToMouse < 9) {
-        const pull = (9 - distToMouse) * 0.02; // Very soft attraction pull
-        targetX = THREE.MathUtils.lerp(targetX, mouse3D.x, pull);
-        targetY = THREE.MathUtils.lerp(targetY, mouse3D.y, pull);
-      }
-
-      // Settle into a clean horizontal horizon at the bottom of the page
-      const settledX = ((i / (nodeCount - 1)) - 0.5) * 32;
-      const settledY = -8.5; // Positions it low behind the North Star footer section
-      const settledZ = -4.5;
-
-      const finalTargetX = THREE.MathUtils.lerp(targetX, settledX, alignFactor);
-      const finalTargetY = THREE.MathUtils.lerp(targetY, settledY, alignFactor);
-      const finalTargetZ = THREE.MathUtils.lerp(targetZ, settledZ, alignFactor);
-
-      // Smooth interpolation for physical lag
-      positions[i * 3] = THREE.MathUtils.lerp(positions[i * 3] || finalTargetX, finalTargetX, 0.05);
-      positions[i * 3 + 1] = THREE.MathUtils.lerp(positions[i * 3 + 1] || finalTargetY, finalTargetY, 0.05);
-      positions[i * 3 + 2] = THREE.MathUtils.lerp(positions[i * 3 + 2] || finalTargetZ, finalTargetZ, 0.05);
-    }
-    pointsRef.current.geometry.attributes.position.needsUpdate = true;
-
-    // 2. Build line segments dynamically (fade colors out based on distance)
-    let lineIdx = 0;
-    
-    // Background color components: dark charcoal slate [0.04, 0.04, 0.05]
-    const bgR = 0.04;
-    const bgG = 0.04;
-    const bgB = 0.05;
-    
-    // Line highlight color components: soft mint teal [0.22, 0.65, 0.52]
-    const activeR = 0.22;
-    const activeG = 0.65;
-    const activeB = 0.52;
-
-    for (let i = 0; i < nodeCount; i++) {
-      const px = positions[i * 3];
-      const py = positions[i * 3 + 1];
-      const pz = positions[i * 3 + 2];
-      
-      for (let j = i + 1; j < nodeCount; j++) {
-        if (lineIdx >= maxLines) break;
-        
-        const qx = positions[j * 3];
-        const qy = positions[j * 3 + 1];
-        const qz = positions[j * 3 + 2];
-        
-        const dx = px - qx;
-        const dy = py - qy;
-        const dz = pz - qz;
-        const distSq = dx * dx + dy * dy + dz * dz;
-        
-        // Connect nodes within a maximum distance threshold of 7 units
-        if (distSq < 49) {
-          const dist = Math.sqrt(distSq);
-          const alpha = Math.max(0, Math.min(1, 1.0 - dist / 7));
-          
-          // Blend with background color to simulate distance-fade
-          const r = activeR * alpha + bgR * (1 - alpha);
-          const g = activeG * alpha + bgG * (1 - alpha);
-          const b = activeB * alpha + bgB * (1 - alpha);
-          
-          // Point A
-          const idx1 = lineIdx * 2 * 3;
-          linePositions[idx1] = px;
-          linePositions[idx1 + 1] = py;
-          linePositions[idx1 + 2] = pz;
-          lineColors[idx1] = r;
-          lineColors[idx1 + 1] = g;
-          lineColors[idx1 + 2] = b;
-          
-          // Point B
-          const idx2 = (lineIdx * 2 + 1) * 3;
-          linePositions[idx2] = qx;
-          linePositions[idx2 + 1] = qy;
-          linePositions[idx2 + 2] = qz;
-          lineColors[idx2] = r;
-          lineColors[idx2 + 1] = g;
-          lineColors[idx2 + 2] = b;
-          
-          lineIdx++;
-        }
-      }
-    }
-
-    linesRef.current.geometry.attributes.position.needsUpdate = true;
-    linesRef.current.geometry.attributes.color.needsUpdate = true;
-    linesRef.current.geometry.setDrawRange(0, lineIdx * 2);
-
-    // 3. Scroll-Driven 3D Camera Dolly Spline
+    const time = state.clock.getElapsedTime();
     const sp = scrollPercentRef.current;
-    let targetCamX = 0;
-    let targetCamY = 0;
-    let targetCamZ = 5;
-    
-    let targetCamRotX = 0;
-    let targetCamRotY = 0;
 
-    // Piecewise camera spline interpolation based on narrative milestones
-    if (sp <= 0.30) {
-      // Transition from Hero to About (0.0 -> 0.3)
-      const t = sp / 0.30;
-      targetCamX = 0;
-      targetCamY = THREE.MathUtils.lerp(0, 1.2, t);
-      targetCamZ = THREE.MathUtils.lerp(5, 7.5, t);
-      targetCamRotX = THREE.MathUtils.lerp(0, -0.08, t); // Pitch downward
-    } else if (sp <= 0.65) {
-      // Transition from About to Projects (0.3 -> 0.65)
-      const t = (sp - 0.30) / 0.35;
-      targetCamX = THREE.MathUtils.lerp(0, 2.8, t); // Pan laterally
-      targetCamY = THREE.MathUtils.lerp(1.2, 0, t);
-      targetCamZ = THREE.MathUtils.lerp(7.5, 7.0, t);
-      targetCamRotX = THREE.MathUtils.lerp(-0.08, 0, t);
-      targetCamRotY = THREE.MathUtils.lerp(0, 0.08, t); // Yaw angle tilt
-    } else {
-      // Transition from Projects to Dashboard/Footer (0.65 -> 1.0)
-      const t = (sp - 0.65) / 0.35;
-      targetCamX = THREE.MathUtils.lerp(2.8, 0, t);
-      targetCamY = THREE.MathUtils.lerp(0, -3.2, t);
-      targetCamZ = THREE.MathUtils.lerp(7.0, 4.5, t); // Close dolly-in
-      targetCamRotX = THREE.MathUtils.lerp(0, 0.05, t);
-      targetCamRotY = THREE.MathUtils.lerp(0.08, 0, t);
+    // 1. Rotate the blueprint structures like a rotating mechanical template
+    if (meshRef.current) {
+      meshRef.current.rotation.x = time * 0.08;
+      meshRef.current.rotation.y = time * 0.12;
+    }
+    if (meshInnerRef.current) {
+      meshInnerRef.current.rotation.y = -time * 0.15;
+      meshInnerRef.current.rotation.z = time * 0.06;
     }
 
-    // Dynamic mouse parallax influence overlay on camera position & rotation
-    const mouseOffsetX = state.pointer.x * 0.8;
-    const mouseOffsetY = state.pointer.y * 0.6;
-    
-    const finalCamX = targetCamX + mouseOffsetX;
-    const finalCamY = targetCamY + mouseOffsetY;
-    
-    const mouseRotX = state.pointer.y * -0.05;
-    const mouseRotY = state.pointer.x * 0.05;
+    // 2. Spline interpolation for camera positions and focus points
+    if (sp <= 0.25) {
+      // Hero (Side layout view looking at right-aligned drafting structure) -> About (Axonometric center view)
+      const t = sp / 0.25;
+      targetCam.set(
+        THREE.MathUtils.lerp(1.5, 2.2, t),
+        THREE.MathUtils.lerp(3.2, 4.0, t),
+        THREE.MathUtils.lerp(3.5, 4.0, t)
+      );
+      targetLookAt.set(
+        THREE.MathUtils.lerp(1.6, 0, t),
+        THREE.MathUtils.lerp(-0.2, 0, t),
+        0
+      );
+    } else if (sp <= 0.6) {
+      // About -> Projects (Lateral slide looking up at structural grid)
+      const t = (sp - 0.25) / 0.35;
+      targetCam.set(
+        THREE.MathUtils.lerp(2.2, -4.5, t),
+        THREE.MathUtils.lerp(4.0, 1.8, t),
+        THREE.MathUtils.lerp(4.0, 5.0, t)
+      );
+      targetLookAt.set(0, -0.6, 0);
+    } else if (sp <= 0.85) {
+      // Projects -> Dashboard (Side profile elevation chart)
+      const t = (sp - 0.6) / 0.25;
+      targetCam.set(
+        THREE.MathUtils.lerp(-4.5, 5.5, t),
+        THREE.MathUtils.lerp(1.8, 0.8, t),
+        THREE.MathUtils.lerp(5.0, 3.8, t)
+      );
+      targetLookAt.set(0, -0.4, 0);
+    } else {
+      // Dashboard -> Footer (Close dolly zooming down onto blueprint sheet)
+      const t = (sp - 0.85) / 0.15;
+      targetCam.set(
+        THREE.MathUtils.lerp(5.5, 0, t),
+        THREE.MathUtils.lerp(0.8, 0.3, t),
+        THREE.MathUtils.lerp(3.8, 1.4, t)
+      );
+      targetLookAt.set(0, 0, -1);
+    }
 
-    // Apply smooth interpolation (Damped Spring feel) directly to WebGL camera
-    state.camera.position.x = THREE.MathUtils.lerp(state.camera.position.x, finalCamX, 0.05);
-    state.camera.position.y = THREE.MathUtils.lerp(state.camera.position.y, finalCamY, 0.05);
-    state.camera.position.z = THREE.MathUtils.lerp(state.camera.position.z, targetCamZ, 0.05);
+    // Dynamic cursor mouse sway for three-dimensional blueprint parallax depth
+    const mouseOffsetX = state.pointer.x * 0.9;
+    const mouseOffsetY = state.pointer.y * 0.7;
 
-    state.camera.rotation.x = THREE.MathUtils.lerp(state.camera.rotation.x, targetCamRotX + mouseRotX, 0.04);
-    state.camera.rotation.y = THREE.MathUtils.lerp(state.camera.rotation.y, targetCamRotY + mouseRotY, 0.04);
+    tempCam.set(targetCam.x + mouseOffsetX, targetCam.y + mouseOffsetY, targetCam.z);
+    state.camera.position.lerp(tempCam, 0.05);
 
-    // 5. Breathing scale cycle (15-second loop, freq = 0.4 rad/s)
-    const breath = 1.0 + Math.sin(time * 0.4) * 0.035;
-    groupRef.current.scale.set(breath, breath, breath);
+    // Smooth focus lerp
+    tempLook.lerp(targetLookAt, 0.05);
+    state.camera.lookAt(tempLook);
   });
+
+  const accentColor = '#E07A5F';
+  const structuralColor = isDark ? '#FFFFFF' : '#1C1C1C';
+  const gridColor = isDark ? '#333333' : '#E0E0E0';
 
   return (
     <group ref={groupRef}>
-      {/* Neural thoughts */}
-      <points ref={pointsRef}>
-        <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            count={nodeCount}
-            array={pointsPositions}
-            itemSize={3}
-          />
-          <bufferAttribute
-            attach="attributes-color"
-            count={nodeCount}
-            array={pointsColors}
-            itemSize={3}
-          />
-        </bufferGeometry>
-        <pointsMaterial
-          size={1.3}
-          map={dotTexture}
-          vertexColors={true}
-          transparent={true}
-          opacity={0.3}
-          sizeAttenuation={true}
-          depthWrite={false}
-          blending={THREE.AdditiveBlending}
-        />
-      </points>
+      {/* Blueprint Grid Floor (Divisions aligned at 1 unit blocks) */}
+      <gridHelper args={[80, 80, accentColor, gridColor]} rotation={[0, 0, 0]} position={[0, -1.5, 0]} />
 
-      {/* Filament connection segments */}
-      <lineSegments ref={linesRef}>
-        <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            count={maxLines * 2}
-            array={linePositions}
-            itemSize={3}
-          />
-          <bufferAttribute
-            attach="attributes-color"
-            count={maxLines * 2}
-            array={lineColors}
-            itemSize={3}
-          />
-        </bufferGeometry>
-        <lineBasicMaterial vertexColors={true} transparent={true} opacity={0.2} depthWrite={false} />
+      {/* Dynamic compass drafting rings shifted right to fit Hero V2 layout */}
+      <lineSegments ref={ringsRef} geometry={ringsGeometry} position={[1.6, -1.48, 0]}>
+        <lineBasicMaterial 
+          color={structuralColor} 
+          transparent={true} 
+          opacity={isDark ? 0.06 : 0.1} 
+        />
       </lineSegments>
+
+      {/* Primary Drafting Construction Wireframes shifted right to fit Hero V2 layout */}
+      <group position={[1.6, 0, 0]}>
+        {/* Outer frame (Terracotta grid box) */}
+        <mesh ref={meshRef}>
+          <boxGeometry args={[2.5, 2.5, 2.5]} />
+          <meshBasicMaterial 
+            wireframe={true} 
+            color={accentColor} 
+            transparent={true} 
+            opacity={isDark ? 0.25 : 0.4} 
+          />
+        </mesh>
+
+        {/* Inner frame (Rotated structure) */}
+        <mesh ref={meshInnerRef}>
+          <octahedronGeometry args={[1.5]} />
+          <meshBasicMaterial 
+            wireframe={true} 
+            color={structuralColor} 
+            transparent={true} 
+            opacity={isDark ? 0.15 : 0.25} 
+          />
+        </mesh>
+      </group>
     </group>
   );
 }
@@ -331,14 +177,13 @@ export default function Background3D() {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: -20, pointerEvents: 'none' }}>
       <Canvas
-        camera={{ position: [0, 0, 5], fov: 60 }}
+        camera={{ position: [1.5, 3.2, 3.5], fov: 60 }}
         gl={{ alpha: true, antialias: true }}
         style={{ width: '100%', height: '100%', display: 'block' }}
         dpr={[1, 1.5]}
         performance={{ min: 0.6 }}
       >
-        <ambientLight intensity={0.5} />
-        <AmbientSynapse />
+        <DraftingTable />
       </Canvas>
     </div>
   );

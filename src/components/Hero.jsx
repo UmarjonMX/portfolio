@@ -1,78 +1,17 @@
-import { useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { ArrowRight, Mail } from 'lucide-react';
 
 export default function Hero() {
-  const { t, lang: language } = useLanguage();
-  const heroRef = useRef(null);
-  const decorativeLayerRef = useRef(null);
+  const { t } = useLanguage();
+  const [coords, setCoords] = useState({ x: 0, y: 0 });
 
-  useEffect(() => {
-    const hero = heroRef.current;
-    const decorativeLayer = decorativeLayerRef.current;
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    if (!hero || !decorativeLayer || prefersReducedMotion) return undefined;
-
-    let frameId;
-    let bounds = hero.getBoundingClientRect();
-    const current = { x: 0, y: 0, glowX: bounds.width / 2, glowY: bounds.height / 2 };
-    const target = { ...current };
-
-    const updateBounds = () => {
-      bounds = hero.getBoundingClientRect();
-      target.glowX = Math.min(target.glowX, bounds.width);
-      target.glowY = Math.min(target.glowY, bounds.height);
-    };
-
-    const updatePointer = (event) => {
-      const x = (event.clientX - bounds.left) / bounds.width - 0.5;
-      const y = (event.clientY - bounds.top) / bounds.height - 0.5;
-
-      target.x = Math.max(-1, Math.min(1, x * 2));
-      target.y = Math.max(-1, Math.min(1, y * 2));
-      target.glowX = event.clientX - bounds.left;
-      target.glowY = event.clientY - bounds.top;
-    };
-
-    const resetPointer = () => {
-      target.x = 0;
-      target.y = 0;
-      target.glowX = bounds.width / 2;
-      target.glowY = bounds.height / 2;
-    };
-
-    const animate = () => {
-      current.x += (target.x - current.x) * 0.08;
-      current.y += (target.y - current.y) * 0.08;
-      current.glowX += (target.glowX - current.glowX) * 0.1;
-      current.glowY += (target.glowY - current.glowY) * 0.1;
-
-      decorativeLayer.style.setProperty('--hero-parallax-5-x', `${(current.x * 5).toFixed(2)}px`);
-      decorativeLayer.style.setProperty('--hero-parallax-5-y', `${(current.y * 5).toFixed(2)}px`);
-      decorativeLayer.style.setProperty('--hero-parallax-10-x', `${(current.x * 10).toFixed(2)}px`);
-      decorativeLayer.style.setProperty('--hero-parallax-10-y', `${(current.y * 10).toFixed(2)}px`);
-      decorativeLayer.style.setProperty('--hero-parallax-15-x', `${(current.x * 15).toFixed(2)}px`);
-      decorativeLayer.style.setProperty('--hero-parallax-15-y', `${(current.y * 15).toFixed(2)}px`);
-      decorativeLayer.style.setProperty('--hero-glow-x', `${current.glowX.toFixed(2)}px`);
-      decorativeLayer.style.setProperty('--hero-glow-y', `${current.glowY.toFixed(2)}px`);
-      frameId = requestAnimationFrame(animate);
-    };
-
-    hero.addEventListener('pointerenter', updateBounds);
-    hero.addEventListener('pointermove', updatePointer);
-    hero.addEventListener('pointerleave', resetPointer);
-    window.addEventListener('resize', updateBounds);
-    frameId = requestAnimationFrame(animate);
-
-    return () => {
-      cancelAnimationFrame(frameId);
-      hero.removeEventListener('pointerenter', updateBounds);
-      hero.removeEventListener('pointermove', updatePointer);
-      hero.removeEventListener('pointerleave', resetPointer);
-      window.removeEventListener('resize', updateBounds);
-    };
-  }, []);
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    setCoords({ x: Math.round(x), y: Math.round(y) });
+  };
 
   const tagline = t('hero.tagline');
   const headline = t('hero.headline');
@@ -82,59 +21,94 @@ export default function Hero() {
   const secondaryCTA = t('hero.secondaryCTA');
 
   return (
-    <section ref={heroRef} className="hero-ambient relative min-h-[100dvh] flex flex-col items-center justify-center overflow-hidden pt-16 z-10 w-full">
-      <div ref={decorativeLayerRef} className="hero-decorative-layer" aria-hidden="true">
-        <div className="hero-parallax-layer hero-parallax-background">
-          <div className="hero-gradient" />
-        </div>
-        <div className="hero-mouse-glow" />
-        <div className="hero-parallax-layer hero-parallax-middle">
-          <div className="hero-geometry hero-geometry-orbit" />
-        </div>
-        <div className="hero-parallax-layer hero-parallax-foreground">
-          <div className="hero-geometry hero-geometry-square" />
-          <div className="hero-geometry hero-geometry-dot" />
-        </div>
+    <section 
+      onMouseMove={handleMouseMove}
+      className="relative min-h-[100dvh] flex flex-col justify-center overflow-hidden pt-16 z-10 w-full blueprint-grid-light dark:blueprint-grid-dark select-none"
+    >
+      {/* Dynamic Grid Alignment Outline */}
+      <div className="absolute inset-x-6 sm:inset-x-10 lg:inset-x-16 top-24 bottom-10 border-2 border-dashed border-primary-text/10 dark:border-primary-text-dark/10 pointer-events-none z-0"></div>
+
+      {/* Top Ledger Header (Telemetry) */}
+      <div className="absolute top-24 left-6 sm:left-10 lg:left-16 right-6 sm:right-10 lg:right-16 flex justify-between items-center border-b border-primary-text/20 dark:border-primary-text-dark/20 pb-4 pointer-events-none z-10 px-4">
+        <span className="font-martian text-[10px] font-bold tracking-[0.25em] text-primary-text/50 dark:text-primary-text-dark/50">
+          PROJECT // PORTFOLIO_V2.0
+        </span>
+        <span className="font-martian text-[10px] font-bold tracking-[0.25em] text-accent">
+          [ 41.0044° N, 71.6726° E // NAMANGAN ]
+        </span>
       </div>
-      <div className="relative z-10 text-left px-6 sm:px-10 lg:px-16 w-full max-w-5xl mx-auto pointer-events-none flex flex-col items-start justify-center">
-        
-        {/* Tagline */}
-        <p className="hero-enter hero-enter-title text-sm md:text-base font-martian font-bold tracking-[0.2em] uppercase text-accent mb-6 opacity-90">
-          {tagline}
-        </p>
 
-        {/* Headline */}
-        <h1 className="hero-enter hero-enter-heading text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-8 text-primary-text dark:text-primary-text-dark leading-[1.1] max-w-4xl">
-          {headline}
-        </h1>
-
-        {/* Supporting Copy */}
-        <div className="hero-enter hero-enter-subtitle space-y-4 mb-12 max-w-3xl">
-          <p className="text-lg md:text-xl text-primary-text/80 dark:text-primary-text-dark/80 leading-relaxed font-funnel">
-            {supporting1}
-          </p>
-          <p className="text-lg md:text-xl text-primary-text/70 dark:text-primary-text-dark/70 leading-relaxed font-funnel">
-            {supporting2}
-          </p>
-        </div>
+      {/* Asymmetric Split Layout Container */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-10 sm:px-16 lg:px-24 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center h-full my-auto">
         
-        {/* CTAs */}
-        <div className="hero-enter hero-enter-actions flex flex-col sm:flex-row gap-4 w-full pointer-events-auto relative z-20">
-          <a 
-            href="#projects"
-            className="inline-flex items-center gap-3 px-8 py-4 bg-primary-text dark:bg-primary-text-dark text-background dark:text-background-dark rounded-full font-funnel font-bold tracking-widest uppercase hover:bg-accent dark:hover:bg-accent hover:text-white dark:hover:text-background transition-all duration-300 shadow-[0_0_20px_rgba(0,0,0,0.08)] hover:shadow-[0_0_30px_rgba(8,203,0,0.3)] hover:-translate-y-0.5"
-          >
-            {primaryCTA}
-            <ArrowRight size={18} />
-          </a>
-          <a 
-            href="#contact"
-            className="inline-flex items-center gap-3 px-8 py-4 bg-glass-light dark:bg-glass-dark border border-border-light dark:border-border-dark backdrop-blur-md rounded-full font-funnel font-bold tracking-widest uppercase hover:border-accent dark:hover:border-accent hover:text-accent dark:hover:text-accent transition-all duration-300"
-          >
-            <Mail size={18} />
-            {secondaryCTA}
-          </a>
+        {/* Left Side: Dense Typography & Coordinate stamp (7 columns) */}
+        <div className="lg:col-span-7 flex flex-col items-start justify-center">
+          
+          {/* Active sheet indicator */}
+          <div className="mb-8 inline-flex items-center gap-3 px-4 py-1.5 bg-accent/15 border-2 border-accent rounded-lg text-accent text-xs font-martian font-bold uppercase tracking-widest shadow-[2px_2px_0px_rgba(224,122,95,0.3)]">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
+            </span>
+            SHEET 01 // CORE_DRAFT
+          </div>
+
+          {/* Tagline */}
+          <p className="text-xs md:text-sm font-martian font-black tracking-[0.3em] uppercase text-primary-text/40 dark:text-primary-text-dark/40 mb-4">
+            {tagline}
+          </p>
+
+          {/* Title block with double border and solid stamp feel */}
+          <div className="border-4 border-primary-text dark:border-primary-text-dark p-6 sm:p-8 bg-white dark:bg-card-bg-dark shadow-hard-light dark:shadow-hard-dark mb-8 w-full">
+            <h1 className="text-5xl sm:text-6xl md:text-7xl font-black tracking-tighter leading-none text-primary-text dark:text-primary-text-dark font-martian uppercase mb-2">
+              Umar <span className="text-accent">Builds</span>
+            </h1>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight leading-tight text-primary-text/80 dark:text-primary-text-dark/80 font-martian">
+              {headline}
+            </h2>
+          </div>
+
+          {/* Width-capped technical details */}
+          <div className="space-y-4 mb-10 max-w-xl border-l-4 border-accent pl-6 py-2 bg-accent/5">
+            <p className="text-base sm:text-lg text-primary-text/75 dark:text-primary-text-dark/75 leading-relaxed font-funnel">
+              {supporting1}
+            </p>
+            <p className="text-sm sm:text-base text-primary-text/60 dark:text-primary-text-dark/60 leading-relaxed font-funnel">
+              {supporting2}
+            </p>
+          </div>
+          
+          {/* Woodblock CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-6 w-full max-w-md">
+            <a 
+              href="#projects"
+              className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-accent text-white dark:text-[#1C1C1D] border-2 border-primary-text dark:border-primary-text-dark rounded-xl font-funnel font-bold tracking-widest uppercase shadow-hard-interactive-light dark:shadow-hard-interactive-dark transition-all cursor-pointer flex-1"
+            >
+              {primaryCTA}
+              <ArrowRight size={18} />
+            </a>
+            <a 
+              href="#contact"
+              className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-white dark:bg-card-bg-dark text-primary-text dark:text-primary-text-dark border-2 border-primary-text dark:border-primary-text-dark rounded-xl font-funnel font-bold tracking-widest uppercase shadow-hard-interactive-light dark:shadow-hard-interactive-dark transition-all cursor-pointer flex-1"
+            >
+              <Mail size={18} />
+              {secondaryCTA}
+            </a>
+          </div>
         </div>
+
+        {/* Right Side: Spacer for 3D layout integration (5 columns) */}
+        <div className="lg:col-span-5 h-[300px] lg:h-full w-full pointer-events-none"></div>
+
+      </div>
+
+      {/* Dynamic Cursor Tracker & Technical Specs footer bar */}
+      <div className="absolute bottom-10 left-6 sm:left-10 lg:left-16 right-6 sm:right-10 lg:right-16 flex justify-between items-center pointer-events-none text-primary-text/40 dark:text-primary-text-dark/40 font-martian text-[9px] px-4">
+        <span>SCALE: 1:1</span>
+        <span className="bg-primary-text/5 dark:bg-primary-text-dark/5 px-2 py-0.5 rounded border border-primary-text/10 dark:border-primary-text-dark/10">
+          SYS_LOC_X: {coords.x}px // SYS_LOC_Y: {coords.y}px
+        </span>
+        <span>INDEX REF: SH-01_LEDGER</span>
       </div>
     </section>
   );
