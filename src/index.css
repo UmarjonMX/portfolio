@@ -86,173 +86,80 @@ html {
   scroll-behavior: smooth;
 }
 
-.hero-ambient {
-  isolation: isolate;
+/* Custom design tokens for Umar's Style */
+.shadow-hard-light {
+  box-shadow: 4px 4px 0px 0px rgba(28, 28, 28, 0.95);
 }
 
-.hero-decorative-layer,
-.hero-parallax-layer,
-.hero-gradient,
-.hero-mouse-glow,
-.hero-geometry {
-  position: absolute;
-  pointer-events: none;
+.shadow-hard-dark {
+  box-shadow: 4px 4px 0px 0px rgba(250, 250, 250, 0.95);
 }
 
-.hero-decorative-layer {
-  inset: 0;
-  z-index: -1;
-  --hero-parallax-5-x: 0px;
-  --hero-parallax-5-y: 0px;
-  --hero-parallax-10-x: 0px;
-  --hero-parallax-10-y: 0px;
-  --hero-parallax-15-x: 0px;
-  --hero-parallax-15-y: 0px;
-  --hero-glow-x: 50%;
-  --hero-glow-y: 50%;
+.shadow-hard-accent {
+  box-shadow: 4px 4px 0px 0px #E07A5F;
 }
 
-.hero-parallax-layer {
-  inset: 0;
-  will-change: transform;
+.shadow-hard-interactive-light {
+  box-shadow: 4px 4px 0px 0px rgba(28, 28, 28, 0.95);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.hero-parallax-background {
-  transform: translate3d(var(--hero-parallax-5-x), var(--hero-parallax-5-y), 0);
+.shadow-hard-interactive-light:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px rgba(28, 28, 28, 0.95);
 }
 
-.hero-parallax-middle {
-  transform: translate3d(var(--hero-parallax-10-x), var(--hero-parallax-10-y), 0);
+.shadow-hard-interactive-light:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px rgba(28, 28, 28, 0.95);
 }
 
-.hero-parallax-foreground {
-  transform: translate3d(var(--hero-parallax-15-x), var(--hero-parallax-15-y), 0);
+.shadow-hard-interactive-dark {
+  box-shadow: 4px 4px 0px 0px rgba(250, 250, 250, 0.95);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.hero-gradient {
-  inset: -12%;
-  background: radial-gradient(circle at 18% 22%, #edf6f0 0%, transparent 42%), linear-gradient(120deg, #f8f8f8, #edf6f0, #f8f8f8);
-  background-size: 140% 140%;
-  opacity: 0;
-  animation: hero-background-in 300ms cubic-bezier(0.22, 1, 0.36, 1) forwards, hero-gradient-shift 30s ease-in-out 300ms infinite alternate;
+.shadow-hard-interactive-dark:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px rgba(250, 250, 250, 0.95);
 }
 
-.dark .hero-gradient {
-  background: radial-gradient(circle at 18% 22%, #0e1a11 0%, transparent 42%), linear-gradient(120deg, #090909, #0e1a11, #090909);
+.shadow-hard-interactive-dark:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px rgba(250, 250, 250, 0.95);
 }
 
-.hero-mouse-glow {
-  top: 0;
-  left: 0;
-  width: 36rem;
-  height: 36rem;
-  border-radius: 9999px;
-  background: radial-gradient(circle, rgb(8 203 0 / 0.1) 0%, rgb(8 203 0 / 0.04) 32%, transparent 70%);
-  filter: blur(48px);
-  opacity: 0.08;
-  transform: translate3d(calc(var(--hero-glow-x) - 18rem), calc(var(--hero-glow-y) - 18rem), 0);
-  will-change: transform;
+.recess-inset-light {
+  box-shadow: inset 2px 2px 6px 0px rgba(0, 0, 0, 0.08);
+  background-color: rgba(28, 28, 28, 0.02);
 }
 
-.hero-geometry {
-  border: 1px solid rgb(8 203 0 / 0.16);
-  will-change: transform;
+.recess-inset-dark {
+  box-shadow: inset 2px 2px 6px 0px rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
-.hero-geometry-orbit {
-  top: 18%;
-  right: 10%;
-  width: clamp(9rem, 18vw, 15rem);
-  aspect-ratio: 1;
-  border-radius: 9999px;
-  animation: hero-float-orbit 18s ease-in-out infinite;
+/* Blueprint grids */
+.blueprint-grid-light {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(28, 28, 28, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(28, 28, 28, 0.035) 1px, transparent 1px);
 }
 
-.hero-geometry-square {
-  right: 26%;
-  bottom: 15%;
-  width: clamp(3.5rem, 7vw, 5rem);
-  aspect-ratio: 1;
-  transform: rotate(18deg);
-  animation: hero-float-square 25s ease-in-out -7s infinite;
+.blueprint-grid-dark {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(250, 250, 250, 0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(250, 250, 250, 0.015) 1px, transparent 1px);
 }
 
-.hero-geometry-dot {
-  top: 32%;
-  left: 11%;
-  width: 0.65rem;
-  height: 0.65rem;
-  border-radius: 9999px;
-  background: rgb(8 203 0 / 0.35);
-  border: 0;
-  animation: hero-float-dot 32s ease-in-out -13s infinite;
-}
-
-.hero-enter {
-  opacity: 0;
-  transform: translateY(20px);
-  animation: hero-enter 360ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-.hero-enter-title { animation-delay: 90ms; }
-.hero-enter-heading { animation-delay: 140ms; }
-.hero-enter-subtitle { animation-delay: 210ms; }
-.hero-enter-actions { animation-delay: 300ms; }
-
-@keyframes hero-background-in {
-  to { opacity: 1; }
-}
-
-@keyframes hero-gradient-shift {
-  from { background-position: 0% 30%; }
-  to { background-position: 100% 70%; }
-}
-
-@keyframes hero-float-orbit {
-  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
-  50% { transform: translate3d(0, -14px, 0) rotate(8deg); }
-}
-
-@keyframes hero-float-square {
-  0%, 100% { transform: translate3d(0, 0, 0) rotate(18deg); }
-  50% { transform: translate3d(0, 10px, 0) rotate(25deg); }
-}
-
-@keyframes hero-float-dot {
-  0%, 100% { transform: translate3d(0, 0, 0); }
-  50% { transform: translate3d(0, -9px, 0); }
-}
-
-@keyframes hero-enter {
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hero-gradient,
-  .hero-geometry,
-  .hero-enter {
-    animation: none;
-  }
-
-  .hero-enter {
-    opacity: 1;
-    transform: none;
-  }
-
-  .hero-gradient {
-    opacity: 1;
-  }
-}
-
-@layer utilities {
-  .delay-100 { transition-delay: 100ms; animation-delay: 100ms; }
-  .delay-200 { transition-delay: 200ms; animation-delay: 200ms; }
-  .delay-300 { transition-delay: 300ms; animation-delay: 300ms; }
-  .delay-400 { transition-delay: 400ms; animation-delay: 400ms; }
-  .delay-500 { transition-delay: 500ms; animation-delay: 500ms; }
-  .delay-600 { transition-delay: 600ms; animation-delay: 600ms; }
-  .delay-700 { transition-delay: 700ms; animation-delay: 700ms; }
-  .delay-1000 { transition-delay: 1000ms; animation-delay: 1000ms; }
+.blueprint-sheet-label {
+  font-family: 'MartianMono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  opacity: 0.5;
 }
 
 @keyframes fadeIn {
@@ -264,30 +171,73 @@ html {
   animation: fadeIn 1.5s ease-out forwards;
 }
 
-@keyframes caretBreath {
-  0%, 100% {
-    background-color: #08CB00;
-    opacity: 0.25;
-    box-shadow: 0 0 2px rgba(8, 203, 0, 0.2);
-  }
-  50% {
-    background-color: #08CB00;
-    opacity: 0.9;
-    box-shadow: 0 0 8px rgba(8, 203, 0, 0.8);
-  }
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
-.animate-caretBreath {
-  animation: caretBreath 15s ease-in-out infinite;
-}
-
-@keyframes pulseRing {
-  0% {
-    r: 0;
-    opacity: 0.15;
-  }
-  100% {
-    r: 280;
+/* ─── Hero Entrance Reveal ───────────────────────────────────────────────── */
+@keyframes heroReveal {
+  from {
     opacity: 0;
+    transform: translateY(36px);
+    filter: blur(8px);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.hero-reveal {
+  opacity: 0;
+  animation: heroReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.hero-reveal.paused {
+  animation: none;
+  opacity: 0;
+}
+
+/* ─── Button Light Sweep ─────────────────────────────────────────────────── */
+.btn-sweep {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-sweep::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.12),
+    transparent
+  );
+  transition: left 0.6s ease;
+}
+
+.btn-sweep:hover::after {
+  left: 150%;
+}
+
+.btn-sweep:active {
+  transform: scale(0.97);
+  transition: transform 0.1s;
+}
+
+@layer utilities {
+  .delay-100 { transition-delay: 100ms; animation-delay: 100ms; }
+  .delay-200 { transition-delay: 200ms; animation-delay: 200ms; }
+  .delay-300 { transition-delay: 300ms; animation-delay: 300ms; }
+  .delay-400 { transition-delay: 400ms; animation-delay: 400ms; }
+  .delay-500 { transition-delay: 500ms; animation-delay: 500ms; }
+  .delay-600 { transition-delay: 600ms; animation-delay: 600ms; }
+  .delay-700 { transition-delay: 700ms; animation-delay: 700ms; }
+  .delay-1000 { transition-delay: 1000ms; animation-delay: 1000ms; }
 }

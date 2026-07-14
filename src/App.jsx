@@ -17,10 +17,11 @@ function FadeSection({ children }) {
 
   useEffect(() => {
     let isVisible = false;
+    const currentRef = ref.current;
 
     const handleScroll = () => {
-      if (!isVisible || !ref.current) return;
-      const rect = ref.current.getBoundingClientRect();
+      if (!isVisible || !currentRef) return;
+      const rect = currentRef.getBoundingClientRect();
       const viewHeight = window.innerHeight;
       
       const threshold = 180; // boundary limit for progressive fading
@@ -56,11 +57,11 @@ function FadeSection({ children }) {
       { rootMargin: '50px 0px' }
     );
 
-    if (ref.current) observer.observe(ref.current);
+    if (currentRef) observer.observe(currentRef);
     window.addEventListener('scroll', handleScroll, { passive: true });
     
     return () => {
-      if (ref.current) observer.unobserve(ref.current);
+      if (currentRef) observer.unobserve(currentRef);
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
@@ -140,8 +141,8 @@ function AppContent() {
     if (prefersReducedMotion) {
       queueMount();
     } else {
-      // Delay mounting until after the Hero page-entry slide animations (~1200ms)
-      timeoutId = setTimeout(queueMount, 1200);
+      // Mount quickly so crystal entrance overlaps text reveal sequence
+      timeoutId = setTimeout(queueMount, 300);
     }
 
     return () => {
@@ -182,9 +183,7 @@ function AppContent() {
       <Navbar isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
       
       <main style={{ position: 'relative', zIndex: 10 }} className="flex-grow pt-20 w-full overflow-x-hidden">
-        <FadeSection>
-          <Hero />
-        </FadeSection>
+        <Hero />
         <FadeSection>
           <About />
         </FadeSection>

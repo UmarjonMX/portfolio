@@ -8,15 +8,15 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#FFFBB1',
-        'background-dark': '#212121',
-        'primary-text': '#1C1C1C', 
+        background: '#FFFDF0',
+        'background-dark': '#1C1C1D',
+        'primary-text': '#1C1C1C',
         'primary-text-dark': '#FAFAFA',
-        accent: '#08CB00',
-        'glass-light': 'rgba(246, 240, 240, 0.75)',
-        'glass-dark': 'rgba(33, 33, 33, 0.75)',
-        'border-light': 'rgba(0, 0, 0, 0.08)',
-        'border-dark': 'rgba(255, 255, 255, 0.08)',
+        accent: '#E07A5F',
+        'card-bg-light': '#FFFFFF',
+        'card-bg-dark': '#242426',
+        'border-light': 'rgba(28, 28, 28, 0.1)',
+        'border-dark': 'rgba(250, 250, 250, 0.1)',
       },
       keyframes: {
         fadeInUp: {

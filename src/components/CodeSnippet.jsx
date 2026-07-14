@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 
 export default function CodeSnippet() {
   const [copied, setCopied] = useState(false);
@@ -42,23 +42,22 @@ export default function CodeSnippet() {
   };
 
   return (
-    <div className="mt-20 max-w-3xl mx-auto bg-[#16161a] rounded-2xl overflow-hidden shadow-2xl relative group transform transition-transform hover:scale-[1.01] duration-500 font-martian z-20">
+    <div className="mt-20 max-w-3xl mx-auto bg-slate-950 rounded-xl border border-primary-text dark:border-primary-text-dark overflow-hidden shadow-hard-light dark:shadow-hard-dark relative group font-martian z-20">
       
-      {/* Header Bar */}
-      <div className="flex items-center px-5 py-4 bg-[#1f2025] border-b border-white/5 space-x-4">
-        <div className="flex space-x-2">
-          <div className="w-3.5 h-3.5 rounded-full bg-[#ff5f56]"></div>
-          <div className="w-3.5 h-3.5 rounded-full bg-[#ffbd2e]"></div>
-          <div className="w-3.5 h-3.5 rounded-full bg-[#27c93f]"></div>
+      {/* Header Bar (Blueprint reference style) */}
+      <div className="flex items-center justify-between px-5 py-4 bg-slate-900 border-b border-primary-text/20 dark:border-primary-text-dark/20">
+        <div className="flex items-center space-x-2">
+          <div className="w-1.5 h-1.5 bg-accent"></div>
+          <span className="text-[10px] text-primary-text-dark/50 tracking-wider font-bold">LEDGER_CONSOLE // solver.py</span>
         </div>
-        <span className="text-sm text-white/50 tracking-wider">solver.py</span>
+        <span className="text-[9px] text-accent/80 font-bold uppercase tracking-widest">[ ACTIVE_LINK_TERMINAL ]</span>
       </div>
 
       {/* Code Body */}
-      <div className="p-6 md:p-8 relative flex flex-col h-full">
+      <div className="p-6 md:p-8 relative flex flex-col h-full bg-slate-950">
         <button 
           onClick={handleCopy} 
-          className="absolute top-5 right-5 bg-white/10 hover:bg-[#08CB00]/20 hover:text-[#08CB00] text-white/80 text-xs px-4 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-all cursor-pointer font-bold tracking-wider z-10"
+          className="absolute top-5 right-5 bg-white/10 hover:bg-accent/20 hover:text-accent text-white text-xs px-4 py-2 rounded border border-white/25 hover:border-accent opacity-0 group-hover:opacity-100 transition-all cursor-pointer font-bold tracking-wider z-10"
         >
           {copied ? 'COPIED!' : 'COPY CODE'}
         </button>
@@ -82,14 +81,14 @@ export default function CodeSnippet() {
         </pre>
 
         {/* Interactive Terminal Line */}
-        <div className="border-t border-white/10 mt-auto pt-4 flex flex-col space-y-2">
+        <div className="border-t border-primary-text-dark/10 mt-auto pt-4 flex flex-col space-y-2">
           {output && (
-            <div className={`text-sm ${output.includes('Initialization') ? 'text-[#08CB00]' : 'text-[#ff5f56]'} animate-pulse`}>
+            <div className="text-xs text-accent font-bold animate-pulse">
               {output}
             </div>
           )}
-          <div className="flex items-center text-[#a9b2c3] text-sm md:text-base font-mono w-full cursor-text" onClick={() => inputRef.current?.focus()}>
-            <span className="text-[#27c93f] mr-2 shrink-0">umar@umarjonmx:~$</span>
+          <div className="flex items-center text-[#a9b2c3] text-sm font-mono w-full cursor-text" onClick={() => inputRef.current?.focus()}>
+            <span className="text-accent mr-2 shrink-0">umar@umarjonmx:~$</span>
             <div className="relative flex-1 flex items-center">
               <input
                 ref={inputRef}
@@ -101,20 +100,17 @@ export default function CodeSnippet() {
                 autoComplete="off"
                 className="bg-transparent outline-none flex-1 text-[#a9b2c3] min-w-0 caret-transparent"
               />
-              {/* Custom breathing cursor synced to the canvas cycle */}
+              {/* Custom breathing terracotta cursor */}
               <span 
-                className="absolute w-2 h-[1em] animate-caretBreath pointer-events-none"
+                className="absolute w-2 h-[1em] bg-accent/80 animate-pulse pointer-events-none"
                 style={{
-                  left: `calc(${input.length} * 0.6em)` // Approximate char width for mono fonts
+                  left: `calc(${input.length} * 0.6em)`
                 }}
               ></span>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Decorative Glow Outline */}
-      <div className="absolute inset-0 pointer-events-none border-2 border-transparent group-hover:border-[#08CB00]/40 transition-colors duration-500 rounded-2xl shadow-[0_0_0_rgba(8,203,0,0)] group-hover:shadow-[0_0_40px_rgba(8,203,0,0.15)] z-30"></div>
     </div>
   );
 }
