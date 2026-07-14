@@ -4,6 +4,7 @@ import { useLanguage } from '../context/LanguageContext';
 
 export default function Navbar({ toggleTheme, isDarkMode }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { lang, toggleLanguage, t } = useLanguage();
 
   const navLinks = [
@@ -13,6 +14,15 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
     { title: t('nav.resume'), href: '/resume.pdf' },
     { title: t('nav.contact'), href: '#contact' },
   ];
+
+  // Monitor scroll height to make nav shrink or transition styles
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Prevent background scrolling when mobile menu is open
   useEffect(() => {
@@ -28,16 +38,16 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
 
   return (
     <>
-      {/* Mobile Overlay */}
+      {/* Mobile Drawer Overlay */}
       <div 
-        className={`fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-300 md:hidden z-40 ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+        className={`fixed inset-0 bg-black/60 backdrop-blur-md transition-opacity duration-500 md:hidden z-40 ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
         onClick={() => setIsOpen(false)}
         aria-hidden="true"
       />
 
       {/* Mobile Menu Panel */}
       <div 
-        className={`fixed top-0 right-0 h-[100dvh] w-[80vw] max-w-sm backdrop-blur-lg bg-white/50 dark:bg-black/50 border-l border-white/10 dark:border-black/20 z-40 transform transition-transform duration-300 ease-out md:hidden flex flex-col pt-24 px-8 shadow-2xl ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
+        className={`fixed top-0 right-0 h-[100dvh] w-[80vw] max-w-sm bg-white/95 dark:bg-card-bg-dark/95 backdrop-blur-2xl border-l border-primary-text/10 dark:border-primary-text-dark/10 z-40 transform transition-transform duration-500 ease-out md:hidden flex flex-col pt-28 px-8 shadow-2xl ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
       >
         <div className="flex flex-col space-y-6">
           {navLinks.map((link, i) => (
@@ -45,7 +55,7 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
                key={i} 
                href={link.href} 
                onClick={() => setIsOpen(false)}
-               className="text-2xl font-funnel font-bold tracking-widest text-primary-text dark:text-primary-text-dark hover:text-accent dark:hover:text-accent transition-colors border-b border-primary-text/10 dark:border-primary-text-dark/10 pb-4"
+               className="text-xl font-funnel font-bold tracking-widest text-primary-text/80 dark:text-primary-text-dark/80 hover:text-accent dark:hover:text-accent transition-all duration-300 border-b border-primary-text/5 dark:border-primary-text-dark/5 pb-3"
             >
               {link.title}
             </a>
@@ -53,19 +63,32 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
         </div>
       </div>
 
-      {/* Top Navbar */}
-      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center justify-between px-6 py-3 rounded-full w-[90%] max-w-5xl bg-white/5 dark:bg-black/10 backdrop-blur-3xl backdrop-saturate-150 border border-white/20 dark:border-white/10 shadow-2xl transition-all duration-300">
-          
+      {/* Premium Floating Navigation Pill */}
+      <nav 
+        className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-between px-6 rounded-2xl w-[92%] max-w-5xl transition-all duration-500 ease-out
+          ${scrolled 
+            ? 'py-2.5 bg-white/75 dark:bg-card-bg-dark/75 backdrop-blur-2xl border border-primary-text/10 dark:border-primary-text-dark/10 shadow-[0_16px_40px_-12px_rgba(0,0,0,0.1)] dark:shadow-[0_16px_40px_-12px_rgba(0,0,0,0.3)]' 
+            : 'py-4 bg-white/40 dark:bg-card-bg-dark/40 backdrop-blur-lg border border-primary-text/5 dark:border-primary-text-dark/5 shadow-sm'
+          }
+        `}
+      >
           {/* Logo */}
-          <img src={isDarkMode ? '/images/logo_dark.png' : '/images/logo_light.png'} alt='UMX Logo' className='h-12 md:h-16 lg:h-20 w-auto object-contain transition-all duration-300' />
+          <div className="relative group">
+            <img 
+              src={isDarkMode ? '/images/logo_dark.png' : '/images/logo_light.png'} 
+              alt="UMX Logo" 
+              className="h-10 md:h-11 w-auto object-contain transition-transform duration-500 group-hover:scale-105" 
+            />
+            <div className="absolute -inset-2 rounded-lg bg-accent/10 opacity-0 group-hover:opacity-100 blur-md transition-opacity duration-500 pointer-events-none" />
+          </div>
 
-          {/* Desktop Nav Links (Hidden on mobile) */}
-          <div className="hidden md:flex items-center space-x-8">
+          {/* Desktop Nav Links (Hover-highlight Pill) */}
+          <div className="hidden md:flex items-center space-x-1 bg-primary-text/[0.03] dark:bg-primary-text-dark/[0.03] p-1 rounded-xl border border-primary-text/5 dark:border-primary-text-dark/5">
             {navLinks.map((link, i) => (
               <a 
                  key={i} 
                  href={link.href} 
-                 className="font-funnel font-bold tracking-widest text-sm text-black dark:text-white hover:text-accent dark:hover:text-accent transition-colors"
+                 className="relative px-4 py-2 font-funnel font-bold tracking-widest text-xs text-primary-text/70 dark:text-primary-text-dark/70 hover:text-accent dark:hover:text-accent rounded-lg transition-all duration-300 hover:bg-white dark:hover:bg-card-bg-dark hover:shadow-sm"
               >
                 {link.title}
               </a>
@@ -73,37 +96,40 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
           </div>
 
           {/* Controls */}
-          <div className="flex items-center space-x-1 sm:space-x-2 text-black dark:text-white">
+          <div className="flex items-center space-x-2 text-primary-text dark:text-primary-text-dark">
             <button
               onClick={toggleLanguage}
               aria-label="Change Language"
-              className="flex items-center space-x-1 px-2 sm:px-3 py-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors font-bold text-xs sm:text-sm tracking-wider uppercase"
+              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border border-primary-text/10 dark:border-primary-text-dark/10 hover:bg-white dark:hover:bg-card-bg-dark hover:shadow-sm transition-all duration-300 font-bold text-xs tracking-wider uppercase cursor-pointer"
             >
-              <Globe size={15} />
-              <span className="hidden sm:inline-block">{lang}</span>
+              <Globe size={13} className="text-primary-text/60 dark:text-primary-text-dark/60" />
+              <span className="text-primary-text/80 dark:text-primary-text-dark/80">{lang}</span>
             </button>
 
             <button
               onClick={toggleTheme}
               aria-label="Toggle Theme"
-              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+              className="p-2.5 rounded-xl border border-primary-text/10 dark:border-primary-text-dark/10 hover:bg-white dark:hover:bg-card-bg-dark hover:shadow-sm transition-all duration-300 cursor-pointer"
             >
-              {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+              {isDarkMode 
+                ? <Sun size={14} className="text-accent transition-transform duration-500 hover:rotate-45" /> 
+                : <Moon size={14} className="text-primary-text/75 transition-transform duration-500 hover:-rotate-12" />
+              }
             </button>
             
-            <kbd className="hidden lg:inline-block px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-black/5 dark:bg-white/10 text-black/60 dark:text-white/60 border border-black/10 dark:border-white/20 pointer-events-none select-none">
+            <kbd className="hidden lg:inline-block px-2.5 py-1.5 rounded-lg text-[9px] font-martian font-bold bg-primary-text/[0.04] dark:bg-primary-text-dark/[0.04] text-primary-text/40 dark:text-primary-text-dark/40 border border-primary-text/5 dark:border-primary-text-dark/5 pointer-events-none select-none">
               Ctrl K
             </kbd>
 
-            {/* iOS-Style Burger Icon (Hidden on md) */}
+            {/* Mobile Menu Toggle button */}
             <button
               onClick={() => setIsOpen(!isOpen)}
               aria-label="Toggle Menu"
-              className="md:hidden relative w-10 h-10 flex flex-col justify-center items-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors p-2 z-50"
+              className="md:hidden relative w-10 h-10 flex flex-col justify-center items-center rounded-xl hover:bg-white dark:hover:bg-card-bg-dark hover:shadow-sm transition-all duration-300 p-2 z-50 cursor-pointer"
             >
-              <div className={`w-5 h-[2px] bg-black dark:bg-white transition-all duration-300 ease-out absolute ${isOpen ? 'rotate-45' : '-translate-y-1.5'}`} />
-              <div className={`w-5 h-[2px] bg-black dark:bg-white transition-all duration-300 ease-out absolute ${isOpen ? 'opacity-0 scale-75' : 'opacity-100'}`} />
-              <div className={`w-5 h-[2px] bg-black dark:bg-white transition-all duration-300 ease-out absolute ${isOpen ? '-rotate-45' : 'translate-y-1.5'}`} />
+              <div className={`w-4.5 h-[1.5px] bg-primary-text dark:bg-primary-text-dark transition-all duration-300 ease-out absolute ${isOpen ? 'rotate-45' : '-translate-y-1.2'}`} />
+              <div className={`w-4.5 h-[1.5px] bg-primary-text dark:bg-primary-text-dark transition-all duration-300 ease-out absolute ${isOpen ? 'opacity-0 scale-75' : 'opacity-100'}`} />
+              <div className={`w-4.5 h-[1.5px] bg-primary-text dark:bg-primary-text-dark transition-all duration-300 ease-out absolute ${isOpen ? '-rotate-45' : 'translate-y-1.2'}`} />
             </button>
           </div>
       </nav>
