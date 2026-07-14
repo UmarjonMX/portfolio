@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { ArrowRight, Mail } from 'lucide-react';
+import HeroCanvas from './HeroCanvas';
 
-// ─── Magnetic Proximity Wrapper ─────────────────────────────────────────────
 function Magnetic({ children, scale = 0.25, className = '' }) {
   const ref = useRef(null);
   const [pos, setPos] = useState({ x: 0, y: 0 });
@@ -35,15 +35,24 @@ function Magnetic({ children, scale = 0.25, className = '' }) {
   );
 }
 
-// ─── Hero Component ─────────────────────────────────────────────────────────
 export default function Hero() {
   const { t } = useLanguage();
   const [scrollY, setScrollY] = useState(0);
+  const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    
+    const checkDark = () => setIsDark(document.documentElement.classList.contains('dark'));
+    checkDark();
+    const obs = new MutationObserver(checkDark);
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      obs.disconnect();
+    };
   }, []);
 
   const tagline      = t('hero.tagline');
@@ -52,28 +61,25 @@ export default function Hero() {
   const primaryCTA   = t('hero.primaryCTA');
   const secondaryCTA = t('hero.secondaryCTA');
 
-  // Scroll-driven parallax
   const vh = typeof window !== 'undefined' ? window.innerHeight : 900;
   const scrollFade  = Math.max(0, 1 - scrollY / (vh * 0.55));
   const scrollShift = scrollY * 0.15;
 
   return (
-    <section className="relative min-h-[100dvh] flex flex-col justify-center overflow-hidden z-10 w-full select-none">
+    <section className="relative min-h-[100dvh] flex flex-col justify-center overflow-hidden z-10 w-full select-none pt-10">
 
-      {/* Scroll-driven content wrapper */}
       <div
         style={{
           opacity: scrollFade,
           transform: `translateY(-${scrollShift}px)`,
           willChange: 'transform, opacity',
         }}
-        className="relative z-10 w-full max-w-7xl mx-auto px-8 sm:px-14 lg:px-20 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center"
+        className="relative z-10 w-full max-w-[90rem] mx-auto px-6 sm:px-12 lg:px-16 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center"
       >
 
         {/* ── LEFT: Text Content (55%) ─────────────────────────────────── */}
-        <div className="lg:col-span-7 flex flex-col items-start justify-center">
+        <div className="lg:col-span-7 flex flex-col items-start justify-center relative z-20">
 
-          {/* Status indicator */}
           <div
             className="hero-reveal mb-8 inline-flex items-center gap-3 px-4 py-1.5 bg-accent/10 border border-accent/25 rounded-full text-accent text-[10px] font-martian font-bold uppercase tracking-[0.25em]"
             style={{ animationDelay: '0.1s' }}
@@ -85,40 +91,25 @@ export default function Hero() {
             ONLINE // ACTIVE
           </div>
 
-          {/* HEADLINE — staggered word-by-word */}
-          <div
-            className="hero-reveal"
-            style={{ animationDelay: '0.3s' }}
-          >
-            <h1 className="text-7xl sm:text-8xl lg:text-[7rem] xl:text-[8.5rem] font-black tracking-tighter leading-[0.85] text-primary-text dark:text-primary-text-dark font-martian uppercase">
+          <div className="hero-reveal" style={{ animationDelay: '0.3s' }}>
+            <h1 className="text-7xl sm:text-8xl lg:text-[7.5rem] xl:text-[9rem] font-black tracking-tighter leading-[0.8] text-primary-text dark:text-primary-text-dark font-martian uppercase drop-shadow-sm">
               UMAR
             </h1>
           </div>
 
-          <div
-            className="hero-reveal"
-            style={{ animationDelay: '0.45s' }}
-          >
-            <h1 className="text-7xl sm:text-8xl lg:text-[7rem] xl:text-[8.5rem] font-black tracking-tighter leading-[0.85] text-accent font-martian uppercase mt-1">
+          <div className="hero-reveal" style={{ animationDelay: '0.45s' }}>
+            <h1 className="text-7xl sm:text-8xl lg:text-[7.5rem] xl:text-[9rem] font-black tracking-tighter leading-[0.8] text-accent font-martian uppercase mt-2 drop-shadow-sm">
               BUILDS
             </h1>
           </div>
 
-          {/* Subtitle */}
-          <div
-            className="hero-reveal mt-6"
-            style={{ animationDelay: '0.6s' }}
-          >
+          <div className="hero-reveal mt-8" style={{ animationDelay: '0.6s' }}>
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight leading-tight text-primary-text/70 dark:text-primary-text-dark/70 font-martian">
               {headline}
             </h2>
           </div>
 
-          {/* Tagline + Supporting */}
-          <div
-            className="hero-reveal mt-4"
-            style={{ animationDelay: '0.75s' }}
-          >
+          <div className="hero-reveal mt-5" style={{ animationDelay: '0.75s' }}>
             <p className="text-xs font-martian font-bold tracking-[0.3em] uppercase text-primary-text/40 dark:text-primary-text-dark/40 mb-3">
               {tagline}
             </p>
@@ -127,11 +118,7 @@ export default function Hero() {
             </p>
           </div>
 
-          {/* CTA Buttons */}
-          <div
-            className="hero-reveal flex flex-col sm:flex-row gap-4 mt-10 w-full max-w-md"
-            style={{ animationDelay: '0.9s' }}
-          >
+          <div className="hero-reveal flex flex-col sm:flex-row gap-4 mt-12 w-full max-w-lg" style={{ animationDelay: '0.9s' }}>
             <Magnetic scale={0.25} className="flex-1">
               <a
                 href="#projects"
@@ -145,7 +132,7 @@ export default function Hero() {
             <Magnetic scale={0.25} className="flex-1">
               <a
                 href="#contact"
-                className="btn-sweep inline-flex items-center justify-center gap-3 w-full px-8 py-4 bg-white/50 dark:bg-[#1E1E20]/50 backdrop-blur-md text-primary-text dark:text-primary-text-dark border border-primary-text/10 dark:border-primary-text-dark/10 rounded-2xl font-funnel font-bold tracking-wider uppercase hover:bg-white/80 dark:hover:bg-[#1E1E20]/80 shadow-[0_10px_24px_-8px_rgba(0,0,0,0.06)] hover:shadow-[0_14px_32px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 cursor-pointer"
+                className="btn-sweep inline-flex items-center justify-center gap-3 w-full px-8 py-4 bg-white/60 dark:bg-[#1E1E20]/60 backdrop-blur-xl text-primary-text dark:text-primary-text-dark border border-primary-text/10 dark:border-primary-text-dark/10 rounded-2xl font-funnel font-bold tracking-wider uppercase hover:bg-white/90 dark:hover:bg-[#1E1E20]/90 shadow-[0_10px_24px_-8px_rgba(0,0,0,0.06)] hover:shadow-[0_14px_32px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 cursor-pointer"
               >
                 <Mail size={16} className="text-primary-text/50 dark:text-primary-text-dark/50" />
                 {secondaryCTA}
@@ -154,13 +141,14 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* ── RIGHT: Space for 3D Crystal (45%) ────────────────────────── */}
-        <div className="lg:col-span-5 h-[120px] lg:h-full w-full pointer-events-none" aria-hidden="true" />
+        {/* ── RIGHT: Signature 3D Object (45%) ─────────────────────────── */}
+        <div className="lg:col-span-5 h-full w-full relative z-10 flex items-center justify-center">
+          <HeroCanvas isDark={isDark} scrollY={scrollY} />
+        </div>
 
       </div>
 
-      {/* Minimal sheet label */}
-      <div className="absolute bottom-8 left-8 sm:left-14 lg:left-20 pointer-events-none">
+      <div className="absolute bottom-8 left-8 sm:left-14 lg:left-20 pointer-events-none z-20">
         <span
           className="hero-reveal font-martian text-[8px] font-bold tracking-[0.3em] text-primary-text/20 dark:text-primary-text-dark/20 uppercase"
           style={{ animationDelay: '1.1s' }}
