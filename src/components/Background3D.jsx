@@ -2,188 +2,322 @@ import { useMemo, useRef, useEffect, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
-function DraftingTable() {
-  const groupRef = useRef(null);
-  const ringsRef = useRef(null);
-  const meshRef = useRef(null);
-  const meshInnerRef = useRef(null);
+// ─── Tunables ────────────────────────────────────────────────────────────────
+const LAYER_DEFS = [
+  // { count, depth, speed, size, opacity }  — three depth layers
+  { count: 55,  depth: 0,    speed: 1.0,  size: 0.055, opacity: 0.75 },
+  { count: 35,  depth: -2.5, speed: 0.55, size: 0.035, opacity: 0.45 },
+  { count: 22,  depth: -5.5, speed: 0.25, size: 0.022, opacity: 0.25 },
+];
 
-  // Check if dark mode is active
-  const [isDark, setIsDark] = useState(false);
+const CONNECTION_DIST   = 3.2;   // max distance for drawing edges
+const MOUSE_ATTRACT_R   = 3.8;   // radius of cursor influence
+const MOUSE_ATTRACT_K   = 0.018; // spring constant toward cursor
+const MOUSE_DAMPEN      = 0.88;  // velocity damping per frame
+const GLOW_DIST         = 2.2;   // radius for particle glow boost
+const BREATHE_AMP       = 0.06;  // breathing scale amplitude
+const BREATHE_SPEED     = 0.35;  // breathing cycles per second
+
+// Accent warm-terracotta from design system
+const ACCENT_HEX    = '#E07A5F';
+const ACCENT_COLOR  = new THREE.Color(ACCENT_HEX);
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+function randRange(a, b) { return a + Math.random() * (b - a); }
+
+// ─── Node network scene ───────────────────────────────────────────────────────
+function IntelligenceField({ isDark }) {
+
+  // Mouse in normalised screen space [-1..1] shared across components
+  const mouseNDC = useRef(new THREE.Vector2(9999, 9999));
   useEffect(() => {
-    const checkDark = () => {
-      setIsDark(document.documentElement.classList.contains('dark'));
+    const onMove = (e) => {
+      mouseNDC.current.set(
+        (e.clientX / window.innerWidth)  * 2 - 1,
+        -(e.clientY / window.innerHeight) * 2 + 1
+      );
     };
-    checkDark();
-    const observer = new MutationObserver(checkDark);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-    return () => observer.disconnect();
+    window.addEventListener('pointermove', onMove, { passive: true });
+    return () => window.removeEventListener('pointermove', onMove);
   }, []);
 
-  // Concentric compass drafting rings
-  const ringsGeometry = useMemo(() => {
-    const points = [];
-    const ringCount = 3;
-    const segments = 80;
-    for (let r = 0; r < ringCount; r++) {
-      const radius = 2.0 + r * 1.0;
-      for (let i = 0; i < segments; i++) {
-        const theta = (i / segments) * Math.PI * 2;
-        const nextTheta = ((i + 1) / segments) * Math.PI * 2;
-        // Segment start
-        points.push(new THREE.Vector3(Math.cos(theta) * radius, 0, Math.sin(theta) * radius));
-        // Segment end
-        points.push(new THREE.Vector3(Math.cos(nextTheta) * radius, 0, Math.sin(nextTheta) * radius));
+  // ── Per-layer data (positions, velocities, refs) ──────────────────────────
+  const layers = useMemo(() => {
+    return LAYER_DEFS.map((def) => {
+      const pos = [];
+      const vel = [];
+      const base = [];   // resting positions
+      for (let i = 0; i < def.count; i++) {
+        const x = randRange(-9, 9);
+        const y = randRange(-5, 5);
+        const z = def.depth + randRange(-0.5, 0.5);
+        pos.push(x, y, z);
+        vel.push(0, 0, 0);
+        base.push(x, y);
       }
-    }
-    return new THREE.BufferGeometry().setFromPoints(points);
+      return {
+        ...def,
+        pos: new Float32Array(pos),
+        vel: new Float32Array(vel),
+        base: new Float32Array(base),
+      };
+    });
   }, []);
 
-  // Track scroll position passively to adjust cameras
-  const scrollPercentRef = useRef(0);
-  useEffect(() => {
-    const handleScroll = () => {
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      scrollPercentRef.current = maxScroll > 0 ? window.scrollY / maxScroll : 0;
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  // ── Geometry / material refs for each layer ───────────────────────────────
+  const dotGeoRefs  = useRef(LAYER_DEFS.map(() => null));
+  const lineGeoRefs = useRef(LAYER_DEFS.map(() => null));
+  const dotMatRefs  = useRef(LAYER_DEFS.map(() => null));
+  const lineMatRefs = useRef(LAYER_DEFS.map(() => null));
 
-  // Temporary vectors to avoid allocation overhead in useFrame
-  const targetCam = useMemo(() => new THREE.Vector3(), []);
-  const targetLookAt = useMemo(() => new THREE.Vector3(), []);
-  const tempCam = useMemo(() => new THREE.Vector3(), []);
-  const tempLook = useMemo(() => new THREE.Vector3(1.6, -0.2, 0), []);
+  // Persistent buffers for line segments (reused every frame, no GC)
+  const linePosBufs = useMemo(() =>
+    layers.map(l => new Float32Array(l.count * l.count * 6)), [layers]);
+  const lineColBufs = useMemo(() =>
+    layers.map(l => new Float32Array(l.count * l.count * 6)), [layers]);
 
+  // Temp vectors (no per-frame allocation)
+  const _v3 = useMemo(() => new THREE.Vector3(), []);
+
+  // ── Animation loop ────────────────────────────────────────────────────────
   useFrame((state) => {
-    if (!groupRef.current) return;
+    const time  = state.clock.getElapsedTime();
+    const cam   = state.camera;
 
-    const time = state.clock.getElapsedTime();
-    const sp = scrollPercentRef.current;
+    // Unproject mouse NDC → world plane Z=0
+    _v3.set(mouseNDC.current.x, mouseNDC.current.y, 0.5).unproject(cam);
+    const dir  = _v3.sub(cam.position).normalize();
+    const dist = -cam.position.z / dir.z;
+    const mx   = cam.position.x + dir.x * dist;
+    const my   = cam.position.y + dir.y * dist;
 
-    // 1. Rotate the blueprint structures like a rotating mechanical template
-    if (meshRef.current) {
-      meshRef.current.rotation.x = time * 0.08;
-      meshRef.current.rotation.y = time * 0.12;
-    }
-    if (meshInnerRef.current) {
-      meshInnerRef.current.rotation.y = -time * 0.15;
-      meshInnerRef.current.rotation.z = time * 0.06;
-    }
+    // Global breathing scale (uniform sine)
+    const breathe = 1 + Math.sin(time * BREATHE_SPEED * Math.PI * 2) * BREATHE_AMP;
 
-    // 2. Spline interpolation for camera positions and focus points
-    if (sp <= 0.25) {
-      // Hero (Side layout view looking at right-aligned drafting structure) -> About (Axonometric center view)
-      const t = sp / 0.25;
-      targetCam.set(
-        THREE.MathUtils.lerp(1.5, 2.2, t),
-        THREE.MathUtils.lerp(3.2, 4.0, t),
-        THREE.MathUtils.lerp(3.5, 4.0, t)
-      );
-      targetLookAt.set(
-        THREE.MathUtils.lerp(1.6, 0, t),
-        THREE.MathUtils.lerp(-0.2, 0, t),
-        0
-      );
-    } else if (sp <= 0.6) {
-      // About -> Projects (Lateral slide looking up at structural grid)
-      const t = (sp - 0.25) / 0.35;
-      targetCam.set(
-        THREE.MathUtils.lerp(2.2, -4.5, t),
-        THREE.MathUtils.lerp(4.0, 1.8, t),
-        THREE.MathUtils.lerp(4.0, 5.0, t)
-      );
-      targetLookAt.set(0, -0.6, 0);
-    } else if (sp <= 0.85) {
-      // Projects -> Dashboard (Side profile elevation chart)
-      const t = (sp - 0.6) / 0.25;
-      targetCam.set(
-        THREE.MathUtils.lerp(-4.5, 5.5, t),
-        THREE.MathUtils.lerp(1.8, 0.8, t),
-        THREE.MathUtils.lerp(5.0, 3.8, t)
-      );
-      targetLookAt.set(0, -0.4, 0);
-    } else {
-      // Dashboard -> Footer (Close dolly zooming down onto blueprint sheet)
-      const t = (sp - 0.85) / 0.15;
-      targetCam.set(
-        THREE.MathUtils.lerp(5.5, 0, t),
-        THREE.MathUtils.lerp(0.8, 0.3, t),
-        THREE.MathUtils.lerp(3.8, 1.4, t)
-      );
-      targetLookAt.set(0, 0, -1);
-    }
+    // Node and line colors based on theme
+    const nodeBase  = isDark ? new THREE.Color(0xffffff) : new THREE.Color(0x1C1C1C);
+    const edgeBase  = isDark ? new THREE.Color(0xffffff) : new THREE.Color(0x1C1C1C);
 
-    // Dynamic cursor mouse sway for three-dimensional blueprint parallax depth
-    const mouseOffsetX = state.pointer.x * 0.9;
-    const mouseOffsetY = state.pointer.y * 0.7;
+    layers.forEach((layer, li) => {
+      const { pos, vel, base, count, speed, opacity, depth } = layer;
 
-    tempCam.set(targetCam.x + mouseOffsetX, targetCam.y + mouseOffsetY, targetCam.z);
-    state.camera.position.lerp(tempCam, 0.05);
+      // ─ Update positions with mouse attraction ─────────────────────────────
+      for (let i = 0; i < count; i++) {
+        const ix = i * 3, iy = ix + 1;
 
-    // Smooth focus lerp
-    tempLook.lerp(targetLookAt, 0.05);
-    state.camera.lookAt(tempLook);
+        // Breathing: nudge towards origin slightly
+        const bx = base[i * 2] * breathe;
+        const by = base[i * 2 + 1] * breathe;
+
+        // Distance to cursor (world-space)
+        const dx = mx - pos[ix];
+        const dy = my - pos[iy];
+        const d2 = dx * dx + dy * dy;
+
+        if (d2 < MOUSE_ATTRACT_R * MOUSE_ATTRACT_R) {
+          const f = MOUSE_ATTRACT_K * speed;
+          vel[ix] += dx * f;
+          vel[iy] += dy * f;
+        }
+
+        // Restore toward breathing base position
+        vel[ix] += (bx - pos[ix]) * 0.003 * speed;
+        vel[iy] += (by - pos[iy]) * 0.003 * speed;
+
+        // Dampen
+        vel[ix] *= MOUSE_DAMPEN;
+        vel[iy] *= MOUSE_DAMPEN;
+
+        // Integrate
+        pos[ix] += vel[ix];
+        pos[iy] += vel[iy];
+      }
+
+      // ─ Update dot geometry ────────────────────────────────────────────────
+      const dGeo = dotGeoRefs.current[li];
+      if (dGeo) {
+        dGeo.attributes.position.array.set(pos);
+        dGeo.attributes.position.needsUpdate = true;
+      }
+
+      // ─ Dot material opacity (breathe) ─────────────────────────────────────
+      const dMat = dotMatRefs.current[li];
+      if (dMat) {
+        dMat.opacity = opacity * (0.85 + Math.sin(time * BREATHE_SPEED * Math.PI * 2 + li) * 0.15);
+      }
+
+      // ─ Build line segments ────────────────────────────────────────────────
+      const lp = linePosBufs[li];
+      const lc = lineColBufs[li];
+      let lIdx = 0;
+
+      const depthFade = 1 - Math.abs(depth) / 8; // far layers slightly dimmer
+
+      for (let i = 0; i < count; i++) {
+        const ix = i * 3, iy = ix + 1;
+        const ax = pos[ix], ay = pos[iy], az = pos[ix + 2];
+
+        // Per-node: cursor proximity → glow factor
+        const ndx = ax - mx, ndy = ay - my;
+        const nd2 = ndx * ndx + ndy * ndy;
+        const glow = nd2 < GLOW_DIST * GLOW_DIST
+          ? 1 - Math.sqrt(nd2) / GLOW_DIST
+          : 0;
+
+        for (let j = i + 1; j < count; j++) {
+          const jx = j * 3, jy = jx + 1;
+          const bx = pos[jx], by = pos[jy], bz = pos[jx + 2];
+
+          const edx = bx - ax, edy = by - ay, edz = bz - az;
+          const ed2 = edx * edx + edy * edy + edz * edz;
+
+          if (ed2 > CONNECTION_DIST * CONNECTION_DIST) continue;
+
+          const t = 1 - Math.sqrt(ed2) / CONNECTION_DIST;
+
+          // Cursor proximity → edge brightens
+          const midx = (ax + bx) * 0.5, midy = (ay + by) * 0.5;
+          const cdx  = midx - mx, cdy = midy - my;
+          const cd2  = cdx * cdx + cdy * cdy;
+          const cursorBoost = cd2 < CONNECTION_DIST * CONNECTION_DIST
+            ? (1 - Math.sqrt(cd2) / CONNECTION_DIST) * 0.8
+            : 0;
+
+          const alpha = t * opacity * depthFade * (0.55 + cursorBoost);
+
+          // Blend node color with accent on cursor proximity
+          const nodeColor = nodeBase.clone().lerp(ACCENT_COLOR, Math.max(glow, cursorBoost) * 0.6);
+          const edgeColor = edgeBase.clone().lerp(ACCENT_COLOR, cursorBoost * 0.7);
+
+          // Vertex A
+          lp[lIdx]     = ax; lp[lIdx + 1] = ay; lp[lIdx + 2] = az;
+          lc[lIdx]     = edgeColor.r * alpha;
+          lc[lIdx + 1] = edgeColor.g * alpha;
+          lc[lIdx + 2] = edgeColor.b * alpha;
+          // Vertex B
+          lp[lIdx + 3] = bx; lp[lIdx + 4] = by; lp[lIdx + 5] = bz;
+          lc[lIdx + 3] = edgeColor.r * alpha;
+          lc[lIdx + 4] = edgeColor.g * alpha;
+          lc[lIdx + 5] = edgeColor.b * alpha;
+
+          lIdx += 6;
+          // Suppress unused var warning
+          void nodeColor;
+        }
+      }
+
+      // Upload line geometry
+      const lGeo = lineGeoRefs.current[li];
+      if (lGeo) {
+        lGeo.attributes.position.array.set(lp);
+        lGeo.attributes.position.needsUpdate = true;
+        lGeo.attributes.color.array.set(lc);
+        lGeo.attributes.color.needsUpdate = true;
+        lGeo.setDrawRange(0, lIdx / 3);
+      }
+
+      // ─ Line material (breathe opacity) ────────────────────────────────────
+      const lMat = lineMatRefs.current[li];
+      if (lMat) {
+        lMat.opacity = 0.92 + Math.sin(time * BREATHE_SPEED * Math.PI * 2) * 0.08;
+      }
+    });
+
+    // ── Slow camera sway (not scroll-driven in this layer) ─────────────────
+    state.camera.position.x += (state.pointer.x * 0.5 - state.camera.position.x) * 0.02;
+    state.camera.position.y += (state.pointer.y * 0.3 - state.camera.position.y) * 0.02;
+    state.camera.lookAt(0, 0, 0);
   });
 
-  const accentColor = '#E07A5F';
-  const structuralColor = isDark ? '#FFFFFF' : '#1C1C1C';
-  const gridColor = isDark ? '#333333' : '#E0E0E0';
-
+  // ── JSX: one <group> per layer ────────────────────────────────────────────
   return (
-    <group ref={groupRef}>
-      {/* Blueprint Grid Floor (Divisions aligned at 1 unit blocks) */}
-      <gridHelper args={[80, 80, accentColor, gridColor]} rotation={[0, 0, 0]} position={[0, -1.5, 0]} />
+    <>
+      {layers.map((layer, li) => {
+        const maxEdges = layer.count * layer.count;
+        const dotColor = isDark ? '#ffffff' : '#1C1C1C';
 
-      {/* Dynamic compass drafting rings shifted right to fit Hero V2 layout */}
-      <lineSegments ref={ringsRef} geometry={ringsGeometry} position={[1.6, -1.48, 0]}>
-        <lineBasicMaterial 
-          color={structuralColor} 
-          transparent={true} 
-          opacity={isDark ? 0.06 : 0.1} 
-        />
-      </lineSegments>
+        return (
+          <group key={li}>
+            {/* Nodes */}
+            <points>
+              <bufferGeometry
+                ref={(g) => {
+                  if (!g) return;
+                  dotGeoRefs.current[li] = g;
+                  g.setAttribute(
+                    'position',
+                    new THREE.BufferAttribute(layer.pos.slice(), 3)
+                  );
+                }}
+              />
+              <pointsMaterial
+                ref={(m) => { dotMatRefs.current[li] = m; }}
+                size={layer.size}
+                color={dotColor}
+                transparent
+                opacity={layer.opacity}
+                depthWrite={false}
+                sizeAttenuation
+              />
+            </points>
 
-      {/* Primary Drafting Construction Wireframes shifted right to fit Hero V2 layout */}
-      <group position={[1.6, 0, 0]}>
-        {/* Outer frame (Terracotta grid box) */}
-        <mesh ref={meshRef}>
-          <boxGeometry args={[2.5, 2.5, 2.5]} />
-          <meshBasicMaterial 
-            wireframe={true} 
-            color={accentColor} 
-            transparent={true} 
-            opacity={isDark ? 0.25 : 0.4} 
-          />
-        </mesh>
-
-        {/* Inner frame (Rotated structure) */}
-        <mesh ref={meshInnerRef}>
-          <octahedronGeometry args={[1.5]} />
-          <meshBasicMaterial 
-            wireframe={true} 
-            color={structuralColor} 
-            transparent={true} 
-            opacity={isDark ? 0.15 : 0.25} 
-          />
-        </mesh>
-      </group>
-    </group>
+            {/* Connections */}
+            <lineSegments>
+              <bufferGeometry
+                ref={(g) => {
+                  if (!g) return;
+                  lineGeoRefs.current[li] = g;
+                  const maxVerts = maxEdges * 2;
+                  g.setAttribute(
+                    'position',
+                    new THREE.BufferAttribute(new Float32Array(maxVerts * 3), 3)
+                  );
+                  g.setAttribute(
+                    'color',
+                    new THREE.BufferAttribute(new Float32Array(maxVerts * 3), 3)
+                  );
+                  g.setDrawRange(0, 0);
+                }}
+              />
+              <lineBasicMaterial
+                ref={(m) => { lineMatRefs.current[li] = m; }}
+                vertexColors
+                transparent
+                opacity={layer.opacity}
+                depthWrite={false}
+                blending={THREE.AdditiveBlending}
+              />
+            </lineSegments>
+          </group>
+        );
+      })}
+    </>
   );
 }
 
+// ─── Root export ──────────────────────────────────────────────────────────────
 export default function Background3D() {
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsDark(document.documentElement.classList.contains('dark'));
+    check();
+    const obs = new MutationObserver(check);
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => obs.disconnect();
+  }, []);
+
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: -20, pointerEvents: 'none' }}>
       <Canvas
-        camera={{ position: [1.5, 3.2, 3.5], fov: 60 }}
+        camera={{ position: [0, 0, 9], fov: 55 }}
         gl={{ alpha: true, antialias: true }}
         style={{ width: '100%', height: '100%', display: 'block' }}
         dpr={[1, 1.5]}
-        performance={{ min: 0.6 }}
+        performance={{ min: 0.5 }}
+        frameloop="always"
       >
-        <DraftingTable />
+        <IntelligenceField isDark={isDark} />
       </Canvas>
     </div>
   );
