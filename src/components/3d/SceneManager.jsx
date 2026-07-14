@@ -19,14 +19,29 @@ export default function SceneManager() {
   const scrollProgress = Math.min(1, Math.max(0, scrollY / (vh * 1.5)));
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-[-20] bg-gradient-to-b from-background to-card-bg dark:from-background-dark dark:to-card-bg-dark">
-      <Canvas dpr={[1, 2]} gl={{ antialias: true, alpha: true }}>
-        <PerspectiveCamera makeDefault position={[0, 0, 8.5]} fov={50} />
+    <div className="fixed inset-0 pointer-events-none z-[-20] bg-black">
+      <Canvas dpr={[1, 2]} gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}>
+        <color attach="background" args={['#050505']} />
         
-        {/* Soft studio lighting setup */}
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[10, 10, 5]} intensity={1} />
-        <directionalLight position={[-10, -10, -5]} intensity={0.5} color="#E07A5F" />
+        <PerspectiveCamera makeDefault position={[0, 0, 10]} fov={35} />
+        
+        {/* Cinematic Lighting Setup - No ambient light, highly directional */}
+        <directionalLight 
+          position={[5, 5, 2]} 
+          intensity={2.5} 
+          color="#ffffff" 
+          castShadow
+        />
+        
+        {/* Soft rim light for contouring */}
+        <directionalLight 
+          position={[-5, 5, -5]} 
+          intensity={1.5} 
+          color="#a0c0ff" 
+        />
+
+        {/* Deep background fill */}
+        <pointLight position={[0, -5, -5]} intensity={0.5} color="#4060ff" />
         
         {/* Environment map for realistic glass refractions */}
         <Environment preset="city" />
