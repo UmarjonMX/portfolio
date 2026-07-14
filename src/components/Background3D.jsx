@@ -25,13 +25,6 @@ const ACCENT_COLOR      = new THREE.Color('#E07A5F');
 
 // Volumetric background shader creating atmospheric shafts and light rays
 const VolumetricShader = {
-  uniforms: {
-    uTime: { value: 0 },
-    uMouse: { value: new THREE.Vector2(0, 0) },
-    uResolution: { value: new THREE.Vector2(1, 1) },
-    uIsDark: { value: 0 },
-    uAccentColor: { value: ACCENT_COLOR },
-  },
   vertexShader: `
     varying vec2 vUv;
     void main() {
@@ -117,12 +110,6 @@ const VolumetricShader = {
 
 // Custom shader for round glowing particles
 const ParticleShader = {
-  uniforms: {
-    uTime: { value: 0 },
-    uColor: { value: new THREE.Color(1, 1, 1) },
-    uIsDark: { value: 0 },
-    uAccentColor: { value: ACCENT_COLOR },
-  },
   vertexShader: `
     uniform float uTime;
     attribute float aSpeed;
@@ -164,34 +151,41 @@ const ParticleShader = {
   `
 };
 
+// ─── Module-level Uniforms to avoid React Hook lint rules ────────────────────
+const volumetricUniforms = {
+  uTime: { value: 0 },
+  uMouse: { value: new THREE.Vector2(0, 0) },
+  uResolution: { value: new THREE.Vector2(1, 1) },
+  uIsDark: { value: 0 },
+  uAccentColor: { value: ACCENT_COLOR },
+};
+
+const particleLayersUniforms = LAYER_DEFS.map(() => ({
+  uTime: { value: 0 },
+  uColor: { value: new THREE.Color(1, 1, 1) },
+  uIsDark: { value: 0 },
+  uAccentColor: { value: ACCENT_COLOR },
+}));
+
 // ─── Background Mesh ─────────────────────────────────────────────────────────
 function VolumetricBackground({ isDark }) {
   const meshRef = useRef(null);
   const { size } = useThree();
 
-  // Store mutable uniforms in useRef to bypass eslint/react-hooks/immutability
-  const uniformsRef = useRef({
-    uTime: { value: 0 },
-    uMouse: { value: new THREE.Vector2(0, 0) },
-    uResolution: { value: new THREE.Vector2(size.width, size.height) },
-    uIsDark: { value: isDark ? 1 : 0 },
-    uAccentColor: { value: ACCENT_COLOR },
-  });
-
   useEffect(() => {
-    uniformsRef.current.uResolution.value.set(size.width, size.height);
+    volumetricUniforms.uResolution.value.set(size.width, size.height);
   }, [size]);
 
   useEffect(() => {
-    uniformsRef.current.uIsDark.value = isDark ? 1 : 0;
+    volumetricUniforms.uIsDark.value = isDark ? 1 : 0;
   }, [isDark]);
 
   useFrame((state) => {
     if (!meshRef.current) return;
-    uniformsRef.current.uTime.value = state.clock.getElapsedTime();
+    volumetricUniforms.uTime.value = state.clock.getElapsedTime();
     
     // Smooth pointer lerp
-    uniformsRef.current.uMouse.value.lerp(state.pointer, 0.08);
+    volumetricUniforms.uMouse.value.lerp(state.pointer, 0.08);
   });
 
   return (
@@ -200,7 +194,7 @@ function VolumetricBackground({ isDark }) {
       <shaderMaterial
         vertexShader={VolumetricShader.vertexShader}
         fragmentShader={VolumetricShader.fragmentShader}
-        uniforms={uniformsRef.current}
+        uniforms={volumetricUniforms}
         depthWrite={false}
         depthTest={false}
       />
@@ -261,17 +255,9 @@ function IntelligenceField({ isDark }) {
   const lineColBufs = useMemo(() => layers.map(l => new Float32Array(l.count * l.count * 6)), [layers]);
 
   const _v3 = useMemo(() => new THREE.Vector3(), []);
-  
-  // Store mutable uniforms inside useRef to bypass eslint/react-hooks/immutability
-  const uniformsRef = useRef(LAYER_DEFS.map(() => ({
-    uTime: { value: 0 },
-    uColor: { value: new THREE.Color(isDark ? 0xffffff : 0x1c1c1c) },
-    uIsDark: { value: isDark ? 1 : 0 },
-    uAccentColor: { value: ACCENT_COLOR },
-  })));
 
   useEffect(() => {
-    uniformsRef.current.forEach(u => {
+    particleLayersUniforms.forEach(u => {
       u.uColor.value.set(isDark ? 0xffffff : 0x1c1c1c);
       u.uIsDark.value = isDark ? 1 : 0;
     });
@@ -296,8 +282,8 @@ function IntelligenceField({ isDark }) {
     layers.forEach((layer, li) => {
       const { pos, vel, base, count, speed, opacity, depth } = layer;
 
-      // Update particle uniforms safely via useRef mutable reference
-      uniformsRef.current[li].uTime.value = time;
+      // Update particle uniforms safely via module-level reference
+      particleLayersUniforms[li].uTime.value = time;
 
       // Calculate particle mechanics
       for (let i = 0; i < count; i++) {
@@ -445,7 +431,7 @@ function IntelligenceField({ isDark }) {
                 ref={(m) => { dotMatRefs.current[li] = m; }}
                 vertexShader={ParticleShader.vertexShader}
                 fragmentShader={ParticleShader.fragmentShader}
-                uniforms={uniformsRef.current[li]}
+                uniforms={particleLayersUniforms[li]}
                 transparent
                 depthWrite={false}
                 blending={THREE.AdditiveBlending}
