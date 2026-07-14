@@ -65,10 +65,10 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
 
       {/* Premium Floating Navigation Pill */}
       <nav 
-        className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-between px-6 rounded-2xl w-[92%] max-w-5xl transition-all duration-500 ease-out
+        className={`fixed left-1/2 -translate-x-1/2 z-50 flex items-center justify-between px-6 rounded-2xl w-[92%] max-w-5xl transition-all duration-700 cubic-bezier(0.25, 1, 0.5, 1)
           ${scrolled 
-            ? 'py-2.5 bg-white/75 dark:bg-card-bg-dark/75 backdrop-blur-2xl border border-primary-text/10 dark:border-primary-text-dark/10 shadow-[0_16px_40px_-12px_rgba(0,0,0,0.1)] dark:shadow-[0_16px_40px_-12px_rgba(0,0,0,0.3)]' 
-            : 'py-4 bg-white/40 dark:bg-card-bg-dark/40 backdrop-blur-lg border border-primary-text/5 dark:border-primary-text-dark/5 shadow-sm'
+            ? 'top-4 py-2 bg-white/80 dark:bg-card-bg-dark/80 backdrop-blur-3xl border border-primary-text/15 dark:border-primary-text-dark/15 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.4)]' 
+            : 'top-6 py-4 bg-white/40 dark:bg-card-bg-dark/40 backdrop-blur-md border border-primary-text/5 dark:border-primary-text-dark/5 shadow-sm'
           }
         `}
       >
@@ -77,7 +77,7 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
             <img 
               src={isDarkMode ? '/images/logo_dark.png' : '/images/logo_light.png'} 
               alt="UMX Logo" 
-              className="h-10 md:h-11 w-auto object-contain transition-transform duration-500 group-hover:scale-105" 
+              className={`h-10 md:h-11 w-auto object-contain transition-transform duration-700 ease-out group-hover:scale-105 ${scrolled ? '-rotate-3 scale-95' : 'rotate-0'}`} 
             />
             <div className="absolute -inset-2 rounded-lg bg-accent/10 opacity-0 group-hover:opacity-100 blur-md transition-opacity duration-500 pointer-events-none" />
           </div>

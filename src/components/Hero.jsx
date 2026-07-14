@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { ArrowRight, Mail } from 'lucide-react';
-import HeroCanvas from './HeroCanvas';
+import SignatureText from './SignatureText';
 
 function Magnetic({ children, scale = 0.25, className = '' }) {
   const ref = useRef(null);
@@ -38,20 +38,12 @@ function Magnetic({ children, scale = 0.25, className = '' }) {
 export default function Hero() {
   const { t } = useLanguage();
   const [scrollY, setScrollY] = useState(0);
-  const [isDark, setIsDark] = useState(false);
-
   useEffect(() => {
     const onScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', onScroll, { passive: true });
     
-    const checkDark = () => setIsDark(document.documentElement.classList.contains('dark'));
-    checkDark();
-    const obs = new MutationObserver(checkDark);
-    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-
     return () => {
       window.removeEventListener('scroll', onScroll);
-      obs.disconnect();
     };
   }, []);
 
@@ -104,8 +96,8 @@ export default function Hero() {
           </div>
 
           <div className="hero-reveal mt-8" style={{ animationDelay: '0.6s' }}>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight leading-tight text-primary-text/70 dark:text-primary-text-dark/70 font-martian">
-              {headline}
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight leading-tight font-martian cursor-default">
+              <SignatureText text={headline} />
             </h2>
           </div>
 
@@ -142,8 +134,7 @@ export default function Hero() {
         </div>
 
         {/* ── RIGHT: Signature 3D Object (45%) ─────────────────────────── */}
-        <div className="lg:col-span-5 h-full w-full relative z-10 flex items-center justify-center">
-          <HeroCanvas isDark={isDark} scrollY={scrollY} />
+        <div className="lg:col-span-5 h-full w-full relative z-10 flex items-center justify-center pointer-events-none" aria-hidden="true">
         </div>
 
       </div>

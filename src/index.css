@@ -204,6 +204,7 @@ html {
 .btn-sweep {
   position: relative;
   overflow: hidden;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease, background-color 0.3s ease;
 }
 
 .btn-sweep::after {
@@ -216,10 +217,10 @@ html {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.12),
+    rgba(255, 255, 255, 0.15),
     transparent
   );
-  transition: left 0.6s ease;
+  transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-sweep:hover::after {
@@ -227,8 +228,8 @@ html {
 }
 
 .btn-sweep:active {
-  transform: scale(0.97);
-  transition: transform 0.1s;
+  transform: scale(0.98);
+  transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @layer utilities {

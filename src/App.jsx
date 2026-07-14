@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, Suspense, lazy } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import About from './components/About';
@@ -9,7 +9,7 @@ import Footer from './components/Footer';
 import CommandPalette from './components/CommandPalette';
 import { LanguageProvider } from './context/LanguageContext';
 
-const Background3D = lazy(() => import('./components/Background3D'));
+import SceneManager from './components/3d/SceneManager';
 
 function FadeSection({ children }) {
   const ref = useRef(null);
@@ -83,7 +83,6 @@ function AppContent() {
     return false;
   });
 
-  const [shouldMount3D, setShouldMount3D] = useState(false);
   const [pulse, setPulse] = useState(null);
 
   useEffect(() => {
@@ -119,40 +118,6 @@ function AppContent() {
     }
   }, [isDarkMode]);
 
-  useEffect(() => {
-    let timeoutId;
-    let idleId;
-
-    const mountBackground = () => {
-      setShouldMount3D(true);
-    };
-
-    // Check motion preference first
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    const queueMount = () => {
-      if ('requestIdleCallback' in window) {
-        idleId = requestIdleCallback(() => mountBackground(), { timeout: 2000 });
-      } else {
-        requestAnimationFrame(() => mountBackground());
-      }
-    };
-
-    if (prefersReducedMotion) {
-      queueMount();
-    } else {
-      // Mount quickly so crystal entrance overlaps text reveal sequence
-      timeoutId = setTimeout(queueMount, 300);
-    }
-
-    return () => {
-      if (timeoutId) clearTimeout(timeoutId);
-      if (idleId && 'cancelIdleCallback' in window) {
-        cancelIdleCallback(idleId);
-      }
-    };
-  }, []);
-
   const toggleTheme = () => setIsDarkMode(!isDarkMode);
 
   return (
@@ -172,13 +137,7 @@ function AppContent() {
         </div>
       )}
       
-      {shouldMount3D && (
-        <Suspense fallback={null}>
-          <div className="animate-fadeIn">
-            <Background3D />
-          </div>
-        </Suspense>
-      )}
+      <SceneManager />
 
       <Navbar isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
       
