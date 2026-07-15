@@ -4,7 +4,7 @@ import { MeshTransmissionMaterial, RoundedBox } from '@react-three/drei';
 import * as THREE from 'three';
 
 // A single module in the inner core
-function CoreModule({ position, size, emissive, seed, targetY, easeProgress }) {
+function CoreModule({ position, size, emissive, seed, targetY, easeProgress, isDarkMode }) {
   const meshRef = useRef();
   const materialRef = useRef();
 
@@ -45,19 +45,32 @@ function CoreModule({ position, size, emissive, seed, targetY, easeProgress }) {
   return (
     <mesh ref={meshRef} position={position}>
       <boxGeometry args={size} />
-      <meshPhysicalMaterial 
-        ref={materialRef}
-        color="#111111" 
-        metalness={0.9} 
-        roughness={0.1}
-        emissive={emissive ? "#a0c0ff" : "#000000"}
-        emissiveIntensity={emissive ? 2 : 0}
-      />
+      {isDarkMode ? (
+        <meshPhysicalMaterial 
+          ref={materialRef}
+          color="#111111" 
+          metalness={0.9} 
+          roughness={0.1}
+          emissive={emissive ? "#a0c0ff" : "#000000"}
+          emissiveIntensity={emissive ? 2 : 0}
+        />
+      ) : (
+        <MeshTransmissionMaterial 
+          ref={materialRef}
+          color="#ffffff"
+          transmission={0.9}
+          thickness={0.5}
+          roughness={0.05}
+          ior={1.2}
+          emissive={emissive ? "#e07a5f" : "#000000"}
+          emissiveIntensity={emissive ? 0.8 : 0}
+        />
+      )}
     </mesh>
   );
 }
 
-export default function HeroScene({ scrollProgress }) {
+export default function HeroScene({ scrollProgress, isDarkMode }) {
   const groupRef = useRef();
   const leftShellRef = useRef();
   const rightShellRef = useRef();
@@ -201,6 +214,7 @@ export default function HeroScene({ scrollProgress }) {
             seed={mod.seed}
             targetY={mod.targetY}
             easeProgress={Math.pow(scrollProgress, 1.5)}
+            isDarkMode={isDarkMode}
           />
         ))}
       </group>

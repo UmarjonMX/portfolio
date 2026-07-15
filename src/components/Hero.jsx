@@ -105,7 +105,7 @@ export default function Hero() {
             <p className="text-xs font-martian font-bold tracking-[0.3em] uppercase text-primary-text/40 dark:text-primary-text-dark/40 mb-3">
               {tagline}
             </p>
-            <p className="text-base sm:text-lg text-primary-text/60 dark:text-primary-text-dark/60 leading-relaxed font-funnel max-w-xl">
+            <p className="text-base sm:text-lg text-primary-text/80 dark:text-primary-text-dark/60 leading-relaxed font-funnel max-w-xl">
               {supporting1}
             </p>
           </div>
@@ -114,7 +114,7 @@ export default function Hero() {
             <Magnetic scale={0.25} className="flex-1">
               <a
                 href="#projects"
-                className="btn-sweep inline-flex items-center justify-center gap-3 w-full px-8 py-4 bg-accent hover:bg-accent/90 text-white dark:text-[#1C1C1D] rounded-2xl font-funnel font-bold tracking-wider uppercase shadow-[0_12px_30px_-8px_rgba(224,122,95,0.35)] hover:shadow-[0_16px_40px_-8px_rgba(224,122,95,0.45)] transition-all duration-300 cursor-pointer border border-accent/20"
+                className="btn-sweep inline-flex items-center justify-center gap-3 w-full px-8 py-4 bg-white dark:bg-accent hover:bg-white/90 dark:hover:bg-accent/90 text-primary-text dark:text-[#1C1C1D] rounded-2xl font-funnel font-bold tracking-wider uppercase shadow-[0_8px_30px_-8px_rgba(224,122,95,0.2)] dark:shadow-[0_12px_30px_-8px_rgba(224,122,95,0.35)] hover:shadow-[0_12px_40px_-8px_rgba(224,122,95,0.3)] dark:hover:shadow-[0_16px_40px_-8px_rgba(224,122,95,0.45)] transition-all duration-300 cursor-pointer border border-white dark:border-accent/20"
               >
                 {primaryCTA}
                 <ArrowRight size={16} />
@@ -124,7 +124,7 @@ export default function Hero() {
             <Magnetic scale={0.25} className="flex-1">
               <a
                 href="#contact"
-                className="btn-sweep inline-flex items-center justify-center gap-3 w-full px-8 py-4 bg-white/60 dark:bg-[#1E1E20]/60 backdrop-blur-xl text-primary-text dark:text-primary-text-dark border border-primary-text/10 dark:border-primary-text-dark/10 rounded-2xl font-funnel font-bold tracking-wider uppercase hover:bg-white/90 dark:hover:bg-[#1E1E20]/90 shadow-[0_10px_24px_-8px_rgba(0,0,0,0.06)] hover:shadow-[0_14px_32px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 cursor-pointer"
+                className="btn-sweep inline-flex items-center justify-center gap-3 w-full px-8 py-4 bg-[#FAF8F4]/80 dark:bg-[#1E1E20]/60 backdrop-blur-xl text-primary-text dark:text-primary-text-dark border border-primary-text/10 dark:border-primary-text-dark/10 rounded-2xl font-funnel font-bold tracking-wider uppercase hover:bg-white dark:hover:bg-[#1E1E20]/90 shadow-[0_4px_20px_-8px_rgba(0,0,0,0.05)] dark:shadow-[0_10px_24px_-8px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_30px_-8px_rgba(0,0,0,0.08)] dark:hover:shadow-[0_14px_32px_-8px_rgba(0,0,0,0.12)] transition-all duration-300 cursor-pointer"
               >
                 <Mail size={16} className="text-primary-text/50 dark:text-primary-text-dark/50" />
                 {secondaryCTA}

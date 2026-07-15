@@ -137,7 +137,7 @@ function AppContent() {
         </div>
       )}
       
-      <SceneManager />
+      <SceneManager isDarkMode={isDarkMode} />
 
       <Navbar isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
       

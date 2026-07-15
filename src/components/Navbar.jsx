@@ -67,8 +67,8 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
       <nav 
         className={`fixed left-1/2 -translate-x-1/2 z-50 flex items-center justify-between px-6 rounded-2xl w-[92%] max-w-5xl transition-all duration-700 cubic-bezier(0.25, 1, 0.5, 1)
           ${scrolled 
-            ? 'top-4 py-2 bg-white/80 dark:bg-card-bg-dark/80 backdrop-blur-3xl border border-primary-text/15 dark:border-primary-text-dark/15 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.4)]' 
-            : 'top-6 py-4 bg-white/40 dark:bg-card-bg-dark/40 backdrop-blur-md border border-primary-text/5 dark:border-primary-text-dark/5 shadow-sm'
+            ? 'top-4 py-2 bg-[#FAF8F4]/60 dark:bg-card-bg-dark/80 backdrop-blur-2xl border border-white/50 dark:border-primary-text-dark/15 shadow-[0_8px_32px_-8px_rgba(224,122,95,0.08)] dark:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.4)]' 
+            : 'top-6 py-4 bg-[#FAF8F4]/40 dark:bg-card-bg-dark/40 backdrop-blur-xl border border-white/30 dark:border-primary-text-dark/5 shadow-[0_4px_16px_-4px_rgba(224,122,95,0.04)] dark:shadow-sm'
           }
         `}
       >
