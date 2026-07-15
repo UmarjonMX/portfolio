@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import SectionHeader from './SectionHeader';
 
 export default function Contact() {
   const { t } = useLanguage();
@@ -39,67 +40,76 @@ export default function Contact() {
   };
 
   return (
-    <section id="contact" className="py-32 relative z-10 w-full">
-      <div className="max-w-4xl mx-auto px-6 sm:px-10 lg:px-16">
-        <div className="mb-16 border-l-2 border-accent/30 pl-6">
-          <div className="mb-4 inline-flex items-center gap-2 px-3 py-1 bg-accent/10 border border-accent/25 rounded-md text-accent text-[10px] font-martian font-bold uppercase tracking-wider">
-            Sheet 05 // Connection
-          </div>
-          <h2 className="text-4xl font-bold tracking-tight mb-4 text-primary-text dark:text-primary-text-dark font-martian">
-            {t('contact.title')}
-          </h2>
-          <p className="text-lg text-primary-text/75 dark:text-primary-text-dark/75 font-funnel max-w-xl">
+    <section id="contact" className="py-32 relative z-10 w-full overflow-hidden">
+      
+      {/* Editorial Background: Signal Waves */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-20 dark:opacity-10 text-primary-text dark:text-primary-text-dark flex items-center justify-center">
+        <svg className="w-full h-full opacity-50" xmlns="http://www.w3.org/2000/svg">
+          <g stroke="currentColor" strokeWidth="0.5" fill="none">
+             <circle cx="50%" cy="50%" r="200" strokeDasharray="1 6" strokeOpacity="0.4" />
+             <circle cx="50%" cy="50%" r="400" strokeDasharray="1 8" strokeOpacity="0.3" />
+             <circle cx="50%" cy="50%" r="600" strokeDasharray="1 10" strokeOpacity="0.2" />
+             <path d="M 0 50% Q 25% 40% 50% 50% T 100% 50%" strokeOpacity="0.5" />
+          </g>
+        </svg>
+      </div>
+
+      <SectionHeader title={t('contact.title')} number="05" />
+
+      <div className="max-w-4xl mx-auto px-6 sm:px-10 lg:px-16 relative z-10">
+        <div className="mb-16 bg-white/60 dark:bg-card-bg-dark/60 backdrop-blur-md p-8 sm:p-10 border border-primary-text/10 dark:border-primary-text-dark/10 rounded-[2rem] shadow-sm text-center max-w-2xl mx-auto">
+          <p className="text-xl md:text-2xl text-primary-text/90 dark:text-primary-text-dark/90 leading-relaxed font-funnel font-bold">
             {t('contact.subtitle')}
           </p>
         </div>
 
         {/* Paper Ledger Form Sheet */}
-        <div className="bg-white dark:bg-card-bg-dark border border-primary-text dark:border-primary-text-dark p-8 md:p-14 rounded-2xl shadow-hard-light dark:shadow-hard-dark relative z-20">
+        <div className="bg-white/70 dark:bg-card-bg-dark/70 backdrop-blur-xl border border-primary-text/10 dark:border-primary-text-dark/10 p-8 md:p-14 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] relative z-20">
           
           <form onSubmit={handleEmailSend} className="space-y-6 mb-12 relative z-30">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative">
               <div>
-                <label className="block text-xs font-bold font-martian tracking-wider uppercase mb-2 opacity-80">{t('contact.name')}</label>
+                <label className="block text-[10px] font-bold font-martian tracking-wider uppercase mb-2 opacity-60">{t('contact.name')}</label>
                 <input 
                   type="text" 
                   name="name" 
                   value={formData.name} 
                   onChange={handleChange} 
-                  className="w-full bg-[#FAFAFA] dark:bg-background-dark border border-primary-text dark:border-primary-text-dark rounded-xl px-6 py-4 outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all recess-inset-light dark:recess-inset-dark text-primary-text dark:text-primary-text-dark font-funnel" 
+                  className="w-full bg-background/50 dark:bg-background-dark/50 backdrop-blur-sm border border-primary-text/10 dark:border-primary-text-dark/10 rounded-xl px-6 py-4 outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-primary-text dark:text-primary-text-dark font-funnel shadow-inner" 
                   placeholder="John Doe" 
                 />
               </div>
               <div className="relative">
-                <label className="block text-xs font-bold font-martian tracking-wider uppercase mb-2 opacity-80">{t('contact.email')}</label>
+                <label className="block text-[10px] font-bold font-martian tracking-wider uppercase mb-2 opacity-60">{t('contact.email')}</label>
                 <input 
                   type="email" 
                   name="email" 
                   value={formData.email} 
                   onChange={handleChange} 
-                  className={`w-full bg-[#FAFAFA] dark:bg-background-dark border rounded-xl px-6 py-4 outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all recess-inset-light dark:recess-inset-dark text-primary-text dark:text-primary-text-dark font-funnel ${emailError ? 'border-red-500' : 'border-primary-text dark:border-primary-text-dark'}`} 
+                  className={`w-full bg-background/50 dark:bg-background-dark/50 backdrop-blur-sm border rounded-xl px-6 py-4 outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-primary-text dark:text-primary-text-dark font-funnel shadow-inner ${emailError ? 'border-red-500' : 'border-primary-text/10 dark:border-primary-text-dark/10'}`} 
                   placeholder="john@example.com" 
                 />
                 {emailError && <p className="text-red-500 text-xs font-bold mt-1 absolute -bottom-5 left-2">{emailError}</p>}
               </div>
             </div>
             <div>
-              <label className="block text-xs font-bold font-martian tracking-wider uppercase mb-2 opacity-80">{t('contact.message')}</label>
+              <label className="block text-[10px] font-bold font-martian tracking-wider uppercase mb-2 opacity-60">{t('contact.message')}</label>
               <textarea 
                 rows="4" 
                 name="message" 
                 value={formData.message} 
                 onChange={handleChange} 
-                className="w-full bg-[#FAFAFA] dark:bg-background-dark border border-primary-text dark:border-primary-text-dark rounded-xl px-6 py-4 outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all recess-inset-light dark:recess-inset-dark text-primary-text dark:text-primary-text-dark font-funnel" 
+                className="w-full bg-background/50 dark:bg-background-dark/50 backdrop-blur-sm border border-primary-text/10 dark:border-primary-text-dark/10 rounded-xl px-6 py-4 outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-primary-text dark:text-primary-text-dark font-funnel shadow-inner" 
                 placeholder="Hello..."
               ></textarea>
             </div>
             <button 
               type="submit" 
               disabled={!isFormValid} 
-              className={`relative z-40 w-full font-bold py-4 rounded-xl border border-primary-text dark:border-primary-text-dark tracking-widest uppercase text-xs transition-all ${
+              className={`relative z-40 w-full font-bold py-4 rounded-xl tracking-[0.2em] uppercase text-[10px] font-martian transition-all ${
                 isFormValid 
-                  ? 'bg-accent text-white dark:text-[#1C1C1D] shadow-hard-interactive-light dark:shadow-hard-interactive-dark cursor-pointer' 
-                  : 'bg-primary-text/10 dark:bg-primary-text-dark/10 text-primary-text/30 dark:text-primary-text-dark/30 cursor-not-allowed'
+                  ? 'bg-accent text-white dark:text-[#1C1C1D] shadow-[0_8px_30px_-8px_rgba(224,122,95,0.4)] hover:-translate-y-1 cursor-pointer' 
+                  : 'bg-primary-text/5 dark:bg-primary-text-dark/5 text-primary-text/30 dark:text-primary-text-dark/30 border border-primary-text/10 dark:border-primary-text-dark/10 cursor-not-allowed'
               }`}
             >
               {t('contact.send')}
@@ -111,11 +121,11 @@ export default function Contact() {
             <h3 className="text-center font-bold text-lg mb-8 font-martian tracking-wider opacity-85 uppercase">Connect Network</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               
-              <a 
+                <a 
                 href="https://github.com/UmarjonMX" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="flex items-center space-x-5 p-5 bg-white dark:bg-card-bg-dark border border-primary-text dark:border-primary-text-dark rounded-xl hover:border-accent dark:hover:border-accent shadow-hard-interactive-light dark:shadow-hard-interactive-dark transition-all group cursor-pointer"
+                className="flex items-center space-x-5 p-5 bg-background/50 dark:bg-background-dark/50 backdrop-blur-sm border border-primary-text/10 dark:border-primary-text-dark/10 rounded-xl hover:border-accent/50 dark:hover:border-accent/50 hover:bg-white dark:hover:bg-card-bg-dark hover:shadow-lg transition-all group cursor-pointer"
               >
                 <img src="/icons/github.png" alt="GitHub" style={{ width: 28, height: 28, objectFit: 'contain' }} className="dark:invert group-hover:scale-105 transition-all duration-300" />
                 <div className="flex flex-col overflow-hidden">
@@ -128,7 +138,7 @@ export default function Contact() {
                 href="https://www.linkedin.com/in/umarjon-muhammadjonov-4ba177281" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="flex items-center space-x-5 p-5 bg-white dark:bg-card-bg-dark border border-primary-text dark:border-primary-text-dark rounded-xl hover:border-accent dark:hover:border-accent shadow-hard-interactive-light dark:shadow-hard-interactive-dark transition-all group cursor-pointer"
+                className="flex items-center space-x-5 p-5 bg-background/50 dark:bg-background-dark/50 backdrop-blur-sm border border-primary-text/10 dark:border-primary-text-dark/10 rounded-xl hover:border-accent/50 dark:hover:border-accent/50 hover:bg-white dark:hover:bg-card-bg-dark hover:shadow-lg transition-all group cursor-pointer"
               >
                 <img src="/icons/linkedin.png" alt="LinkedIn" style={{ width: 28, height: 28, objectFit: 'contain' }} className="dark:invert group-hover:scale-105 transition-all duration-300" />
                 <div className="flex flex-col overflow-hidden">
@@ -141,7 +151,7 @@ export default function Contact() {
                 href="https://instagram.com/umarjonmx" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="flex items-center space-x-5 p-5 bg-white dark:bg-card-bg-dark border border-primary-text dark:border-primary-text-dark rounded-xl hover:border-accent dark:hover:border-accent shadow-hard-interactive-light dark:shadow-hard-interactive-dark transition-all group cursor-pointer"
+                className="flex items-center space-x-5 p-5 bg-background/50 dark:bg-background-dark/50 backdrop-blur-sm border border-primary-text/10 dark:border-primary-text-dark/10 rounded-xl hover:border-accent/50 dark:hover:border-accent/50 hover:bg-white dark:hover:bg-card-bg-dark hover:shadow-lg transition-all group cursor-pointer"
               >
                 <img src="/icons/instagram.png" alt="Instagram" style={{ width: 28, height: 28, objectFit: 'contain' }} className="dark:invert group-hover:scale-105 transition-all duration-300" />
                 <div className="flex flex-col overflow-hidden">
@@ -154,7 +164,7 @@ export default function Contact() {
                 href="https://t.me/UmarjonMX" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="flex items-center space-x-5 p-5 bg-white dark:bg-card-bg-dark border border-primary-text dark:border-primary-text-dark rounded-xl hover:border-accent dark:hover:border-accent shadow-hard-interactive-light dark:shadow-hard-interactive-dark transition-all group cursor-pointer"
+                className="flex items-center space-x-5 p-5 bg-background/50 dark:bg-background-dark/50 backdrop-blur-sm border border-primary-text/10 dark:border-primary-text-dark/10 rounded-xl hover:border-accent/50 dark:hover:border-accent/50 hover:bg-white dark:hover:bg-card-bg-dark hover:shadow-lg transition-all group cursor-pointer"
               >
                 <img src="/icons/telegram.png" alt="Telegram" style={{ width: 28, height: 28, objectFit: 'contain' }} className="dark:invert group-hover:scale-105 transition-all duration-300" />
                 <div className="flex flex-col overflow-hidden">
@@ -165,7 +175,7 @@ export default function Contact() {
 
               <a 
                 href="tel:+998971233667" 
-                className="flex items-center space-x-5 p-5 bg-white dark:bg-card-bg-dark border border-primary-text dark:border-primary-text-dark rounded-xl hover:border-accent dark:hover:border-accent shadow-hard-interactive-light dark:shadow-hard-interactive-dark transition-all group cursor-pointer"
+                className="flex items-center space-x-5 p-5 bg-background/50 dark:bg-background-dark/50 backdrop-blur-sm border border-primary-text/10 dark:border-primary-text-dark/10 rounded-xl hover:border-accent/50 dark:hover:border-accent/50 hover:bg-white dark:hover:bg-card-bg-dark hover:shadow-lg transition-all group cursor-pointer"
               >
                 <img src="/icons/phone.png" alt="Phone" style={{ width: 28, height: 28, objectFit: 'contain' }} className="dark:invert group-hover:scale-105 transition-all duration-300" />
                 <div className="flex flex-col overflow-hidden">
@@ -176,7 +186,7 @@ export default function Contact() {
 
               <a 
                 href="mailto:umarmx2008@gmail.com" 
-                className="flex items-center space-x-5 p-5 bg-white dark:bg-card-bg-dark border border-primary-text dark:border-primary-text-dark rounded-xl hover:border-accent dark:hover:border-accent shadow-hard-interactive-light dark:shadow-hard-interactive-dark transition-all group cursor-pointer"
+                className="flex items-center space-x-5 p-5 bg-background/50 dark:bg-background-dark/50 backdrop-blur-sm border border-primary-text/10 dark:border-primary-text-dark/10 rounded-xl hover:border-accent/50 dark:hover:border-accent/50 hover:bg-white dark:hover:bg-card-bg-dark hover:shadow-lg transition-all group cursor-pointer"
               >
                 <img src="/icons/mail.png" alt="Email" style={{ width: 28, height: 28, objectFit: 'contain' }} className="dark:invert group-hover:scale-105 transition-all duration-300" />
                 <div className="flex flex-col overflow-hidden">

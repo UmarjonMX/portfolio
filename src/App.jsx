@@ -9,8 +9,7 @@ import Footer from './components/Footer';
 import CommandPalette from './components/CommandPalette';
 import { LanguageProvider } from './context/LanguageContext';
 
-import SceneManager from './components/3d/SceneManager';
-
+// Global SceneManager removed. Will be used locally in Hero.jsx.
 function FadeSection({ children }) {
   const ref = useRef(null);
   const [style, setStyle] = useState({ opacity: 0, transform: 'translateY(15px)' });
@@ -137,12 +136,11 @@ function AppContent() {
         </div>
       )}
       
-      <SceneManager isDarkMode={isDarkMode} />
-
+      {/* Global 3D background removed as per EPIC-15 */}
       <Navbar isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
       
       <main style={{ position: 'relative', zIndex: 10 }} className="flex-grow pt-20 w-full overflow-x-hidden">
-        <Hero />
+        <Hero isDarkMode={isDarkMode} />
         <FadeSection>
           <About />
         </FadeSection>

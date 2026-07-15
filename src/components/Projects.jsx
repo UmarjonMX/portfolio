@@ -5,6 +5,7 @@ import { X, ExternalLink } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import BentoCard from './BentoCard';
 import BuilderConsole from './BuilderConsole';
+import SectionHeader from './SectionHeader';
 
 function ProjectCard({ project, index, onClick }) {
   const ref = useRef(null);
@@ -214,20 +215,25 @@ export default function Projects() {
     <section
       id="projects"
       style={{ position: 'relative', zIndex: 50, isolation: 'isolate', perspective: '1200px' }}
-      className="py-32 px-6 sm:px-10 lg:px-16 max-w-[90rem] mx-auto"
+      className="relative py-32 px-6 sm:px-10 lg:px-16 max-w-[90rem] mx-auto border-b border-primary-text/10 dark:border-primary-text-dark/10"
     >
-      {/* Section Header */}
-      <div className="mb-20 border-l-2 border-accent/30 pl-6">
-        <div className="mb-4 inline-flex items-center gap-2 px-3 py-1 bg-accent/10 border border-accent/25 rounded-md text-accent text-[10px] font-martian font-bold uppercase tracking-wider">
-          Sheet 03 // Shipped Works
-        </div>
-        <h2 className="text-4xl font-bold tracking-tight mb-4 text-primary-text dark:text-primary-text-dark font-martian">
-          {t('projects.title')}
-        </h2>
+      {/* Editorial Background: Architecture Wireframes */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-20 dark:opacity-10 text-primary-text dark:text-primary-text-dark flex justify-center overflow-hidden">
+        <svg className="w-full h-full opacity-40" xmlns="http://www.w3.org/2000/svg">
+          <pattern id="arch-grid" width="100" height="100" patternUnits="userSpaceOnUse">
+            <rect width="100" height="100" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="2 2" />
+          </pattern>
+          <rect width="100%" height="100%" fill="url(#arch-grid)" />
+          <path d="M 100 100 L 300 100 L 300 300 L 100 300 Z" fill="none" stroke="currentColor" strokeWidth="1" />
+          <path d="M 500 200 L 800 200 L 800 500 L 500 500 Z" fill="none" stroke="currentColor" strokeWidth="1" />
+          <line x1="300" y1="200" x2="500" y2="350" stroke="currentColor" strokeWidth="0.5" strokeDasharray="4 4" />
+        </svg>
       </div>
 
+      <SectionHeader title={t('projects.title')} number="03" />
+
       {/* 3D Bento Projects Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-32">
+      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-32">
         {projects.map((project, index) => (
           <ProjectCard 
             key={index} 

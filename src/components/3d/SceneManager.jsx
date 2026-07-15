@@ -20,7 +20,7 @@ export default function SceneManager({ isDarkMode }) {
   const scrollProgress = Math.max(0, scrollY / vh);
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-[-20] bg-transparent">
+    <div className="absolute inset-0 pointer-events-none z-[-1] bg-transparent">
       <Canvas dpr={[1, 2]} gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}>
         
         <PerspectiveCamera makeDefault position={[0, 0, 10]} fov={35} />

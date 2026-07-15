@@ -10,34 +10,14 @@ export default {
       secondaryCTA: 'Get in Touch'
     },
     about: {
-      title: 'Principles',
-      introduction: 'The products we build reflect the principles we choose. These are the ideas that guide every engineering and product decision I make.',
-      principles: [
-        {
-          title: 'Build What Matters',
-          description: "I don't build software because a technology is interesting. I build products because a real problem deserves a better solution."
-        },
-        {
-          title: 'AI With Responsibility',
-          description: "AI should expand human capability. Never replace human judgment where lives, trust or dignity are at stake."
-        },
-        {
-          title: 'Quality Creates Trust',
-          description: "Fast products are useful. Reliable products are remembered. I optimize for both."
-        },
-        {
-          title: 'Simplicity Wins',
-          description: "Every feature should justify its existence. Every line of code should earn its place."
-        },
-        {
-          title: 'Think Globally',
-          description: "Great products can start anywhere. Including Namangan. What matters is the problem, not the postcode."
-        },
-        {
-          title: 'Build With Integrity',
-          description: "Not everything that can be built should be built. Technology should improve people's lives, never exploit them."
-        }
-      ]
+      title: 'Builder Manifesto',
+      introduction: 'I build software because a real problem deserves a better solution. Not just because a technology is interesting. Here is my current focus.',
+      manifesto: {
+        focus1: { title: 'AI Products', description: 'Expanding human capability without replacing human judgment.' },
+        focus2: { title: 'Developer Tools', description: 'Creating lightweight utilities that respect user privacy, attention, and time.' },
+        focus3: { title: 'Education', description: 'Centralizing technical and literary discourse for students and enthusiasts.' },
+        location: { title: 'Location', description: 'Namangan, Uzbekistan. Great products can start anywhere.' }
+      }
     },
     projects: {
       title: 'Selected Works',
@@ -149,34 +129,14 @@ export default {
       secondaryCTA: 'Bog\'lanish'
     },
     about: {
-      title: 'Prinsiplar',
-      introduction: "Quradigan mahsulotlarimiz tanlagan prinsiplarimizni aks ettiradi. Bu mening har bir muhandislik va mahsulot qarorimni yo'naltiradigan g'oyalar.",
-      principles: [
-        {
-          title: 'Muhim Narsalarni Qur',
-          description: "Men texnologiya qiziqarli bo'lgani uchun dasturiy ta'minot yozmayman. Haqiqiy muammo yaxshiroq yechimni kutgani uchun mahsulotlar yarataman."
-        },
-        {
-          title: 'AI bilan Mas\'uliyat',
-          description: "AI inson qobiliyatini kengaytirishi kerak. Hayot, ishonch yoki obro' o'yinda bo'lgan joylarda inson hukmini hech qachon almashtirmasligi kerak."
-        },
-        {
-          title: 'Sifat Ishonch Yaratadi',
-          description: "Tez mahsulotlar foydali. Ishonchli mahsulotlar esda qoladi. Men ikkalasiga ham optimallashtiraman."
-        },
-        {
-          title: 'Soddalik G\'alaba Qiladi',
-          description: "Har bir xususiyat o'z mavjudligini asoslashi kerak. Har bir kod satri o'rnini qozonishi kerak."
-        },
-        {
-          title: 'Global O\'yla',
-          description: "Ajoyib mahsulotlar hamma joyda boshlanishi mumkin. Namanganni ham o'z ichiga oladi. Muhimi muammo, pochta indeksi emas."
-        },
-        {
-          title: 'Integratsiya bilan Qur',
-          description: "Qurilishi mumkin bo'lgan hamma narsa qurilishi shart emas. Texnologiya odamlarning hayotini yaxshilashi kerak, ularni hech qachon ekspluatatsiya qilmasligi kerak."
-        }
-      ]
+      title: 'Yaratuvchi Manifesti',
+      introduction: 'Texnologiya qiziqarli bo\'lgani uchun emas, balki haqiqiy muammo yaxshiroq yechimni kutgani uchun dasturiy ta\'minot yarataman. Hozirgi e\'tibor markazim:',
+      manifesto: {
+        focus1: { title: 'AI Mahsulotlar', description: 'Inson qobiliyatini kengaytirish, lekin inson hukmini almashtirmaslik.' },
+        focus2: { title: 'Dasturchilar Uchun Vositalar', description: 'Foydalanuvchi maxfiyligi va vaqtini qadrlaydigan yengil tizimli vositalar.' },
+        focus3: { title: 'Ta\'lim', description: 'Talabalar uchun texnik va adabiy resurslarni markazlashtirish.' },
+        location: { title: 'Joylashuv', description: 'Namangan, O\'zbekiston. Ajoyib mahsulotlar hamma joyda boshlanishi mumkin.' }
+      }
     },
     projects: {
       title: 'Tanlangan Loyihalar',

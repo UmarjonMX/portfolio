@@ -1,24 +1,36 @@
-import { Download, LayoutTemplate, Database, PenTool } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import BentoCard from './BentoCard';
+import SectionHeader from './SectionHeader';
 
 export default function BuilderDashboard() {
   const { t } = useLanguage();
 
   return (
-    <section id="resume" className="py-32 px-6 sm:px-10 lg:px-16 max-w-6xl mx-auto relative z-10">
-      {/* Section Header */}
-      <div className="mb-20 border-l-2 border-accent/30 pl-6">
-        <div className="mb-4 inline-flex items-center gap-2 px-3 py-1 bg-accent/10 border border-accent/25 rounded-md text-accent text-[10px] font-martian font-bold uppercase tracking-wider">
-          Sheet 04 // Workbench
-        </div>
-        <h2 className="text-4xl font-bold tracking-tight mb-4 text-primary-text dark:text-primary-text-dark font-martian">
-          {t('resume.title')}
-        </h2>
-        <p className="text-primary-text/60 dark:text-primary-text-dark/60 text-lg max-w-xl font-funnel">
-          {t('resume.subtitle')}
-        </p>
+    <section id="resume" className="relative py-32 px-6 sm:px-10 lg:px-16 max-w-[90rem] mx-auto z-10 border-b border-primary-text/10 dark:border-primary-text-dark/10">
+      
+      {/* Editorial Background: Logic / PCB Lines */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-20 dark:opacity-10 text-primary-text dark:text-primary-text-dark flex items-center justify-center overflow-hidden">
+        <svg className="w-full h-full opacity-40" xmlns="http://www.w3.org/2000/svg">
+           <g stroke="currentColor" strokeWidth="0.5" fill="none" strokeOpacity="0.8">
+              <path d="M 0 100 L 150 100 L 200 150 L 1000 150" />
+              <path d="M 0 300 L 300 300 L 350 250 L 1000 250" />
+              <path d="M 0 500 L 400 500 L 450 550 L 1000 550" />
+              <circle cx="150" cy="100" r="3" fill="currentColor" />
+              <circle cx="300" cy="300" r="3" fill="currentColor" />
+              <circle cx="400" cy="500" r="3" fill="currentColor" />
+           </g>
+        </svg>
       </div>
+
+      <SectionHeader title={t('resume.title')} number="04" />
+      
+      <div className="relative z-10 max-w-6xl mx-auto">
+        {/* Intro text */}
+        <div className="mb-16 bg-white/60 dark:bg-card-bg-dark/60 backdrop-blur-md p-8 sm:p-12 border border-primary-text/10 dark:border-primary-text-dark/10 rounded-[2rem] shadow-sm text-center max-w-3xl mx-auto">
+          <p className="text-xl md:text-2xl text-primary-text/90 dark:text-primary-text-dark/90 leading-relaxed font-funnel font-bold">
+            {t('resume.subtitle')}
+          </p>
+        </div>
 
       {/* 4-Quadrant Bento Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24">
@@ -73,8 +85,7 @@ export default function BuilderDashboard() {
           </div>
         </BentoCard>
 
-        {/* Card 4: Long-Term Mission (Double Width) */}
-        <BentoCard containerClassName="md:col-span-2" className="p-8 sm:p-10 h-full flex flex-col justify-between">
+        <BentoCard containerClassName="md:col-span-2" className="p-8 sm:p-10 h-full flex flex-col justify-between bg-accent/5 dark:bg-accent/5 border-accent/20 dark:border-accent/20">
           <div>
             <span className="font-martian text-[10px] font-bold uppercase tracking-widest text-accent block mb-6">
               {t('resume.mission.label')}
@@ -90,25 +101,25 @@ export default function BuilderDashboard() {
       </div>
 
       {/* Skills Section */}
-      <div className="mt-24 max-w-4xl mx-auto">
-        <h3 className="text-3xl font-bold mb-10 text-center tracking-tight font-martian">{t('resume.skillsTitle')}</h3>
+      <div className="mt-24 max-w-4xl mx-auto relative z-10">
+        <h3 className="text-2xl font-bold mb-10 text-center tracking-tight font-martian">{t('resume.skillsTitle')}</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <BentoCard className="p-8 text-center hover:border-accent">
-            <LayoutTemplate className="w-10 h-10 mx-auto mb-4 text-accent" />
+            <LayoutTemplate className="w-8 h-8 mx-auto mb-4 text-accent" />
             <h4 className="font-bold font-martian text-lg mb-2">{t('resume.frontend')}</h4>
-            <p className="font-martian text-xs text-primary-text/60 dark:text-primary-text-dark/60 leading-relaxed">{t('resume.frontendTech')}</p>
+            <p className="font-martian text-[10px] uppercase tracking-wider text-primary-text/60 dark:text-primary-text-dark/60 leading-relaxed">{t('resume.frontendTech')}</p>
           </BentoCard>
           
           <BentoCard className="p-8 text-center hover:border-accent">
-            <Database className="w-10 h-10 mx-auto mb-4 text-accent" />
+            <Database className="w-8 h-8 mx-auto mb-4 text-accent" />
             <h4 className="font-bold font-martian text-lg mb-2">{t('resume.backend')}</h4>
-            <p className="font-martian text-xs text-primary-text/60 dark:text-primary-text-dark/60 leading-relaxed">{t('resume.backendTech')}</p>
+            <p className="font-martian text-[10px] uppercase tracking-wider text-primary-text/60 dark:text-primary-text-dark/60 leading-relaxed">{t('resume.backendTech')}</p>
           </BentoCard>
 
           <BentoCard className="p-8 text-center hover:border-accent">
-            <PenTool className="w-10 h-10 mx-auto mb-4 text-accent" />
+            <PenTool className="w-8 h-8 mx-auto mb-4 text-accent" />
             <h4 className="font-bold font-martian text-lg mb-2">{t('resume.otherTools')}</h4>
-            <p className="font-martian text-xs text-primary-text/60 dark:text-primary-text-dark/60 leading-relaxed">{t('resume.otherTech')}</p>
+            <p className="font-martian text-[10px] uppercase tracking-wider text-primary-text/60 dark:text-primary-text-dark/60 leading-relaxed">{t('resume.otherTech')}</p>
           </BentoCard>
         </div>
       </div>
@@ -128,11 +139,13 @@ export default function BuilderDashboard() {
       </div>
 
       {/* Action CTA */}
-      <div className="mt-20 text-center">
-        <button className="inline-flex items-center justify-center space-x-3 px-8 py-4 bg-accent text-white dark:text-[#1C1C1D] border border-primary-text dark:border-primary-text-dark font-funnel font-bold uppercase tracking-widest rounded-xl shadow-hard-interactive-light dark:shadow-hard-interactive-dark transition-all cursor-pointer">
+      <div className="mt-20 text-center relative z-10">
+        <button className="inline-flex items-center justify-center space-x-3 px-8 py-4 bg-accent text-white dark:text-[#1C1C1D] border border-primary-text dark:border-primary-text-dark font-funnel font-bold uppercase tracking-widest rounded-xl shadow-[0_8px_30px_-8px_rgba(224,122,95,0.4)] transition-all cursor-pointer hover:-translate-y-1">
           <Download size={18} />
           <span>{t('resume.downloadText')}</span>
         </button>
+      </div>
+      
       </div>
     </section>
   );
