@@ -6,7 +6,7 @@ function randRange(a, b) { return a + Math.random() * (b - a); }
 
 const ACCENT_COLOR  = new THREE.Color('#E07A5F');
 const BREATHE_SPEED = 0.28;
-const DUST_COUNT    = 80;
+const DUST_COUNT    = 50;
 
 let scrollProgress = 0;
 
@@ -17,7 +17,7 @@ for (let i = 0; i < DUST_COUNT; i++) {
   dustPositions[i * 3]     = randRange(-12, 12);
   dustPositions[i * 3 + 1] = randRange(-7, 7);
   dustPositions[i * 3 + 2] = randRange(-5, 3);
-  dustSpeeds[i]  = randRange(0.3, 1.2);
+  dustSpeeds[i]  = randRange(0.1, 0.4);
   dustPhases[i]  = randRange(0, Math.PI * 2);
 }
 
@@ -74,11 +74,12 @@ const BG_FRAG = `
 
     float angle = atan(uv.y - focal.y, uv.x - focal.x);
 
-    float rays = noise(vec2(angle * 4.0 + uTime * 0.15, uTime * 0.08)) * 0.5;
-    rays += noise(vec2(angle * 8.0 - uTime * 0.3,  uTime * 0.1))  * 0.3;
-    rays += noise(vec2(angle * 16.0 + uTime * 0.5, uTime * 0.18)) * 0.2;
+    float rays = noise(vec2(angle * 3.0 + uTime * 0.1, uTime * 0.05)) * 0.4;
+    rays += noise(vec2(angle * 6.0 - uTime * 0.2,  uTime * 0.08)) * 0.3;
+    rays += noise(vec2(angle * 12.0 + uTime * 0.3, uTime * 0.12)) * 0.2;
+    rays += noise(vec2(angle * 24.0 - uTime * 0.4, uTime * 0.15)) * 0.1;
 
-    float rayStr = smoothstep(3.5, 0.0, dFocal) * (0.3 + 0.7 * rays);
+    float rayStr = smoothstep(3.5, 0.0, dFocal) * (0.2 + 0.8 * rays);
 
     float glow = 0.50 / (0.3 + dFocal * dFocal * 0.8);
     glow += 0.25 / (0.4 + dMouse * dMouse * 1.5);
@@ -129,8 +130,8 @@ const DUST_FRAG = `
   void main() {
     float d = length(gl_PointCoord - vec2(0.5));
     if (d > 0.5) discard;
-    float a = smoothstep(0.5, 0.05, d);
-    gl_FragColor = vec4(uColor, a * vAlpha * uOpacity * 0.5);
+    float a = smoothstep(0.5, 0.1, d);
+    gl_FragColor = vec4(uColor, a * vAlpha * uOpacity * 0.25);
   }
 `;
 

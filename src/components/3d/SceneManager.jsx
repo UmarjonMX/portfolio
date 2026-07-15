@@ -14,9 +14,10 @@ export default function SceneManager() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Calculate generic scroll progress (0 to 1 based on first few viewports)
+  // Calculate generic scroll progress relative to viewport height
   const vh = typeof window !== 'undefined' ? window.innerHeight : 900;
-  const scrollProgress = Math.min(1, Math.max(0, scrollY / (vh * 1.5)));
+  // Let progress go beyond 1.0 to support continuous transitions
+  const scrollProgress = Math.max(0, scrollY / vh);
 
   return (
     <div className="fixed inset-0 pointer-events-none z-[-20] bg-black">

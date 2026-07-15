@@ -1,6 +1,8 @@
 import { useRef, useEffect, useState } from 'react';
 import { useMotionValue, useSpring } from 'framer-motion';
 
+const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#@$*&%';
+
 export default function SignatureText({ text, className = '' }) {
   const containerRef = useRef(null);
   
@@ -15,6 +17,7 @@ export default function SignatureText({ text, className = '' }) {
 
   const [hasInteracted, setHasInteracted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [displayText, setDisplayText] = useState('');
 
   useEffect(() => {
     const unsubX = smoothX.on('change', (latest) => {
@@ -40,42 +43,47 @@ export default function SignatureText({ text, className = '' }) {
   }, []);
 
   useEffect(() => {
-    if (isMobile) return; // Only initial sweep on mobile
-
-    // Initial entrance sweep animation
-    let animationFrame;
+    // Scramble reveal logic
+    let frame;
     let startTime;
-    
-    const sweepAnimation = (time) => {
-      if (!startTime) startTime = time;
-      const progress = (time - startTime) / 1500; // 1.5s sweep
+    const duration = 700; // 0.7 seconds
 
-      if (progress < 1 && !hasInteracted) {
-        if (!containerRef.current) return;
-        const rect = containerRef.current.getBoundingClientRect();
-        // Sweep from left to right
-        const x = (rect.width * 1.5) * progress - (rect.width * 0.25);
-        const y = rect.height / 2;
-        mouseX.set(x);
-        mouseY.set(y);
-        animationFrame = requestAnimationFrame(sweepAnimation);
-      } else if (!hasInteracted) {
-        // Hide beam off-screen after sweep
-        mouseX.set(-1000);
-        mouseY.set(-1000);
+    const animate = (time) => {
+      if (!startTime) startTime = time;
+      const progress = (time - startTime) / duration;
+
+      if (progress < 1) {
+        let scrambled = '';
+        for (let i = 0; i < text.length; i++) {
+          if (text[i] === ' ') {
+            scrambled += ' ';
+          } else if (i < progress * text.length * 1.5 - Math.random() * 2) {
+            // Characters resolve from left to right with slight randomness
+            scrambled += text[i];
+          } else {
+            scrambled += CHARS[Math.floor(Math.random() * CHARS.length)];
+          }
+        }
+        setDisplayText(scrambled);
+        // Only request next frame after a slight delay to avoid blur, or run at 30fps
+        setTimeout(() => {
+          frame = requestAnimationFrame(animate);
+        }, 30);
+      } else {
+        setDisplayText(text);
       }
     };
 
-    // Delay sweep slightly for entrance sequence
+    // Delay start slightly
     const timeoutId = setTimeout(() => {
-      animationFrame = requestAnimationFrame(sweepAnimation);
-    }, 1000);
+      frame = requestAnimationFrame(animate);
+    }, 400);
 
     return () => {
       clearTimeout(timeoutId);
-      if (animationFrame) cancelAnimationFrame(animationFrame);
+      if (frame) cancelAnimationFrame(frame);
     };
-  }, [hasInteracted, isMobile, mouseX, mouseY]);
+  }, [text]);
 
   const handleMouseMove = (e) => {
     if (isMobile) return; // No cursor tracking on mobile
@@ -104,13 +112,13 @@ export default function SignatureText({ text, className = '' }) {
       onMouseLeave={handleMouseLeave}
     >
       {/* Base Text (Matte, Low Contrast) */}
-      <span className="text-primary-text/30 dark:text-primary-text-dark/30 transition-colors duration-500">
-        {text}
+      <span className="text-primary-text/30 dark:text-primary-text-dark/30 transition-colors duration-500 whitespace-pre-wrap">
+        {displayText}
       </span>
 
       {/* Illuminated Text Layer (Orange, Glow, Depth) */}
       <span 
-        className="absolute inset-0 text-accent dark:text-accent drop-shadow-[0_2px_8px_rgba(224,122,95,0.6)]"
+        className="absolute inset-0 text-accent dark:text-accent drop-shadow-[0_2px_8px_rgba(224,122,95,0.6)] whitespace-pre-wrap pointer-events-none"
         style={{
           color: '#E07A5F', // Our brand orange
           textShadow: '0 1px 2px rgba(0,0,0,0.5), 0 0 15px rgba(224,122,95,0.4)',
@@ -120,7 +128,7 @@ export default function SignatureText({ text, className = '' }) {
           maskRepeat: 'no-repeat',
         }}
       >
-        {text}
+        {displayText}
       </span>
     </div>
   );

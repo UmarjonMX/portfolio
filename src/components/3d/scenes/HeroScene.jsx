@@ -4,11 +4,49 @@ import { MeshTransmissionMaterial, RoundedBox } from '@react-three/drei';
 import * as THREE from 'three';
 
 // A single module in the inner core
-function CoreModule({ position, size, emissive }) {
+function CoreModule({ position, size, emissive, seed, targetY, easeProgress }) {
+  const meshRef = useRef();
+  const materialRef = useRef();
+
+  useFrame((state, delta) => {
+    const time = state.clock.getElapsedTime();
+    const ptr = state.pointer;
+    
+    // Breathing light and energy pulses
+    if (emissive && materialRef.current) {
+      const breathe = 1.0 + Math.sin(time * 2.0 + seed * 10) * 0.5;
+      const pulsePhase = (time * 0.8 + seed * 2.0) % 1.0;
+      const pulse = pulsePhase < 0.05 ? 3.0 : 0.0;
+      materialRef.current.emissiveIntensity = breathe + pulse;
+    }
+
+    if (meshRef.current) {
+      // Base opened position
+      const tY = position[1] + (targetY - position[1]) * easeProgress;
+      
+      // Mouse influence on geometry
+      const dx = position[0] - ptr.x * 1.5;
+      const dy = position[1] - ptr.y * 1.5;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const repel = Math.max(0, 1 - dist) * 0.1;
+      
+      const targetPosX = position[0] + (dx * repel);
+      const targetPosY = tY + (dy * repel);
+      
+      meshRef.current.position.x = THREE.MathUtils.damp(meshRef.current.position.x, targetPosX, 4, delta);
+      meshRef.current.position.y = THREE.MathUtils.damp(meshRef.current.position.y, targetPosY, 4, delta);
+      
+      // Subtle independent rotation
+      meshRef.current.rotation.x = Math.sin(time * 0.5 + seed * 5) * 0.1;
+      meshRef.current.rotation.y = Math.cos(time * 0.6 + seed * 5) * 0.1;
+    }
+  });
+
   return (
-    <mesh position={position}>
+    <mesh ref={meshRef} position={position}>
       <boxGeometry args={size} />
       <meshPhysicalMaterial 
+        ref={materialRef}
         color="#111111" 
         metalness={0.9} 
         roughness={0.1}
@@ -24,6 +62,7 @@ export default function HeroScene({ scrollProgress }) {
   const leftShellRef = useRef();
   const rightShellRef = useRef();
   const coreRef = useRef();
+  const pointLightRef = useRef();
 
   // Create an array of core modules to form an architectural framework
   const [modules] = useState(() => {
@@ -40,7 +79,8 @@ export default function HeroScene({ scrollProgress }) {
           pos: [x, y, 0],
           size: [0.35, 0.43, 0.8],
           emissive: isEmissive,
-          targetY: y + (Math.random() - 0.5) * 2.0 // Y-axis expansion target
+          targetY: y + (Math.random() - 0.5) * 2.0, // Y-axis expansion target
+          seed: Math.random() // Unique seed for offset animations
         });
       }
     }
@@ -104,16 +144,11 @@ export default function HeroScene({ scrollProgress }) {
         3, 
         delta
       );
-      
-      // Individual modules expand/reorganize
-      coreRef.current.children.forEach((child, i) => {
-        const mod = modules[i];
-        if (mod) {
-          // As it opens, modules shift on Y axis slightly
-          const targetY = mod.pos[1] + (mod.targetY - mod.pos[1]) * easeProgress;
-          child.position.y = THREE.MathUtils.damp(child.position.y, targetY, 4, delta);
-        }
-      });
+    }
+    
+    if (pointLightRef.current) {
+      pointLightRef.current.position.x = ptr.x * 3;
+      pointLightRef.current.position.y = ptr.y * 3;
     }
   });
 
@@ -162,10 +197,22 @@ export default function HeroScene({ scrollProgress }) {
             key={mod.key} 
             position={mod.pos} 
             size={mod.size} 
-            emissive={mod.emissive} 
+            emissive={mod.emissive}
+            seed={mod.seed}
+            targetY={mod.targetY}
+            easeProgress={Math.pow(scrollProgress, 1.5)}
           />
         ))}
       </group>
+      
+      {/* Interactive Cursor Light */}
+      <pointLight 
+        ref={pointLightRef}
+        position={[0, 0, 1.5]} 
+        intensity={0.5} 
+        color="#ffffff" 
+        distance={4}
+      />
     </group>
   );
 }
