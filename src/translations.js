@@ -46,6 +46,10 @@ export default {
       items: [
         {
           title: 'Kitobiyot 12',
+          type: 'hero',
+          status: 'Released',
+          timeline: '2024',
+          previewType: 'mobile',
           problem: 'The Uzbek literature community lacked a centralized platform for literary analysis, book reviews, and educational content.',
           solution: 'Created a dedicated Telegram channel for curated literary analysis, book reviews, and educational content about Uzbek literature.',
           impact: 'Centralized Uzbek literature discourse and created an educational resource for students and enthusiasts.',
@@ -54,6 +58,10 @@ export default {
         },
         {
           title: 'Anonymous Chat',
+          type: 'supporting',
+          status: 'Released',
+          timeline: '2023',
+          previewType: 'chat',
           problem: 'Telegram users needed private conversations without identity disclosure. Existing options required registration or lacked privacy protections.',
           solution: 'Built a Telegram bot that enables anonymous one-on-one conversations with automatic session cleanup.',
           impact: 'Users can discuss sensitive topics without fear. Temporary sessions reduce anxiety and ensure privacy.',
@@ -62,6 +70,10 @@ export default {
         },
         {
           title: '3D Portfolio',
+          type: 'supporting',
+          status: 'Released',
+          timeline: 'Current',
+          previewType: 'browser',
           problem: 'Needed a portfolio that would stand out to recruiters while maintaining professionalism and accessibility.',
           solution: 'Built an interactive portfolio with Three.js 3D background and Framer Motion animations, balancing visual impact with performance.',
           impact: 'Demonstrated technical depth in graphics programming and design sensibility while maintaining accessibility.',
@@ -70,6 +82,10 @@ export default {
         },
         {
           title: "Muhammad Umar's Blog",
+          type: 'supporting',
+          status: 'Building',
+          timeline: 'Current',
+          previewType: 'browser',
           problem: 'Technical and philosophical content was scattered across platforms with no centralized space for long-form thinking.',
           solution: 'Created a blog platform using React and Tailwind CSS for fast loading, clean typography, and responsive design.',
           impact: 'Centralized content creation and distribution for IT, literature, and philosophy topics.',
@@ -169,6 +185,10 @@ export default {
       items: [
         {
           title: 'Kitobiyot 12',
+          type: 'hero',
+          status: 'Chiqarilgan',
+          timeline: '2024',
+          previewType: 'mobile',
           problem: "O'zbek adabiyoti jamoasi uchun adabiy tahlil, kitob taqrizlari va ta'limiy kontent uchun markazlashtirilgan platforma yo'q edi.",
           solution: "O'zbek adabiyoti haqida adabiy tahlil, kitob taqrizlari va ta'limiy kontent uchun maxsus Telegram kanal yaratdim.",
           impact: "O'zbek adabiyoti diskursini markazlashtirdim va talabalar va havaskorlar uchun ta'limiy resurs yaratdim.",
@@ -177,6 +197,10 @@ export default {
         },
         {
           title: 'Anonim Chat',
+          type: 'supporting',
+          status: 'Chiqarilgan',
+          timeline: '2023',
+          previewType: 'chat',
           problem: "Telegram foydalanuvchilari identifikatsiyasiz xususiy suhbatlar uchun ehtiyoj bor edi. Mavjud variantlar ro'yxatdan o'tishni talab qilar yoki maxfiylik himoyasiga ega emas edi.",
           solution: "Avtomatik sessiya tozalash bilan anonim bir-bir suhbatlar uchun Telegram bot yaratdim.",
           impact: "Foydalanuvchilar xavfsizlikdan qo'rqmasdan sezgir mavzular muhokasa qilishi mumkin. Vaqtinchalik sessiyalar tashvishni kamaytiradi va maxfiylikni ta'minlaydi.",
@@ -185,6 +209,10 @@ export default {
         },
         {
           title: '3D Portfolio',
+          type: 'supporting',
+          status: 'Chiqarilgan',
+          timeline: 'Hozirda',
+          previewType: 'browser',
           problem: "Rekruterlarga ko'zga tashlash uchun portfolio kerak edi, shu bilan birga professionalizm va foydalanish qulayligini saqlab.",
           solution: "Three.js 3D fon va Framer Motion animatsiyalari bilan interaktiv portfolio yaratdim, vizual ta'sir va unumdorlikni muvozanatladim.",
           impact: "Grafik dasturlashda texnik chuqurlik va dizayn sezgisini namoyish etdim, foydalanish qulayligini saqlab.",
@@ -193,6 +221,10 @@ export default {
         },
         {
           title: "Muhammad Umarning Blogi",
+          type: 'supporting',
+          status: 'Qurilmoqda',
+          timeline: 'Hozirda',
+          previewType: 'browser',
           problem: "Texnik va falsafiy kontent platformalar bo'ylab tarqalgan edi, uzoq fikrlash uchun markazlashtirilgan joy yo'q edi.",
           solution: "Tezkor yuklash, toza tipografiya va moslashuvchan dizayn uchun React va Tailwind CSS yordamida blog platformasi yaratdim.",
           impact: "IT, adabiyot va falsafa mavzulari uchun kontent yaratish va tarqatishni markazlashtirdim.",
