@@ -1,6 +1,7 @@
 import { useLanguage } from '../context/LanguageContext';
 import BentoCard from './BentoCard';
 import SectionHeader from './SectionHeader';
+import { LayoutTemplate, Database, PenTool, Download } from 'lucide-react';
 
 export default function BuilderDashboard() {
   const { t } = useLanguage();
