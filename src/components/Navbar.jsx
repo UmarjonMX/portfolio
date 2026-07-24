@@ -127,9 +127,9 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
               aria-label="Toggle Menu"
               className="md:hidden relative w-10 h-10 flex flex-col justify-center items-center rounded-xl hover:bg-white dark:hover:bg-card-bg-dark hover:shadow-sm transition-all duration-300 p-2 z-50 cursor-pointer"
             >
-              <div className={`w-4.5 h-[1.5px] bg-primary-text dark:bg-primary-text-dark transition-all duration-300 ease-out absolute ${isOpen ? 'rotate-45' : '-translate-y-1.2'}`} />
-              <div className={`w-4.5 h-[1.5px] bg-primary-text dark:bg-primary-text-dark transition-all duration-300 ease-out absolute ${isOpen ? 'opacity-0 scale-75' : 'opacity-100'}`} />
-              <div className={`w-4.5 h-[1.5px] bg-primary-text dark:bg-primary-text-dark transition-all duration-300 ease-out absolute ${isOpen ? '-rotate-45' : 'translate-y-1.2'}`} />
+              <div className={`w-5 h-[1.5px] bg-primary-text dark:bg-primary-text-dark transition-all duration-300 ease-out absolute ${isOpen ? 'rotate-45' : '-translate-y-1.5'}`} />
+              <div className={`w-5 h-[1.5px] bg-primary-text dark:bg-primary-text-dark transition-all duration-300 ease-out absolute ${isOpen ? 'opacity-0 scale-75' : 'opacity-100'}`} />
+              <div className={`w-5 h-[1.5px] bg-primary-text dark:bg-primary-text-dark transition-all duration-300 ease-out absolute ${isOpen ? '-rotate-45' : 'translate-y-1.5'}`} />
             </button>
           </div>
       </nav>

@@ -214,7 +214,7 @@ export default function Projects() {
   return (
     <section
       id="projects"
-      style={{ position: 'relative', zIndex: 50, isolation: 'isolate', perspective: '1200px' }}
+      style={{ position: 'relative', zIndex: 50, isolation: 'isolate' }}
       className="relative py-32 px-6 sm:px-10 lg:px-16 max-w-[90rem] mx-auto border-b border-primary-text/10 dark:border-primary-text-dark/10"
     >
       {/* Editorial Background: Architecture Wireframes */}
@@ -233,7 +233,7 @@ export default function Projects() {
       <SectionHeader title={t('projects.title')} number="03" />
 
       {/* 3D Bento Projects Grid */}
-      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-32">
+      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-32" style={{ perspective: '1200px' }}>
         {projects.map((project, index) => (
           <ProjectCard 
             key={index} 
