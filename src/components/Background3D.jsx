@@ -142,7 +142,7 @@ function VolumetricBg({ isDark }) {
   useEffect(() => { bgU.uIsDark.value = isDark ? 1 : 0; }, [isDark]);
 
   useFrame((state) => {
-    bgU.uTime.value = state.clock.getElapsedTime();
+    bgU.uTime.value = state.clock.elapsedTime;
     bgU.uMouse.value.lerp(state.pointer, 0.06);
   });
 
@@ -164,7 +164,7 @@ function DustField({ isDark }) {
   useEffect(() => { dustU.uColor.value.set(isDark ? 0xffffff : 0x1c1c1c); }, [isDark]);
 
   useFrame((state) => {
-    const time = state.clock.getElapsedTime();
+    const time = state.clock.elapsedTime;
     dustU.uTime.value = time;
     const entrance = Math.min(1, time / 2.0);
     const scrollFade = Math.max(0, 1 - scrollProgress * 0.5);

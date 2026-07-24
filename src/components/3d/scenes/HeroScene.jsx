@@ -7,7 +7,7 @@ function KineticRing({ radius, tube, speed, scrollProgress, isDarkMode, axis = '
   const meshRef = useRef();
 
   useFrame((state, delta) => {
-    const time = state.clock.getElapsedTime();
+    const time = state.clock.elapsedTime;
     
     if (meshRef.current) {
       // Base rotation
@@ -54,7 +54,7 @@ function WireframeShell({ scrollProgress, isDarkMode }) {
   const meshRef = useRef();
 
   useFrame((state, delta) => {
-    const time = state.clock.getElapsedTime();
+    const time = state.clock.elapsedTime;
     if (meshRef.current) {
       meshRef.current.rotation.y = time * 0.1;
       meshRef.current.rotation.x = time * 0.05;
@@ -88,7 +88,7 @@ function CentralCore({ scrollProgress, isDarkMode }) {
   const meshRef = useRef();
   
   useFrame((state, delta) => {
-    const time = state.clock.getElapsedTime();
+    const time = state.clock.elapsedTime;
     if (meshRef.current) {
       meshRef.current.rotation.y = -time * 0.2;
       meshRef.current.rotation.z = time * 0.1;

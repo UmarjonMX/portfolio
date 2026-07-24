@@ -49,7 +49,7 @@ export default function Contact() {
              <circle cx="50%" cy="50%" r="200" strokeDasharray="1 6" strokeOpacity="0.4" />
              <circle cx="50%" cy="50%" r="400" strokeDasharray="1 8" strokeOpacity="0.3" />
              <circle cx="50%" cy="50%" r="600" strokeDasharray="1 10" strokeOpacity="0.2" />
-             <path d="M 0 50% Q 25% 40% 50% 50% T 100% 50%" strokeOpacity="0.5" />
+             <path d="M 0 50 Q 25 40 50 50 T 100 50" strokeOpacity="0.5" />
           </g>
         </svg>
       </div>
