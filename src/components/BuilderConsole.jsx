@@ -20,7 +20,13 @@ export default function BuilderConsole() {
     let index = 0;
     const interval = setInterval(() => {
       if (index < BOOT_SEQUENCE.length) {
-        setCompletedSteps((prev) => [...prev, BOOT_SEQUENCE[index].id]);
+        const currentId = BOOT_SEQUENCE[index].id;
+        setCompletedSteps((prev) => {
+          if (!prev.includes(currentId)) {
+            return [...prev, currentId];
+          }
+          return prev;
+        });
         index++;
       } else {
         clearInterval(interval);
