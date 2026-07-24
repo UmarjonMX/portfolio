@@ -1,131 +1,160 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { MeshTransmissionMaterial, RoundedBox } from '@react-three/drei';
+import { MeshTransmissionMaterial, Edges } from '@react-three/drei';
 import * as THREE from 'three';
 
-// A single module in the inner core
-function CoreModule({ position, size, emissive, seed, targetY, easeProgress, isDarkMode }) {
+function KineticRing({ radius, tube, speed, scrollProgress, isDarkMode, axis = 'x', offset = 0 }) {
   const meshRef = useRef();
-  const materialRef = useRef();
 
   useFrame((state, delta) => {
     const time = state.clock.getElapsedTime();
-    const ptr = state.pointer;
     
-    // Breathing light and energy pulses
-    if (emissive && materialRef.current) {
-      const breathe = 1.0 + Math.sin(time * 2.0 + seed * 10) * 0.5;
-      const pulsePhase = (time * 0.8 + seed * 2.0) % 1.0;
-      const pulse = pulsePhase < 0.05 ? 3.0 : 0.0;
-      materialRef.current.emissiveIntensity = breathe + pulse;
-    }
-
     if (meshRef.current) {
-      // Base opened position
-      const tY = position[1] + (targetY - position[1]) * easeProgress;
+      // Base rotation
+      if (axis === 'x') meshRef.current.rotation.x = time * speed;
+      if (axis === 'y') meshRef.current.rotation.y = time * speed;
+      if (axis === 'z') meshRef.current.rotation.z = time * speed;
+
+      // Deconstruct on scroll
+      const easeProgress = Math.pow(scrollProgress, 1.5);
       
-      // Mouse influence on geometry
-      const dx = position[0] - ptr.x * 1.5;
-      const dy = position[1] - ptr.y * 1.5;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      const repel = Math.max(0, 1 - dist) * 0.1;
+      const targetZ = offset * easeProgress * 5.0; // expand outward
+      const targetScale = 1.0 + easeProgress * 1.5;
       
-      const targetPosX = position[0] + (dx * repel);
-      const targetPosY = tY + (dy * repel);
-      
-      meshRef.current.position.x = THREE.MathUtils.damp(meshRef.current.position.x, targetPosX, 4, delta);
-      meshRef.current.position.y = THREE.MathUtils.damp(meshRef.current.position.y, targetPosY, 4, delta);
-      
-      // Subtle independent rotation
-      meshRef.current.rotation.x = Math.sin(time * 0.5 + seed * 5) * 0.1;
-      meshRef.current.rotation.y = Math.cos(time * 0.6 + seed * 5) * 0.1;
+      meshRef.current.position.z = THREE.MathUtils.damp(meshRef.current.position.z, targetZ, 4, delta);
+      meshRef.current.scale.setScalar(THREE.MathUtils.damp(meshRef.current.scale.x, targetScale, 4, delta));
     }
   });
 
   return (
-    <mesh ref={meshRef} position={position}>
-      <boxGeometry args={size} />
+    <mesh ref={meshRef}>
+      <torusGeometry args={[radius, tube, 64, 100]} />
       {isDarkMode ? (
-        <meshPhysicalMaterial 
-          ref={materialRef}
-          color="#111111" 
+        <meshStandardMaterial 
+          color="#333333" 
           metalness={0.9} 
           roughness={0.1}
-          emissive={emissive ? "#a0c0ff" : "#000000"}
-          emissiveIntensity={emissive ? 2 : 0}
+          emissive="#a0c0ff"
+          emissiveIntensity={0.2}
         />
       ) : (
         <MeshTransmissionMaterial 
-          ref={materialRef}
           color="#ffffff"
           transmission={0.9}
-          thickness={0.5}
-          roughness={0.05}
-          ior={1.2}
-          emissive={emissive ? "#e07a5f" : "#000000"}
-          emissiveIntensity={emissive ? 0.8 : 0}
+          thickness={0.2}
+          roughness={0.0}
+          ior={1.5}
         />
       )}
     </mesh>
   );
 }
 
-export default function HeroScene({ scrollProgress, isDarkMode }) {
-  const groupRef = useRef();
-  const leftShellRef = useRef();
-  const rightShellRef = useRef();
-  const coreRef = useRef();
-  const pointLightRef = useRef();
-
-  // Create an array of core modules to form an architectural framework
-  const [modules] = useState(() => {
-    const mods = [];
-    const rows = 8;
-    const cols = 4;
-    for(let r = 0; r < rows; r++) {
-      for(let c = 0; c < cols; c++) {
-        const x = (c - cols / 2 + 0.5) * 0.4;
-        const y = (r - rows / 2 + 0.5) * 0.48;
-        const isEmissive = Math.random() > 0.85;
-        mods.push({
-          key: `mod-${r}-${c}`,
-          pos: [x, y, 0],
-          size: [0.35, 0.43, 0.8],
-          emissive: isEmissive,
-          targetY: y + (Math.random() - 0.5) * 2.0, // Y-axis expansion target
-          seed: Math.random() // Unique seed for offset animations
-        });
-      }
-    }
-    return mods;
-  });
+function WireframeShell({ scrollProgress, isDarkMode }) {
+  const meshRef = useRef();
 
   useFrame((state, delta) => {
     const time = state.clock.getElapsedTime();
+    if (meshRef.current) {
+      meshRef.current.rotation.y = time * 0.1;
+      meshRef.current.rotation.x = time * 0.05;
+      
+      const easeProgress = Math.pow(scrollProgress, 1.5);
+      const targetScale = 1.0 + easeProgress * 2.0;
+      meshRef.current.scale.setScalar(THREE.MathUtils.damp(meshRef.current.scale.x, targetScale, 3, delta));
+      
+      // Move up slightly on scroll
+      const targetY = easeProgress * 2.0;
+      meshRef.current.position.y = THREE.MathUtils.damp(meshRef.current.position.y, targetY, 3, delta);
+    }
+  });
+
+  return (
+    <mesh ref={meshRef}>
+      <icosahedronGeometry args={[2.5, 1]} />
+      <meshBasicMaterial color="transparent" opacity={0} transparent />
+      <Edges 
+        linewidth={1} 
+        threshold={15} 
+        color={isDarkMode ? "#FAFAFA" : "#1C1C1C"} 
+        transparent 
+        opacity={0.15} 
+      />
+    </mesh>
+  );
+}
+
+function CentralCore({ scrollProgress, isDarkMode }) {
+  const meshRef = useRef();
+  
+  useFrame((state, delta) => {
+    const time = state.clock.getElapsedTime();
+    if (meshRef.current) {
+      meshRef.current.rotation.y = -time * 0.2;
+      meshRef.current.rotation.z = time * 0.1;
+      
+      const easeProgress = Math.pow(scrollProgress, 1.5);
+      // Core drops down and shrinks slightly on scroll
+      const targetY = -easeProgress * 3.0;
+      const targetScale = 1.0 - easeProgress * 0.5;
+      
+      meshRef.current.position.y = THREE.MathUtils.damp(meshRef.current.position.y, targetY, 4, delta);
+      meshRef.current.scale.setScalar(THREE.MathUtils.damp(meshRef.current.scale.x, Math.max(0.1, targetScale), 4, delta));
+    }
+  });
+
+  return (
+    <mesh ref={meshRef}>
+      <octahedronGeometry args={[1, 0]} />
+      {isDarkMode ? (
+        <meshPhysicalMaterial 
+          color="#111111" 
+          metalness={1.0} 
+          roughness={0.0}
+          clearcoat={1.0}
+        />
+      ) : (
+        <MeshTransmissionMaterial 
+          color="#f4f4f4"
+          transmission={1.0}
+          thickness={1.5}
+          roughness={0.1}
+          ior={1.4}
+          chromaticAberration={0.4}
+          anisotropy={0.5}
+        />
+      )}
+      <Edges 
+        linewidth={2} 
+        threshold={15} 
+        color="#E07A5F" 
+        transparent 
+        opacity={0.8} 
+      />
+    </mesh>
+  );
+}
+
+export default function HeroScene({ scrollProgress, isDarkMode }) {
+  const groupRef = useRef();
+  const pointLightRef = useRef();
+
+  useFrame((state, delta) => {
     const ptr = state.pointer;
 
     // Smooth inertia for mouse interaction
-    const targetRotX = ptr.y * 0.2;
-    const targetRotY = ptr.x * 0.4;
+    const targetRotX = ptr.y * 0.15;
+    const targetRotY = ptr.x * 0.3;
 
     if (groupRef.current) {
       // Damped rotation for physical weight
       groupRef.current.rotation.x = THREE.MathUtils.damp(groupRef.current.rotation.x, targetRotX, 3, delta);
       groupRef.current.rotation.y = THREE.MathUtils.damp(groupRef.current.rotation.y, targetRotY, 3, delta);
       
-      // Gentle breathing
-      const breath = Math.sin(time * 0.8) * 0.05;
-      groupRef.current.position.y = THREE.MathUtils.damp(
-        groupRef.current.position.y,
-        breath - scrollProgress * 0.5,
-        2, 
-        delta
-      );
-      
-      // Camera zoom-in cinematic effect
+      // Camera zoom-out cinematic effect on scroll
       state.camera.position.z = THREE.MathUtils.damp(
         state.camera.position.z,
-        10 - scrollProgress * 3.5,
+        8 + scrollProgress * 5.0,
         2,
         delta
       );
@@ -133,99 +162,36 @@ export default function HeroScene({ scrollProgress, isDarkMode }) {
       // Camera pan
       state.camera.position.x = THREE.MathUtils.damp(
         state.camera.position.x,
-        scrollProgress * 1.5,
+        scrollProgress * 2.0,
         2,
-        delta
-      );
-    }
-
-    // Scroll-driven scene transformation
-    // Eased scroll progress
-    const easeProgress = Math.pow(scrollProgress, 1.5);
-
-    if (leftShellRef.current && rightShellRef.current) {
-      const splitAmount = easeProgress * 1.5;
-      leftShellRef.current.position.x = THREE.MathUtils.damp(leftShellRef.current.position.x, -0.75 - splitAmount, 4, delta);
-      rightShellRef.current.position.x = THREE.MathUtils.damp(rightShellRef.current.position.x, 0.75 + splitAmount, 4, delta);
-    }
-
-    if (coreRef.current) {
-      // The core rotates slightly to show complexity when opened
-      coreRef.current.rotation.y = THREE.MathUtils.damp(
-        coreRef.current.rotation.y,
-        easeProgress * Math.PI * 0.15,
-        3, 
         delta
       );
     }
     
     if (pointLightRef.current) {
-      pointLightRef.current.position.x = ptr.x * 3;
-      pointLightRef.current.position.y = ptr.y * 3;
+      pointLightRef.current.position.x = ptr.x * 4;
+      pointLightRef.current.position.y = ptr.y * 4;
     }
   });
 
   return (
-    <group ref={groupRef} position={[3.5, 0, 0]}>
-      {/* Outer Frosted Shell */}
-      <group>
-        <RoundedBox ref={leftShellRef} args={[1.5, 4.5, 1.2]} radius={0.15} smoothness={4} position={[-0.75, 0, 0]}>
-          <MeshTransmissionMaterial
-            backside
-            samples={4}
-            thickness={2}
-            chromaticAberration={0.8}
-            anisotropy={0.1}
-            distortion={0.1}
-            distortionScale={0.1}
-            temporalDistortion={0.0}
-            color="#ffffff"
-            transmission={1}
-            roughness={0.25}
-            clearcoat={1}
-          />
-        </RoundedBox>
-        <RoundedBox ref={rightShellRef} args={[1.5, 4.5, 1.2]} radius={0.15} smoothness={4} position={[0.75, 0, 0]}>
-          <MeshTransmissionMaterial
-            backside
-            samples={4}
-            thickness={2}
-            chromaticAberration={0.8}
-            anisotropy={0.1}
-            distortion={0.1}
-            distortionScale={0.1}
-            temporalDistortion={0.0}
-            color="#ffffff"
-            transmission={1}
-            roughness={0.25}
-            clearcoat={1}
-          />
-        </RoundedBox>
-      </group>
-
-      {/* Inner Engineered Core */}
-      <group ref={coreRef}>
-        {modules.map(mod => (
-          <CoreModule 
-            key={mod.key} 
-            position={mod.pos} 
-            size={mod.size} 
-            emissive={mod.emissive}
-            seed={mod.seed}
-            targetY={mod.targetY}
-            easeProgress={Math.pow(scrollProgress, 1.5)}
-            isDarkMode={isDarkMode}
-          />
-        ))}
-      </group>
+    <group ref={groupRef} position={[0, 0, 0]}>
       
+      <WireframeShell scrollProgress={scrollProgress} isDarkMode={isDarkMode} />
+      
+      <CentralCore scrollProgress={scrollProgress} isDarkMode={isDarkMode} />
+
+      <KineticRing radius={1.6} tube={0.02} speed={0.4} scrollProgress={scrollProgress} isDarkMode={isDarkMode} axis="x" offset={1} />
+      <KineticRing radius={1.8} tube={0.015} speed={0.3} scrollProgress={scrollProgress} isDarkMode={isDarkMode} axis="y" offset={-1} />
+      <KineticRing radius={2.0} tube={0.01} speed={0.2} scrollProgress={scrollProgress} isDarkMode={isDarkMode} axis="z" offset={2} />
+
       {/* Interactive Cursor Light */}
       <pointLight 
         ref={pointLightRef}
-        position={[0, 0, 1.5]} 
-        intensity={0.5} 
-        color="#ffffff" 
-        distance={4}
+        position={[0, 0, 2]} 
+        intensity={isDarkMode ? 1.0 : 0.5} 
+        color="#E07A5F" 
+        distance={6}
       />
     </group>
   );
