@@ -55,7 +55,7 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
                key={i} 
                href={link.href} 
                onClick={() => setIsOpen(false)}
-               className="text-xl font-funnel font-bold tracking-widest text-primary-text/80 dark:text-primary-text-dark/80 hover:text-accent dark:hover:text-accent transition-all duration-300 border-b border-primary-text/5 dark:border-primary-text-dark/5 pb-3"
+               className="text-xl font-host font-bold tracking-widest text-primary-text/80 dark:text-primary-text-dark/80 hover:text-accent dark:hover:text-accent transition-all duration-300 border-b border-primary-text/5 dark:border-primary-text-dark/5 pb-3"
             >
               {link.title}
             </a>
@@ -88,7 +88,7 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
               <a 
                  key={i} 
                  href={link.href} 
-                 className="relative px-4 py-2 font-funnel font-bold tracking-widest text-xs text-primary-text/70 dark:text-primary-text-dark/70 hover:text-accent dark:hover:text-accent rounded-lg transition-all duration-300 hover:bg-white dark:hover:bg-card-bg-dark hover:shadow-sm"
+                 className="relative px-4 py-2 font-host font-bold tracking-widest text-xs text-primary-text/70 dark:text-primary-text-dark/70 hover:text-accent dark:hover:text-accent rounded-lg transition-all duration-300 hover:bg-white dark:hover:bg-card-bg-dark hover:shadow-sm"
               >
                 {link.title}
               </a>
@@ -100,7 +100,7 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
             <button
               onClick={toggleLanguage}
               aria-label="Change Language"
-              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border border-primary-text/10 dark:border-primary-text-dark/10 hover:bg-white dark:hover:bg-card-bg-dark hover:shadow-sm transition-all duration-300 font-bold text-xs tracking-wider uppercase cursor-pointer"
+              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border border-primary-text/10 dark:border-primary-text-dark/10 hover:bg-white dark:hover:bg-card-bg-dark hover:shadow-sm transition-all duration-300 font-host font-bold text-xs tracking-wider uppercase cursor-pointer"
             >
               <Globe size={13} className="text-primary-text/60 dark:text-primary-text-dark/60" />
               <span className="text-primary-text/80 dark:text-primary-text-dark/80">{lang}</span>
@@ -117,7 +117,7 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
               }
             </button>
             
-            <kbd className="hidden lg:inline-block px-2.5 py-1.5 rounded-lg text-[9px] font-martian font-bold bg-primary-text/[0.04] dark:bg-primary-text-dark/[0.04] text-primary-text/40 dark:text-primary-text-dark/40 border border-primary-text/5 dark:border-primary-text-dark/5 pointer-events-none select-none">
+            <kbd className="hidden lg:inline-block px-2.5 py-1.5 rounded-lg text-[9px] font-josefin font-bold bg-primary-text/[0.04] dark:bg-primary-text-dark/[0.04] text-primary-text/40 dark:text-primary-text-dark/40 border border-primary-text/5 dark:border-primary-text-dark/5 pointer-events-none select-none">
               Ctrl K
             </kbd>
 

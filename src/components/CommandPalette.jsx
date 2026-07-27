@@ -95,7 +95,7 @@ export default function CommandPalette({ isDarkMode, toggleTheme }) {
       
       {/* Drafting Ledger Modal Console */}
       <div 
-        className="relative w-full max-w-lg bg-white dark:bg-card-bg-dark rounded-xl shadow-hard-light dark:shadow-hard-dark border border-primary-text dark:border-primary-text-dark overflow-hidden flex flex-col transform transition-all font-martian text-primary-text dark:text-primary-text-dark"
+        className="relative w-full max-w-lg bg-white dark:bg-card-bg-dark rounded-xl shadow-hard-light dark:shadow-hard-dark border border-primary-text dark:border-primary-text-dark overflow-hidden flex flex-col transform transition-all font-host text-primary-text dark:text-primary-text-dark"
         role="dialog"
         aria-modal="true"
       >
@@ -105,12 +105,12 @@ export default function CommandPalette({ isDarkMode, toggleTheme }) {
           <input
             ref={inputRef}
             type="text"
-            className="flex-1 bg-transparent py-4 outline-none text-primary-text dark:text-primary-text-dark placeholder-primary-text/40 dark:text-primary-text-dark/40 font-bold font-funnel"
+            className="flex-1 bg-transparent py-4 outline-none text-primary-text dark:text-primary-text-dark placeholder-primary-text/40 dark:text-primary-text-dark/40 font-bold font-host"
             placeholder="Search console ledger commands..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <kbd className="hidden sm:inline-block px-2.5 py-1 text-[9px] font-martian font-bold text-primary-text/60 dark:text-primary-text-dark/60 bg-primary-text/5 dark:bg-primary-text-dark/5 rounded border border-primary-text/10 dark:border-primary-text-dark/10">
+          <kbd className="hidden sm:inline-block px-2.5 py-1 text-[9px] font-josefin font-bold text-primary-text/60 dark:text-primary-text-dark/60 bg-primary-text/5 dark:bg-primary-text-dark/5 rounded border border-primary-text/10 dark:border-primary-text-dark/10">
             ESC
           </kbd>
         </div>
@@ -122,14 +122,14 @@ export default function CommandPalette({ isDarkMode, toggleTheme }) {
               <button
                 key={action.id}
                 onClick={action.onSelect}
-                className="w-full flex items-center px-4 py-3 text-left rounded-lg text-primary-text/75 dark:text-primary-text-dark/75 hover:bg-accent/15 hover:text-accent focus:bg-accent/15 focus:text-accent focus:outline-none transition-colors duration-150 font-bold font-funnel cursor-pointer"
+                className="w-full flex items-center px-4 py-3 text-left rounded-lg text-primary-text/75 dark:text-primary-text-dark/75 hover:bg-accent/15 hover:text-accent focus:bg-accent/15 focus:text-accent focus:outline-none transition-colors duration-150 font-bold font-host cursor-pointer"
               >
                 <span className="mr-3 opacity-60">{action.icon}</span>
                 <span>{action.title}</span>
               </button>
             ))
           ) : (
-            <div className="p-6 text-center text-primary-text/40 dark:text-primary-text-dark/40 font-bold text-sm">
+            <div className="p-6 text-center text-primary-text/40 dark:text-primary-text-dark/40 font-bold text-sm font-host">
               No commands matched.
             </div>
           )}

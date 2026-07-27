@@ -10,26 +10,26 @@ export default function Footer() {
         
         {/* Left Column - Brand */}
         <div className="flex flex-col max-w-sm">
-          <span className="font-martian text-2xl font-bold tracking-tight text-primary-text dark:text-primary-text-dark mb-4">
+          <span className="font-editorial text-2xl font-bold tracking-tight text-primary-text dark:text-primary-text-dark mb-4">
             UmarjonMX
           </span>
-          <p className="font-funnel text-primary-text/70 dark:text-primary-text-dark/70 text-lg leading-relaxed">
+          <p className="font-host text-primary-text/70 dark:text-primary-text-dark/70 text-lg leading-relaxed">
             Blending code, AI, and minimalist design.
           </p>
         </div>
 
         {/* Middle Column - Quick Links */}
         <div className="flex flex-col space-y-4">
-          <h4 className="font-martian font-bold text-sm tracking-widest uppercase mb-2 text-accent">Explore</h4>
-          <a href="#about" className="font-funnel text-primary-text/70 hover:text-accent dark:text-primary-text-dark/70 dark:hover:text-accent transition-colors">{t('nav.about') || 'About'}</a>
-          <a href="#projects" className="font-funnel text-primary-text/70 hover:text-accent dark:text-primary-text-dark/70 dark:hover:text-accent transition-colors">{t('nav.projects') || 'Projects'}</a>
-          <a href="#resume" className="font-funnel text-primary-text/70 hover:text-accent dark:text-primary-text-dark/70 dark:hover:text-accent transition-colors">{t('nav.resume') || 'Arsenal'}</a>
+          <h4 className="font-josefin font-bold text-sm tracking-widest uppercase mb-2 text-accent">Explore</h4>
+          <a href="#about" className="font-host text-primary-text/70 hover:text-accent dark:text-primary-text-dark/70 dark:hover:text-accent transition-colors">{t('nav.about') || 'About'}</a>
+          <a href="#projects" className="font-host text-primary-text/70 hover:text-accent dark:text-primary-text-dark/70 dark:hover:text-accent transition-colors">{t('nav.projects') || 'Projects'}</a>
+          <a href="#resume" className="font-host text-primary-text/70 hover:text-accent dark:text-primary-text-dark/70 dark:hover:text-accent transition-colors">{t('nav.resume') || 'Arsenal'}</a>
         </div>
 
         {/* Right Column - Connect */}
         <div className="flex flex-col space-y-4">
-          <h4 className="font-martian font-bold text-sm tracking-widest uppercase mb-2 text-accent">Connect</h4>
-          <a href="mailto:umarjonmx@gmail.com" className="font-funnel flex items-center gap-3 text-primary-text/70 hover:text-accent dark:text-primary-text-dark/70 dark:hover:text-accent transition-colors">
+          <h4 className="font-josefin font-bold text-sm tracking-widest uppercase mb-2 text-accent">Connect</h4>
+          <a href="mailto:umarjonmx@gmail.com" className="font-host flex items-center gap-3 text-primary-text/70 hover:text-accent dark:text-primary-text-dark/70 dark:hover:text-accent transition-colors">
             <Mail size={18} />
             umarjonmx@gmail.com
           </a>
@@ -53,7 +53,7 @@ export default function Footer() {
       </div>
 
       {/* Bottom - Copyright */}
-      <div className="max-w-7xl mx-auto pt-8 border-t border-primary-text/10 dark:border-primary-text-dark/10 flex flex-col md:flex-row items-center justify-between text-sm text-primary-text/50 dark:text-primary-text-dark/50 font-funnel">
+      <div className="max-w-7xl mx-auto pt-8 border-t border-primary-text/10 dark:border-primary-text-dark/10 flex flex-col md:flex-row items-center justify-between text-sm text-primary-text/50 dark:text-primary-text-dark/50 font-host">
         <p>© 2026 UmarjonMX. All rights reserved.</p>
         <p className="mt-2 md:mt-0 flex items-center gap-2">Built with <span className="text-accent block animate-pulse">🧡</span> from Namangan</p>
       </div>

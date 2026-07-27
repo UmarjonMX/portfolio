@@ -86,7 +86,7 @@ export default function Hero({ isDarkMode }) {
         }}
         className="relative z-10 w-full max-w-7xl mx-auto px-4 flex flex-col items-center text-center justify-center min-h-[100dvh] pointer-events-none"
       >
-        <div className="hero-reveal mb-6 inline-flex items-center gap-3 px-4 py-1.5 rounded-full text-accent text-[10px] font-martian font-bold uppercase tracking-[0.3em] pointer-events-auto">
+        <div className="hero-reveal mb-6 inline-flex items-center gap-3 px-4 py-1.5 rounded-full text-accent text-xs font-josefin font-bold uppercase tracking-[0.3em] pointer-events-auto">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-accent" />
@@ -94,20 +94,20 @@ export default function Hero({ isDarkMode }) {
           SYSTEM ONLINE
         </div>
         
-        <h1 className="hero-reveal text-[18vw] sm:text-[14vw] lg:text-[12vw] font-black tracking-tighter leading-[0.8] text-primary-text dark:text-primary-text-dark font-martian uppercase drop-shadow-sm">
+        <h1 className="hero-reveal text-[18vw] sm:text-[14vw] lg:text-[12vw] font-black tracking-tighter leading-[0.8] text-primary-text dark:text-primary-text-dark font-base uppercase drop-shadow-sm">
           UMAR
           <br />
           BUILDS
         </h1>
         
         <div className="hero-reveal mt-12 w-full max-w-2xl flex flex-col items-center pointer-events-auto">
-          <h2 className="text-xl sm:text-3xl font-bold tracking-tight leading-tight font-martian mb-4 text-primary-text dark:text-primary-text-dark drop-shadow-md">
+          <h2 className="text-xl sm:text-3xl font-bold tracking-tight leading-tight font-editorial mb-4 text-primary-text dark:text-primary-text-dark drop-shadow-md">
             <SignatureText text={headline} />
           </h2>
-          <p className="text-[10px] font-martian font-bold tracking-[0.3em] uppercase text-primary-text/60 dark:text-primary-text-dark/60 mb-4 drop-shadow-md">
+          <p className="text-xs font-josefin font-bold tracking-[0.3em] uppercase text-primary-text/60 dark:text-primary-text-dark/60 mb-4 drop-shadow-md">
             {tagline}
           </p>
-          <p className="text-base sm:text-lg text-primary-text/80 dark:text-primary-text-dark/80 leading-relaxed font-funnel mb-10 max-w-xl drop-shadow-md">
+          <p className="text-base sm:text-lg text-primary-text/80 dark:text-primary-text-dark/80 leading-relaxed font-host mb-10 max-w-xl drop-shadow-md">
             {supporting1}
           </p>
           
@@ -115,7 +115,7 @@ export default function Hero({ isDarkMode }) {
             <Magnetic scale={0.2} className="w-full sm:w-auto flex-1">
               <a
                 href="#projects"
-                className="btn-sweep inline-flex items-center justify-center gap-3 w-full px-8 py-4 bg-primary-text dark:bg-primary-text-dark text-white dark:text-[#1C1C1D] rounded-xl font-funnel font-bold tracking-widest uppercase transition-all duration-300 cursor-pointer text-xs"
+                className="btn-sweep inline-flex items-center justify-center gap-3 w-full px-8 py-4 bg-primary-text dark:bg-primary-text-dark text-white dark:text-[#1C1C1D] rounded-xl font-host font-bold tracking-widest uppercase transition-all duration-300 cursor-pointer text-xs"
               >
                 {primaryCTA}
                 <ArrowRight size={14} />
@@ -125,7 +125,7 @@ export default function Hero({ isDarkMode }) {
             <Magnetic scale={0.2} className="w-full sm:w-auto flex-1">
               <a
                 href="#contact"
-                className="btn-sweep inline-flex items-center justify-center gap-3 w-full px-8 py-4 bg-transparent text-primary-text dark:text-primary-text-dark border border-primary-text/30 dark:border-primary-text-dark/30 rounded-xl font-funnel font-bold tracking-widest uppercase hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-300 cursor-pointer text-xs"
+                className="btn-sweep inline-flex items-center justify-center gap-3 w-full px-8 py-4 bg-transparent text-primary-text dark:text-primary-text-dark border border-primary-text/30 dark:border-primary-text-dark/30 rounded-xl font-host font-bold tracking-widest uppercase hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-300 cursor-pointer text-xs"
               >
                 <Mail size={14} className="text-primary-text/60 dark:text-primary-text-dark/60" />
                 {secondaryCTA}
@@ -137,7 +137,7 @@ export default function Hero({ isDarkMode }) {
 
       <div className="absolute bottom-6 left-6 lg:bottom-10 lg:left-10 pointer-events-none z-20">
         <span
-          className="hero-reveal font-martian text-[9px] font-bold tracking-[0.3em] text-primary-text/40 dark:text-primary-text-dark/40 uppercase"
+          className="hero-reveal font-josefin text-[10px] font-bold tracking-[0.3em] text-primary-text/40 dark:text-primary-text-dark/40 uppercase"
           style={{ animationDelay: '1.1s' }}
         >
           SH–01 // PORTFOLIO_SYSTEM

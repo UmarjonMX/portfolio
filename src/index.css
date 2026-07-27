@@ -10,13 +10,6 @@
 }
 
 @font-face {
-  font-family: 'MartianMono';
-  src: url('/fonts/martian-mono/MartianMono[wdth,wght].woff2') format('woff2');
-  font-weight: 100 900;
-  font-display: swap;
-}
-
-@font-face {
   font-family: 'BaseNeue';
   src: url('/fonts/base-neue/BaseNeue-Regular.woff2') format('woff2');
   font-weight: 400;
@@ -32,49 +25,9 @@
   font-display: swap;
 }
 
-@font-face {
-  font-family: 'Avenis';
-  src: url('/fonts/avenis/Avenis-Light.woff2') format('woff2');
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Avenis';
-  src: url('/fonts/avenis/Avenis-Semilight.woff2') format('woff2');
-  font-weight: 350;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Avenis';
-  src: url('/fonts/avenis/Avenis.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Avenis';
-  src: url('/fonts/avenis/Avenis-Semibold.woff2') format('woff2');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'FunnelDisplay';
-  src: url('/fonts/funnel-display/FunnelDisplay-VariableFont_wght.woff2') format('woff2');
-  font-weight: 300 800;
-  font-style: normal;
-  font-display: swap;
-}
-
 @layer base {
   body {
-    @apply font-funnel bg-background text-primary-text dark:bg-background-dark dark:text-primary-text-dark transition-colors duration-300 antialiased overflow-x-hidden;
+    @apply font-host bg-background text-primary-text dark:bg-background-dark dark:text-primary-text-dark transition-colors duration-300 antialiased overflow-x-hidden;
   }
   
   body::before {
@@ -106,7 +59,7 @@
     background: radial-gradient(circle at 50% 0%, rgba(224,122,95,0.03) 0%, transparent 60%);
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-martian font-bold tracking-tight;
+    @apply font-host font-bold tracking-tight;
   }
 }
 
@@ -183,7 +136,7 @@ html {
 }
 
 .blueprint-sheet-label {
-  font-family: 'MartianMono', monospace;
+  font-family: 'Josefin Slab', serif;
   font-size: 0.65rem;
   letter-spacing: 0.25em;
   text-transform: uppercase;

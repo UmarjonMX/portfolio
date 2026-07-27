@@ -82,7 +82,7 @@ function ProjectCard({ project, index, onClick }) {
         <div className="flex flex-col h-full z-10 relative pointer-events-none group-hover:pointer-events-auto">
           {/* Status & Timeline Header */}
           <div className="flex items-center gap-4 mb-8">
-            <span className="px-3 py-1 bg-primary-text/5 dark:bg-primary-text-dark/5 border border-primary-text/10 dark:border-primary-text-dark/10 rounded-full font-martian text-[9px] font-bold uppercase tracking-widest flex items-center gap-2">
+            <span className="px-3 py-1 bg-primary-text/5 dark:bg-primary-text-dark/5 border border-primary-text/10 dark:border-primary-text-dark/10 rounded-full font-josefin text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
               {project.status === 'Building' || project.status === 'Qurilmoqda' ? (
                 <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
               ) : (
@@ -90,12 +90,12 @@ function ProjectCard({ project, index, onClick }) {
               )}
               {project.status}
             </span>
-            <span className="font-funnel text-[10px] font-bold text-primary-text/40 dark:text-primary-text-dark/40 tracking-widest uppercase">
+            <span className="font-josefin text-[11px] font-bold text-primary-text/40 dark:text-primary-text-dark/40 tracking-widest uppercase">
               {project.timeline}
             </span>
           </div>
 
-          <h3 className="text-3xl lg:text-4xl font-bold mb-8 font-martian tracking-tight text-primary-text dark:text-primary-text-dark">
+          <h3 className="text-3xl lg:text-4xl font-bold mb-8 font-editorial tracking-tight text-primary-text dark:text-primary-text-dark">
             {project.title}
           </h3>
           
@@ -103,26 +103,26 @@ function ProjectCard({ project, index, onClick }) {
             {/* Information Column */}
             <div className="flex flex-col space-y-6 justify-center">
               <div>
-                <h4 className="font-martian text-[9px] font-bold text-accent uppercase tracking-widest mb-2 flex items-center before:content-[''] before:w-3 before:h-[2px] before:bg-accent before:mr-2">
+                <h4 className="font-josefin text-xs font-bold text-accent uppercase tracking-widest mb-2 flex items-center before:content-[''] before:w-3 before:h-[2px] before:bg-accent before:mr-2">
                   Problem
                 </h4>
-                <p className="font-funnel text-sm text-primary-text/80 dark:text-primary-text-dark/80 leading-relaxed">
+                <p className="font-host text-sm text-primary-text/80 dark:text-primary-text-dark/80 leading-relaxed">
                   {project.problem}
                 </p>
               </div>
               <div>
-                <h4 className="font-martian text-[9px] font-bold text-primary-text/50 dark:text-primary-text-dark/50 uppercase tracking-widest mb-2 flex items-center before:content-[''] before:w-3 before:h-[2px] before:bg-primary-text/20 dark:before:bg-primary-text-dark/20 before:mr-2">
+                <h4 className="font-josefin text-xs font-bold text-primary-text/50 dark:text-primary-text-dark/50 uppercase tracking-widest mb-2 flex items-center before:content-[''] before:w-3 before:h-[2px] before:bg-primary-text/20 dark:before:bg-primary-text-dark/20 before:mr-2">
                   Solution
                 </h4>
-                <p className="font-funnel text-sm text-primary-text/80 dark:text-primary-text-dark/80 leading-relaxed">
+                <p className="font-host text-sm text-primary-text/80 dark:text-primary-text-dark/80 leading-relaxed">
                   {project.solution}
                 </p>
               </div>
               <div>
-                <h4 className="font-martian text-[9px] font-bold text-primary-text/50 dark:text-primary-text-dark/50 uppercase tracking-widest mb-2 flex items-center before:content-[''] before:w-3 before:h-[2px] before:bg-primary-text/20 dark:before:bg-primary-text-dark/20 before:mr-2">
+                <h4 className="font-josefin text-xs font-bold text-primary-text/50 dark:text-primary-text-dark/50 uppercase tracking-widest mb-2 flex items-center before:content-[''] before:w-3 before:h-[2px] before:bg-primary-text/20 dark:before:bg-primary-text-dark/20 before:mr-2">
                   Impact
                 </h4>
-                <p className="font-funnel text-sm font-bold text-primary-text/90 dark:text-primary-text-dark/90 leading-relaxed">
+                <p className="font-host text-sm font-bold text-primary-text/90 dark:text-primary-text-dark/90 leading-relaxed">
                   {project.impact}
                 </p>
               </div>
@@ -185,18 +185,18 @@ function ProjectCard({ project, index, onClick }) {
           <div className="mt-8 pt-6 border-t border-primary-text/5 dark:border-primary-text-dark/10 flex flex-col md:flex-row md:items-center justify-between gap-6 pointer-events-auto">
             {/* Technology Badges */}
             <div className="flex flex-wrap gap-2">
-              <span className="font-martian text-[8px] font-bold tracking-widest uppercase text-primary-text/40 dark:text-primary-text-dark/40 mr-2 flex items-center">Tech Stack</span>
+              <span className="font-josefin text-[10px] font-bold tracking-widest uppercase text-primary-text/40 dark:text-primary-text-dark/40 mr-2 flex items-center">Tech Stack</span>
               {(project.tech || []).map((tItem, i) => (
                 <span
                   key={i}
-                  className="font-martian text-[9px] font-bold tracking-widest uppercase px-3 py-1 bg-primary-text/[0.03] dark:bg-primary-text-dark/[0.05] rounded-md border border-primary-text/10 dark:border-primary-text-dark/10 text-primary-text/70 dark:text-primary-text-dark/70"
+                  className="font-josefin text-[10px] font-bold tracking-widest uppercase px-3 py-1 bg-primary-text/[0.03] dark:bg-primary-text-dark/[0.05] rounded-md border border-primary-text/10 dark:border-primary-text-dark/10 text-primary-text/70 dark:text-primary-text-dark/70"
                 >
                   {tItem}
                 </span>
               ))}
             </div>
             
-            <div className="font-funnel text-xs font-bold uppercase tracking-widest text-accent flex items-center gap-2 group-hover:translate-x-2 transition-transform duration-300 cursor-pointer">
+            <div className="font-host text-xs font-bold uppercase tracking-widest text-accent flex items-center gap-2 group-hover:translate-x-2 transition-transform duration-300 cursor-pointer">
               View Details <ExternalLink size={14} />
             </div>
           </div>
@@ -270,10 +270,10 @@ export default function Projects() {
             >
               <div className="flex justify-between items-center border-b border-primary-text/10 dark:border-primary-text-dark/10 pb-6 mb-8">
                 <div>
-                  <span className="font-martian text-[10px] font-bold text-accent tracking-[0.2em] uppercase">
+                  <span className="font-josefin text-[10px] font-bold text-accent tracking-[0.2em] uppercase">
                     Ledger Sheet Detail // Shipped Project
                   </span>
-                  <h3 className="text-3xl font-bold font-martian tracking-tight mt-1">{selectedProject.title}</h3>
+                  <h3 className="text-3xl font-bold font-editorial tracking-tight mt-1">{selectedProject.title}</h3>
                 </div>
                 <button
                   onClick={() => setSelectedProject(null)}
@@ -284,42 +284,42 @@ export default function Projects() {
               </div>
 
               <div className="mb-8 border-b border-primary-text/5 dark:border-primary-text-dark/5 pb-6">
-                <p className="text-xs font-martian font-bold tracking-widest uppercase text-accent mb-2">Problem Statement</p>
-                <p className="text-base text-primary-text/90 dark:text-primary-text-dark/90 leading-relaxed font-funnel">
+                <p className="text-xs font-josefin font-bold tracking-widest uppercase text-accent mb-2">Problem Statement</p>
+                <p className="text-base text-primary-text/90 dark:text-primary-text-dark/90 leading-relaxed font-host">
                   {selectedProject.problem}
                 </p>
               </div>
 
               <div className="mb-8 border-b border-primary-text/5 dark:border-primary-text-dark/5 pb-6">
-                <p className="text-xs font-martian font-bold tracking-widest uppercase text-primary-text/50 dark:text-primary-text-dark/50 mb-2">Solution Implementation</p>
-                <p className="text-base text-primary-text/90 dark:text-primary-text-dark/90 leading-relaxed font-funnel">
+                <p className="text-xs font-josefin font-bold tracking-widest uppercase text-primary-text/50 dark:text-primary-text-dark/50 mb-2">Solution Implementation</p>
+                <p className="text-base text-primary-text/90 dark:text-primary-text-dark/90 leading-relaxed font-host">
                   {selectedProject.solution}
                 </p>
               </div>
 
               <div className="mb-8 border-b border-primary-text/5 dark:border-primary-text-dark/5 pb-6">
-                <p className="text-xs font-martian font-bold tracking-widest uppercase text-primary-text/50 dark:text-primary-text-dark/50 mb-2">Quantified Impact</p>
-                <p className="text-base text-primary-text/80 dark:text-primary-text-dark/80 leading-relaxed font-funnel">
+                <p className="text-xs font-josefin font-bold tracking-widest uppercase text-primary-text/50 dark:text-primary-text-dark/50 mb-2">Quantified Impact</p>
+                <p className="text-base text-primary-text/80 dark:text-primary-text-dark/80 leading-relaxed font-host">
                   {selectedProject.impact}
                 </p>
               </div>
 
               {selectedProject.engineering && (
                 <div className="mb-8 p-6 recess-inset-light dark:recess-inset-dark border border-primary-text/10 dark:border-primary-text-dark/10 rounded-xl">
-                  <p className="text-xs font-martian font-bold tracking-widest uppercase text-accent mb-3">Engineering Highlights</p>
-                  <p className="text-sm text-primary-text/80 dark:text-primary-text-dark/80 leading-relaxed font-funnel">
+                  <p className="text-xs font-josefin font-bold tracking-widest uppercase text-accent mb-3">Engineering Highlights</p>
+                  <p className="text-sm text-primary-text/80 dark:text-primary-text-dark/80 leading-relaxed font-host">
                     {selectedProject.engineering}
                   </p>
                 </div>
               )}
 
               <div className="mb-8">
-                <p className="text-xs font-martian font-bold tracking-widest uppercase text-primary-text/40 dark:text-primary-text-dark/40 mb-3">Built With</p>
+                <p className="text-xs font-josefin font-bold tracking-widest uppercase text-primary-text/40 dark:text-primary-text-dark/40 mb-3">Built With</p>
                 <div className="flex flex-wrap gap-2">
                   {(selectedProject.tech || []).map((tItem, i) => (
                     <span 
                       key={i} 
-                      className="font-martian text-[10px] font-bold uppercase px-3 py-1 bg-accent/10 border border-accent/20 text-accent rounded-md"
+                      className="font-josefin text-[10px] font-bold uppercase px-3 py-1 bg-accent/10 border border-accent/20 text-accent rounded-md"
                     >
                       {tItem}
                     </span>
@@ -333,7 +333,7 @@ export default function Projects() {
                     href={selectedProject.link} 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="inline-flex items-center space-x-3 bg-accent text-white dark:text-[#1C1C1D] border border-primary-text dark:border-primary-text-dark px-6 py-3 rounded-lg font-bold font-funnel tracking-widest uppercase text-xs shadow-hard-interactive-light dark:shadow-hard-interactive-dark hover:translate-y-0.5 active:translate-y-1 transition-all"
+                    className="inline-flex items-center space-x-3 bg-accent text-white dark:text-[#1C1C1D] border border-primary-text dark:border-primary-text-dark px-6 py-3 rounded-lg font-bold font-host tracking-widest uppercase text-xs shadow-hard-interactive-light dark:shadow-hard-interactive-dark hover:translate-y-0.5 active:translate-y-1 transition-all"
                   >
                     <span>Visit Live Project</span>
                     <ExternalLink size={14} />

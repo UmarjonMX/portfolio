@@ -58,7 +58,7 @@ export default function Contact() {
 
       <div className="max-w-4xl mx-auto px-6 sm:px-10 lg:px-16 relative z-10">
         <div className="mb-16 bg-white/60 dark:bg-card-bg-dark/60 backdrop-blur-md p-8 sm:p-10 border border-primary-text/10 dark:border-primary-text-dark/10 rounded-[2rem] shadow-sm text-center max-w-2xl mx-auto">
-          <p className="text-xl md:text-2xl text-primary-text/90 dark:text-primary-text-dark/90 leading-relaxed font-funnel font-bold">
+          <p className="text-xl md:text-2xl text-primary-text/90 dark:text-primary-text-dark/90 leading-relaxed font-editorial">
             {t('contact.subtitle')}
           </p>
         </div>
@@ -69,44 +69,44 @@ export default function Contact() {
           <form onSubmit={handleEmailSend} className="space-y-6 mb-12 relative z-30">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative">
               <div>
-                <label className="block text-[10px] font-bold font-martian tracking-wider uppercase mb-2 opacity-60">{t('contact.name')}</label>
+                <label className="block text-xs font-bold font-josefin tracking-wider uppercase mb-2 opacity-60">{t('contact.name')}</label>
                 <input 
                   type="text" 
                   name="name" 
                   value={formData.name} 
                   onChange={handleChange} 
-                  className="w-full bg-background/50 dark:bg-background-dark/50 backdrop-blur-sm border border-primary-text/10 dark:border-primary-text-dark/10 rounded-xl px-6 py-4 outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-primary-text dark:text-primary-text-dark font-funnel shadow-inner" 
+                  className="w-full bg-background/50 dark:bg-background-dark/50 backdrop-blur-sm border border-primary-text/10 dark:border-primary-text-dark/10 rounded-xl px-6 py-4 outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-primary-text dark:text-primary-text-dark font-host shadow-inner" 
                   placeholder="John Doe" 
                 />
               </div>
               <div className="relative">
-                <label className="block text-[10px] font-bold font-martian tracking-wider uppercase mb-2 opacity-60">{t('contact.email')}</label>
+                <label className="block text-xs font-bold font-josefin tracking-wider uppercase mb-2 opacity-60">{t('contact.email')}</label>
                 <input 
                   type="email" 
                   name="email" 
                   value={formData.email} 
                   onChange={handleChange} 
-                  className={`w-full bg-background/50 dark:bg-background-dark/50 backdrop-blur-sm border rounded-xl px-6 py-4 outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-primary-text dark:text-primary-text-dark font-funnel shadow-inner ${emailError ? 'border-red-500' : 'border-primary-text/10 dark:border-primary-text-dark/10'}`} 
+                  className={`w-full bg-background/50 dark:bg-background-dark/50 backdrop-blur-sm border rounded-xl px-6 py-4 outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-primary-text dark:text-primary-text-dark font-host shadow-inner ${emailError ? 'border-red-500' : 'border-primary-text/10 dark:border-primary-text-dark/10'}`} 
                   placeholder="john@example.com" 
                 />
                 {emailError && <p className="text-red-500 text-xs font-bold mt-1 absolute -bottom-5 left-2">{emailError}</p>}
               </div>
             </div>
             <div>
-              <label className="block text-[10px] font-bold font-martian tracking-wider uppercase mb-2 opacity-60">{t('contact.message')}</label>
+              <label className="block text-xs font-bold font-josefin tracking-wider uppercase mb-2 opacity-60">{t('contact.message')}</label>
               <textarea 
                 rows="4" 
                 name="message" 
                 value={formData.message} 
                 onChange={handleChange} 
-                className="w-full bg-background/50 dark:bg-background-dark/50 backdrop-blur-sm border border-primary-text/10 dark:border-primary-text-dark/10 rounded-xl px-6 py-4 outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-primary-text dark:text-primary-text-dark font-funnel shadow-inner" 
+                className="w-full bg-background/50 dark:bg-background-dark/50 backdrop-blur-sm border border-primary-text/10 dark:border-primary-text-dark/10 rounded-xl px-6 py-4 outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-primary-text dark:text-primary-text-dark font-host shadow-inner" 
                 placeholder="Hello..."
               ></textarea>
             </div>
             <button 
               type="submit" 
               disabled={!isFormValid} 
-              className={`relative z-40 w-full font-bold py-4 rounded-xl tracking-[0.2em] uppercase text-[10px] font-martian transition-all ${
+              className={`relative z-40 w-full font-bold py-4 rounded-xl tracking-[0.2em] uppercase text-xs font-host transition-all ${
                 isFormValid 
                   ? 'bg-accent text-white dark:text-[#1C1C1D] shadow-[0_8px_30px_-8px_rgba(224,122,95,0.4)] hover:-translate-y-1 cursor-pointer' 
                   : 'bg-primary-text/5 dark:bg-primary-text-dark/5 text-primary-text/30 dark:text-primary-text-dark/30 border border-primary-text/10 dark:border-primary-text-dark/10 cursor-not-allowed'
@@ -118,7 +118,7 @@ export default function Contact() {
 
           {/* Social Links Network Ledger */}
           <div className="pt-10 border-t border-primary-text/10 dark:border-primary-text-dark/10 relative z-40">
-            <h3 className="text-center font-bold text-lg mb-8 font-martian tracking-wider opacity-85 uppercase">Connect Network</h3>
+            <h3 className="text-center font-bold text-lg mb-8 font-josefin tracking-wider opacity-85 uppercase">Connect Network</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               
                 <a 
@@ -129,8 +129,8 @@ export default function Contact() {
               >
                 <img src="/icons/github.png" alt="GitHub" style={{ width: 28, height: 28, objectFit: 'contain' }} className="dark:invert group-hover:scale-105 transition-all duration-300" />
                 <div className="flex flex-col overflow-hidden">
-                  <span className="font-martian font-bold text-base group-hover:text-accent transition-colors leading-tight truncate">GitHub</span>
-                  <span className="text-[10px] font-martian opacity-50 truncate">UmarjonMX</span>
+                  <span className="font-host font-bold text-base group-hover:text-accent transition-colors leading-tight truncate">GitHub</span>
+                  <span className="text-xs font-josefin opacity-50 truncate">UmarjonMX</span>
                 </div>
               </a>
 
@@ -142,8 +142,8 @@ export default function Contact() {
               >
                 <img src="/icons/linkedin.png" alt="LinkedIn" style={{ width: 28, height: 28, objectFit: 'contain' }} className="dark:invert group-hover:scale-105 transition-all duration-300" />
                 <div className="flex flex-col overflow-hidden">
-                  <span className="font-martian font-bold text-base group-hover:text-accent transition-colors leading-tight truncate">LinkedIn</span>
-                  <span className="text-[10px] font-martian opacity-50 truncate">Umarjon Muhammadjonov</span>
+                  <span className="font-host font-bold text-base group-hover:text-accent transition-colors leading-tight truncate">LinkedIn</span>
+                  <span className="text-xs font-josefin opacity-50 truncate">Umarjon Muhammadjonov</span>
                 </div>
               </a>
 
@@ -155,8 +155,8 @@ export default function Contact() {
               >
                 <img src="/icons/instagram.png" alt="Instagram" style={{ width: 28, height: 28, objectFit: 'contain' }} className="dark:invert group-hover:scale-105 transition-all duration-300" />
                 <div className="flex flex-col overflow-hidden">
-                  <span className="font-martian font-bold text-base group-hover:text-accent transition-colors leading-tight truncate">Instagram</span>
-                  <span className="text-[10px] font-martian opacity-50 truncate">@umarjonmx</span>
+                  <span className="font-host font-bold text-base group-hover:text-accent transition-colors leading-tight truncate">Instagram</span>
+                  <span className="text-xs font-josefin opacity-50 truncate">@umarjonmx</span>
                 </div>
               </a>
 
@@ -168,8 +168,8 @@ export default function Contact() {
               >
                 <img src="/icons/telegram.png" alt="Telegram" style={{ width: 28, height: 28, objectFit: 'contain' }} className="dark:invert group-hover:scale-105 transition-all duration-300" />
                 <div className="flex flex-col overflow-hidden">
-                  <span className="font-martian font-bold text-base group-hover:text-accent transition-colors leading-tight truncate">Telegram</span>
-                  <span className="text-[10px] font-martian opacity-50 truncate">@UmarjonMX</span>
+                  <span className="font-host font-bold text-base group-hover:text-accent transition-colors leading-tight truncate">Telegram</span>
+                  <span className="text-xs font-josefin opacity-50 truncate">@UmarjonMX</span>
                 </div>
               </a>
 
@@ -179,8 +179,8 @@ export default function Contact() {
               >
                 <img src="/icons/phone.png" alt="Phone" style={{ width: 28, height: 28, objectFit: 'contain' }} className="dark:invert group-hover:scale-105 transition-all duration-300" />
                 <div className="flex flex-col overflow-hidden">
-                  <span className="font-martian font-bold text-base group-hover:text-accent transition-colors leading-tight truncate">Phone</span>
-                  <span className="text-[10px] font-martian opacity-50 truncate">+998 97 123 36 67</span>
+                  <span className="font-host font-bold text-base group-hover:text-accent transition-colors leading-tight truncate">Phone</span>
+                  <span className="text-xs font-josefin opacity-50 truncate">+998 97 123 36 67</span>
                 </div>
               </a>
 
@@ -190,8 +190,8 @@ export default function Contact() {
               >
                 <img src="/icons/mail.png" alt="Email" style={{ width: 28, height: 28, objectFit: 'contain' }} className="dark:invert group-hover:scale-105 transition-all duration-300" />
                 <div className="flex flex-col overflow-hidden">
-                  <span className="font-martian font-bold text-base group-hover:text-accent transition-colors leading-tight truncate">Email</span>
-                  <span className="text-[10px] font-martian opacity-50 truncate">umarmx2008@gmail.com</span>
+                  <span className="font-host font-bold text-base group-hover:text-accent transition-colors leading-tight truncate">Email</span>
+                  <span className="text-xs font-josefin opacity-50 truncate">umarmx2008@gmail.com</span>
                 </div>
               </a>
               
