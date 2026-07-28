@@ -1,10 +1,37 @@
+import { useState } from 'react';
+import toast from 'react-hot-toast';
 import { useLanguage } from '../context/LanguageContext';
 import BentoCard from './BentoCard';
 import SectionHeader from './SectionHeader';
-import { LayoutTemplate, Database, PenTool, Download } from 'lucide-react';
+import { LayoutTemplate, Database, PenTool, Download, Loader2 } from 'lucide-react';
 
 export default function BuilderDashboard() {
   const { t } = useLanguage();
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownload = async () => {
+    if (downloading) return;
+    setDownloading(true);
+    try {
+      const res = await fetch('/resume.pdf', { method: 'HEAD' });
+      await new Promise(r => setTimeout(r, 700));
+      if (res.ok) {
+        const link = document.createElement('a');
+        link.href = '/resume.pdf';
+        link.download = 'Umarjon_MX_Resume.pdf';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        toast.success('Resume downloaded successfully.');
+      } else {
+        toast.error('Resume document is currently unavailable.');
+      }
+    } catch {
+      toast.error('Resume document is currently unavailable.');
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   return (
     <section id="resume" className="relative py-32 px-6 sm:px-10 lg:px-16 max-w-[90rem] mx-auto z-10 border-b border-primary-text/10 dark:border-primary-text-dark/10">
@@ -141,9 +168,14 @@ export default function BuilderDashboard() {
 
       {/* Action CTA */}
       <div className="mt-20 text-center relative z-10">
-        <button className="inline-flex items-center justify-center space-x-3 px-8 py-4 bg-accent text-white dark:text-[#1C1C1D] border border-primary-text dark:border-primary-text-dark font-host font-bold uppercase tracking-widest rounded-xl shadow-[0_8px_30px_-8px_rgba(224,122,95,0.4)] transition-all cursor-pointer hover:-translate-y-1">
-          <Download size={18} />
-          <span>{t('resume.downloadText')}</span>
+        <button 
+          onClick={handleDownload}
+          disabled={downloading}
+          aria-label="Download resume"
+          className={`inline-flex items-center justify-center space-x-3 px-8 py-4 bg-accent text-white dark:text-[#1C1C1D] border border-primary-text dark:border-primary-text-dark font-host font-bold uppercase tracking-widest rounded-xl shadow-[0_8px_30px_-8px_rgba(224,122,95,0.4)] transition-all cursor-pointer hover:-translate-y-1 active:scale-[0.98] ${downloading ? 'opacity-75 cursor-wait' : ''}`}
+        >
+          {downloading ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
+          <span>{downloading ? 'Preparing Document...' : t('resume.downloadText')}</span>
         </button>
       </div>
       

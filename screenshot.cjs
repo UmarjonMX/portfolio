@@ -7,10 +7,10 @@ const puppeteer = require('puppeteer');
     await page.setViewport({ width: 1440, height: 900 });
     
     console.log("Navigating to http://localhost:5173...");
-    await page.goto('http://localhost:5173', { waitUntil: 'networkidle2', timeout: 30000 });
+    await page.goto('http://localhost:5173', { waitUntil: 'domcontentloaded', timeout: 30000 });
     
     console.log("Waiting for Hero 3D & fonts...");
-    await new Promise(r => setTimeout(r, 4000));
+    await new Promise(r => setTimeout(r, 3000));
     
     // Take Hero Screenshot
     await page.screenshot({ path: '/home/umar/.gemini/antigravity/brain/d0934e35-d1ca-499e-b515-003834388c0e/screenshot_hero.png' });
@@ -29,7 +29,9 @@ const puppeteer = require('puppeteer');
     console.log("Projects screenshot saved!");
 
     await browser.close();
+    process.exit(0);
   } catch(e) {
     console.error(e);
+    process.exit(1);
   }
 })();

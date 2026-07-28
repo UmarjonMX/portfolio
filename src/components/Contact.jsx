@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import toast from 'react-hot-toast';
+import { Loader2 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import SectionHeader from './SectionHeader';
 
@@ -7,6 +9,7 @@ export default function Contact() {
 
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [emailError, setEmailError] = useState('');
+  const [sending, setSending] = useState(false);
 
   const validateEmail = (email) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -32,11 +35,14 @@ export default function Contact() {
 
   const handleEmailSend = (e) => {
     e.preventDefault();
-    if (!isFormValid) return;
+    if (!isFormValid || sending) return;
+    setSending(true);
     const subject = encodeURIComponent(`Message from ${formData.name}`);
     const body = encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\nMessage: ${formData.message}`);
     window.location.href = `mailto:umarjonmx@gmail.com?subject=${subject}&body=${body}`;
+    toast.success('Default mail client opened.');
     setFormData({ name: '', email: '', message: '' });
+    setTimeout(() => setSending(false), 1500);
   };
 
   return (
@@ -75,6 +81,7 @@ export default function Contact() {
                   name="name" 
                   value={formData.name} 
                   onChange={handleChange} 
+                  aria-label="Name"
                   className="w-full bg-background/50 dark:bg-background-dark/50 backdrop-blur-sm border border-primary-text/10 dark:border-primary-text-dark/10 rounded-xl px-6 py-4 outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-primary-text dark:text-primary-text-dark font-host shadow-inner" 
                   placeholder="John Doe" 
                 />
@@ -86,6 +93,7 @@ export default function Contact() {
                   name="email" 
                   value={formData.email} 
                   onChange={handleChange} 
+                  aria-label="Email Address"
                   className={`w-full bg-background/50 dark:bg-background-dark/50 backdrop-blur-sm border rounded-xl px-6 py-4 outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-primary-text dark:text-primary-text-dark font-host shadow-inner ${emailError ? 'border-red-500' : 'border-primary-text/10 dark:border-primary-text-dark/10'}`} 
                   placeholder="john@example.com" 
                 />
@@ -99,20 +107,29 @@ export default function Contact() {
                 name="message" 
                 value={formData.message} 
                 onChange={handleChange} 
+                aria-label="Message"
                 className="w-full bg-background/50 dark:bg-background-dark/50 backdrop-blur-sm border border-primary-text/10 dark:border-primary-text-dark/10 rounded-xl px-6 py-4 outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-primary-text dark:text-primary-text-dark font-host shadow-inner" 
                 placeholder="Hello..."
               ></textarea>
             </div>
             <button 
               type="submit" 
-              disabled={!isFormValid} 
-              className={`relative z-40 w-full font-bold py-4 rounded-xl tracking-[0.2em] uppercase text-xs font-host transition-all ${
-                isFormValid 
+              disabled={!isFormValid || sending} 
+              aria-label="Send message"
+              className={`relative z-40 w-full font-bold py-4 rounded-xl tracking-[0.2em] uppercase text-xs font-host transition-all active:scale-[0.98] ${
+                isFormValid && !sending
                   ? 'bg-accent text-white dark:text-[#1C1C1D] shadow-[0_8px_30px_-8px_rgba(224,122,95,0.4)] hover:-translate-y-1 cursor-pointer' 
                   : 'bg-primary-text/5 dark:bg-primary-text-dark/5 text-primary-text/30 dark:text-primary-text-dark/30 border border-primary-text/10 dark:border-primary-text-dark/10 cursor-not-allowed'
               }`}
             >
-              {t('contact.send')}
+              {sending ? (
+                <span className="inline-flex items-center justify-center gap-2">
+                  <Loader2 size={14} className="animate-spin" /> 
+                  Opening mail client...
+                </span>
+              ) : (
+                t('contact.send')
+              )}
             </button>
           </form>
 
@@ -184,16 +201,18 @@ export default function Contact() {
                 </div>
               </a>
 
-              <a 
-                href="mailto:umarmx2008@gmail.com" 
-                className="flex items-center space-x-5 p-5 bg-background/50 dark:bg-background-dark/50 backdrop-blur-sm border border-primary-text/10 dark:border-primary-text-dark/10 rounded-xl hover:border-accent/50 dark:hover:border-accent/50 hover:bg-white dark:hover:bg-card-bg-dark hover:shadow-lg transition-all group cursor-pointer"
+              <button 
+                type="button"
+                onClick={() => { navigator.clipboard.writeText('umarmx2008@gmail.com'); toast.success('Email address copied to clipboard.'); }}
+                className="flex items-center text-left space-x-5 p-5 bg-background/50 dark:bg-background-dark/50 backdrop-blur-sm border border-primary-text/10 dark:border-primary-text-dark/10 rounded-xl hover:border-accent/50 dark:hover:border-accent/50 hover:bg-white dark:hover:bg-card-bg-dark hover:shadow-lg transition-all group cursor-pointer active:scale-[0.98]"
+                aria-label="Copy email address"
               >
                 <img src="/icons/mail.png" alt="Email" style={{ width: 28, height: 28, objectFit: 'contain' }} className="dark:invert group-hover:scale-105 transition-all duration-300" />
                 <div className="flex flex-col overflow-hidden">
                   <span className="font-host font-bold text-base group-hover:text-accent transition-colors leading-tight truncate">Email</span>
                   <span className="text-xs font-josefin opacity-50 truncate">umarmx2008@gmail.com</span>
                 </div>
-              </a>
+              </button>
               
             </div>
           </div>

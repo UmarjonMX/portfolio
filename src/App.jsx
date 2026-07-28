@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef, Suspense } from 'react';
+import { useState, useEffect, useRef } from 'react';
+
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import About from './components/About';
@@ -7,9 +8,11 @@ import BuilderDashboard from './components/BuilderDashboard';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import CommandPalette from './components/CommandPalette';
+import ToastProvider from './components/ToastProvider';
+import ErrorBoundary from './components/ErrorBoundary';
+
 import { LanguageProvider } from './context/LanguageContext';
 
-// Global SceneManager removed. Will be used locally in Hero.jsx.
 function FadeSection({ children }) {
   const ref = useRef(null);
   const [style, setStyle] = useState({ opacity: 0, transform: 'translateY(15px)' });
@@ -163,7 +166,10 @@ function AppContent() {
 export default function App() {
   return (
     <LanguageProvider>
-      <AppContent />
+      <ErrorBoundary>
+        <ToastProvider />
+        <AppContent />
+      </ErrorBoundary>
     </LanguageProvider>
   );
 }

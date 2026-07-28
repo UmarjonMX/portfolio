@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
+import toast from 'react-hot-toast';
 import { useLanguage } from '../context/LanguageContext';
-import { Moon, Sun, Globe, Code, Mail, Search } from 'lucide-react';
+import { Moon, Sun, Globe, Code, Mail, Search, Download, Copy } from 'lucide-react';
 
 export default function CommandPalette({ isDarkMode, toggleTheme }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,6 +17,12 @@ export default function CommandPalette({ isDarkMode, toggleTheme }) {
       }
       if (e.key === 'Escape') {
         setIsOpen(false);
+      }
+      if (e.key === '/' && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        const dialog = document.querySelector('[role="dialog"]');
+        if (dialog) {
+          e.preventDefault();
+        }
       }
     };
 
@@ -75,6 +82,40 @@ export default function CommandPalette({ isDarkMode, toggleTheme }) {
       onSelect: () => {
         const el = document.getElementById('contact');
         if (el) el.scrollIntoView({ behavior: 'smooth' });
+        setIsOpen(false);
+      }
+    },
+    {
+      id: 'download-resume',
+      title: 'Download Resume',
+      icon: <Download size={18} />,
+      onSelect: async () => {
+        setIsOpen(false);
+        try {
+          const res = await fetch('/resume.pdf', { method: 'HEAD' });
+          if (res.ok) {
+            const link = document.createElement('a');
+            link.href = '/resume.pdf';
+            link.download = 'Umarjon_MX_Resume.pdf';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            toast.success('Resume downloaded successfully.');
+          } else {
+            toast.error('Resume document is currently unavailable.');
+          }
+        } catch {
+          toast.error('Resume document is currently unavailable.');
+        }
+      }
+    },
+    {
+      id: 'copy-email',
+      title: 'Copy Email Address',
+      icon: <Copy size={18} />,
+      onSelect: () => {
+        navigator.clipboard.writeText('umarjonmx@gmail.com');
+        toast.success('Email address copied to clipboard.');
         setIsOpen(false);
       }
     }

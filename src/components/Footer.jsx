@@ -1,4 +1,5 @@
 import { Mail } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function Footer() {
@@ -29,22 +30,26 @@ export default function Footer() {
         {/* Right Column - Connect */}
         <div className="flex flex-col space-y-4">
           <h4 className="font-josefin font-bold text-sm tracking-widest uppercase mb-2 text-accent">Connect</h4>
-          <a href="mailto:umarjonmx@gmail.com" className="font-host flex items-center gap-3 text-primary-text/70 hover:text-accent dark:text-primary-text-dark/70 dark:hover:text-accent transition-colors">
+          <button 
+            onClick={() => { navigator.clipboard.writeText('umarjonmx@gmail.com'); toast.success('Email address copied to clipboard.'); }}
+            className="font-host flex items-center gap-3 text-primary-text/70 hover:text-accent dark:text-primary-text-dark/70 dark:hover:text-accent transition-colors cursor-pointer active:scale-[0.98]"
+            aria-label="Copy email address"
+          >
             <Mail size={18} />
             umarjonmx@gmail.com
-          </a>
+          </button>
           
           <div className="flex items-center gap-4 mt-4">
-            <a href="https://github.com/UmarjonMX" target="_blank" rel="noopener noreferrer" className="p-2 bg-white dark:bg-[#1E1E20] border border-primary-text dark:border-primary-text-dark rounded-lg hover:border-accent dark:hover:border-accent shadow-hard-interactive-light dark:shadow-hard-interactive-dark transition-all">
+            <a href="https://github.com/UmarjonMX" target="_blank" rel="noopener noreferrer" className="p-2 bg-white dark:bg-[#1E1E20] border border-primary-text dark:border-primary-text-dark rounded-lg hover:border-accent dark:hover:border-accent shadow-hard-interactive-light dark:shadow-hard-interactive-dark transition-all" aria-label="Visit GitHub profile">
               <img src="/icons/github.png" alt="GitHub" className="w-5 h-5 object-contain dark:invert" />
             </a>
-            <a href="https://www.linkedin.com/in/umarjon-muhammadjonov-4ba177281" target="_blank" rel="noopener noreferrer" className="p-2 bg-white dark:bg-[#1E1E20] border border-primary-text dark:border-primary-text-dark rounded-lg hover:border-accent dark:hover:border-accent shadow-hard-interactive-light dark:shadow-hard-interactive-dark transition-all">
+            <a href="https://www.linkedin.com/in/umarjon-muhammadjonov-4ba177281" target="_blank" rel="noopener noreferrer" className="p-2 bg-white dark:bg-[#1E1E20] border border-primary-text dark:border-primary-text-dark rounded-lg hover:border-accent dark:hover:border-accent shadow-hard-interactive-light dark:shadow-hard-interactive-dark transition-all" aria-label="Visit LinkedIn profile">
               <img src="/icons/linkedin.png" alt="LinkedIn" className="w-5 h-5 object-contain dark:invert" />
             </a>
-            <a href="https://t.me/UmarjonMX" target="_blank" rel="noopener noreferrer" className="p-2 bg-white dark:bg-[#1E1E20] border border-primary-text dark:border-primary-text-dark rounded-lg hover:border-accent dark:hover:border-accent shadow-hard-interactive-light dark:shadow-hard-interactive-dark transition-all">
+            <a href="https://t.me/UmarjonMX" target="_blank" rel="noopener noreferrer" className="p-2 bg-white dark:bg-[#1E1E20] border border-primary-text dark:border-primary-text-dark rounded-lg hover:border-accent dark:hover:border-accent shadow-hard-interactive-light dark:shadow-hard-interactive-dark transition-all" aria-label="Contact via Telegram">
               <img src="/icons/telegram.png" alt="Telegram" className="w-5 h-5 object-contain dark:invert" />
             </a>
-            <a href="https://instagram.com/umarjonmx" target="_blank" rel="noopener noreferrer" className="p-2 bg-white dark:bg-[#1E1E20] border border-primary-text dark:border-primary-text-dark rounded-lg hover:border-accent dark:hover:border-accent shadow-hard-interactive-light dark:shadow-hard-interactive-dark transition-all">
+            <a href="https://instagram.com/umarjonmx" target="_blank" rel="noopener noreferrer" className="p-2 bg-white dark:bg-[#1E1E20] border border-primary-text dark:border-primary-text-dark rounded-lg hover:border-accent dark:hover:border-accent shadow-hard-interactive-light dark:shadow-hard-interactive-dark transition-all" aria-label="Visit Instagram profile">
               <img src="/icons/instagram.png" alt="Instagram" className="w-5 h-5 object-contain dark:invert" />
             </a>
           </div>
