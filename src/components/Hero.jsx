@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { ArrowRight, Mail } from 'lucide-react';
-import SignatureText from './SignatureText';
 import SceneManager from './3d/SceneManager';
 
 function Magnetic({ children, scale = 0.25, className = '' }) {
@@ -49,7 +48,6 @@ export default function Hero({ isDarkMode }) {
   }, []);
 
   const tagline      = t('hero.tagline');
-  const headline     = t('hero.headline');
   const supporting1  = t('hero.supporting1');
   const primaryCTA   = t('hero.primaryCTA');
   const secondaryCTA = t('hero.secondaryCTA');
@@ -78,6 +76,10 @@ export default function Hero({ isDarkMode }) {
         </svg>
       </div>
 
+      {/* Cinematic Vignette & Grain */}
+      <div className="absolute inset-0 z-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.2)_100%)] dark:bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.6)_100%)] mix-blend-multiply" />
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.04] dark:opacity-[0.08] mix-blend-overlay" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E")' }} />
+
       <div
         style={{
           opacity: scrollFade,
@@ -94,28 +96,24 @@ export default function Hero({ isDarkMode }) {
           SYSTEM ONLINE
         </div>
         
-        <h1 className="hero-reveal text-[18vw] sm:text-[14vw] lg:text-[12vw] font-black tracking-tighter leading-[0.8] text-primary-text dark:text-primary-text-dark font-base uppercase drop-shadow-sm">
-          UMAR
-          <br />
-          BUILDS
+        <h1 className="hero-reveal text-[20vw] sm:text-[16vw] lg:text-[14vw] font-black tracking-tighter leading-none font-base uppercase drop-shadow-xl flex flex-col items-center justify-center gap-5 sm:gap-6 mt-4">
+          <span className="text-[#F5F5F5]">UMAR</span>
+          <span className="text-[#E07A5F]">BUILDS</span>
         </h1>
         
         <div className="hero-reveal mt-12 w-full max-w-2xl flex flex-col items-center pointer-events-auto">
-          <h2 className="text-xl sm:text-3xl font-bold tracking-tight leading-tight font-editorial mb-4 text-primary-text dark:text-primary-text-dark drop-shadow-md">
-            <SignatureText text={headline} />
-          </h2>
-          <p className="text-xs font-josefin font-bold tracking-[0.3em] uppercase text-primary-text/60 dark:text-primary-text-dark/60 mb-4 drop-shadow-md">
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight leading-tight font-editorial mb-6 text-primary-text dark:text-primary-text-dark drop-shadow-md">
             {tagline}
-          </p>
-          <p className="text-base sm:text-lg text-primary-text/80 dark:text-primary-text-dark/80 leading-relaxed font-host mb-10 max-w-xl drop-shadow-md">
+          </h2>
+          <p className="text-base sm:text-lg text-primary-text/80 dark:text-primary-text-dark/80 leading-loose font-host mb-12 max-w-[600px] drop-shadow-md mx-auto">
             {supporting1}
           </p>
           
-          <div className="flex flex-col sm:flex-row justify-center gap-6 w-full max-w-lg">
+          <div className="flex flex-col sm:flex-row justify-center gap-8 w-full max-w-lg mx-auto">
             <Magnetic scale={0.2} className="w-full sm:w-auto flex-1">
               <a
                 href="#projects"
-                className="btn-sweep inline-flex items-center justify-center gap-3 w-full px-8 py-4 bg-primary-text dark:bg-primary-text-dark text-white dark:text-[#1C1C1D] rounded-xl font-host font-bold tracking-widest uppercase transition-all duration-300 cursor-pointer text-xs"
+                className="inline-flex items-center justify-center gap-3 w-full px-8 py-4 bg-[#E07A5F] text-white rounded-xl font-host font-bold tracking-widest uppercase hover:-translate-y-1 hover:shadow-[0_10px_30px_-10px_rgba(224,122,95,0.6)] transition-all duration-300 cursor-pointer text-xs active:scale-[0.98]"
               >
                 {primaryCTA}
                 <ArrowRight size={14} />
@@ -125,9 +123,9 @@ export default function Hero({ isDarkMode }) {
             <Magnetic scale={0.2} className="w-full sm:w-auto flex-1">
               <a
                 href="#contact"
-                className="btn-sweep inline-flex items-center justify-center gap-3 w-full px-8 py-4 bg-transparent text-primary-text dark:text-primary-text-dark border border-primary-text/30 dark:border-primary-text-dark/30 rounded-xl font-host font-bold tracking-widest uppercase hover:bg-black/5 dark:hover:bg-white/5 transition-all duration-300 cursor-pointer text-xs"
+                className="inline-flex items-center justify-center gap-3 w-full px-8 py-4 bg-transparent text-[#F5F5F5] border border-[#F5F5F5]/80 hover:border-[#F5F5F5] rounded-xl font-host font-bold tracking-widest uppercase hover:bg-white/10 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 cursor-pointer text-xs active:scale-[0.98]"
               >
-                <Mail size={14} className="text-primary-text/60 dark:text-primary-text-dark/60" />
+                <Mail size={14} className="text-[#F5F5F5]" />
                 {secondaryCTA}
               </a>
             </Magnetic>

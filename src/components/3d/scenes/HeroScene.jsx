@@ -31,19 +31,23 @@ function KineticRing({ radius, tube, speed, scrollProgress, isDarkMode, axis = '
       <torusGeometry args={[radius, tube, 64, 100]} />
       {isDarkMode ? (
         <meshStandardMaterial 
-          color="#333333" 
+          color="#111111" 
           metalness={0.9} 
-          roughness={0.1}
+          roughness={0.2}
           emissive="#a0c0ff"
-          emissiveIntensity={0.2}
+          emissiveIntensity={0.05}
+          transparent
+          opacity={0.2}
         />
       ) : (
         <MeshTransmissionMaterial 
           color="#ffffff"
-          transmission={0.9}
-          thickness={0.2}
-          roughness={0.0}
-          ior={1.5}
+          transmission={0.8}
+          thickness={0.1}
+          roughness={0.1}
+          ior={1.2}
+          transparent
+          opacity={0.2}
         />
       )}
     </mesh>
@@ -56,8 +60,8 @@ function WireframeShell({ scrollProgress, isDarkMode }) {
   useFrame((state, delta) => {
     const time = state.clock.elapsedTime;
     if (meshRef.current) {
-      meshRef.current.rotation.y = time * 0.1;
-      meshRef.current.rotation.x = time * 0.05;
+      meshRef.current.rotation.y = time * 0.05;
+      meshRef.current.rotation.x = time * 0.025;
       
       const easeProgress = Math.pow(scrollProgress, 1.5);
       const targetScale = 1.0 + easeProgress * 2.0;
@@ -78,7 +82,7 @@ function WireframeShell({ scrollProgress, isDarkMode }) {
         threshold={15} 
         color={isDarkMode ? "#FAFAFA" : "#1C1C1C"} 
         transparent 
-        opacity={0.15} 
+        opacity={0.10} 
       />
     </mesh>
   );
@@ -90,8 +94,8 @@ function CentralCore({ scrollProgress, isDarkMode }) {
   useFrame((state, delta) => {
     const time = state.clock.elapsedTime;
     if (meshRef.current) {
-      meshRef.current.rotation.y = -time * 0.2;
-      meshRef.current.rotation.z = time * 0.1;
+      meshRef.current.rotation.y = -time * 0.1;
+      meshRef.current.rotation.z = time * 0.05;
       
       const easeProgress = Math.pow(scrollProgress, 1.5);
       // Core drops down and shrinks slightly on scroll
@@ -105,32 +109,25 @@ function CentralCore({ scrollProgress, isDarkMode }) {
 
   return (
     <mesh ref={meshRef}>
-      <octahedronGeometry args={[1, 0]} />
+      <torusKnotGeometry args={[0.9, 0.3, 128, 32]} />
       {isDarkMode ? (
         <meshPhysicalMaterial 
-          color="#111111" 
+          color="#050505" 
           metalness={1.0} 
-          roughness={0.0}
+          roughness={0.1}
           clearcoat={1.0}
+          clearcoatRoughness={0.1}
+          envMapIntensity={2.5}
         />
       ) : (
-        <MeshTransmissionMaterial 
-          color="#f4f4f4"
-          transmission={1.0}
-          thickness={1.5}
-          roughness={0.1}
-          ior={1.4}
-          chromaticAberration={0.4}
-          anisotropy={0.5}
+        <meshPhysicalMaterial 
+          color="#222222" 
+          metalness={0.9} 
+          roughness={0.2}
+          clearcoat={1.0}
+          envMapIntensity={2.0}
         />
       )}
-      <Edges 
-        linewidth={2} 
-        threshold={15} 
-        color="#E07A5F" 
-        transparent 
-        opacity={0.8} 
-      />
     </mesh>
   );
 }
@@ -143,8 +140,8 @@ export default function HeroScene({ scrollProgress, isDarkMode }) {
     const ptr = state.pointer;
 
     // Smooth inertia for mouse interaction
-    const targetRotX = ptr.y * 0.15;
-    const targetRotY = ptr.x * 0.3;
+    const targetRotX = ptr.y * 0.05;
+    const targetRotY = ptr.x * 0.1;
 
     if (groupRef.current) {
       // Damped rotation for physical weight
