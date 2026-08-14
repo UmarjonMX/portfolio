@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, lazy, Suspense } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { ArrowRight, Mail } from 'lucide-react';
-import SceneManager from './3d/SceneManager';
+const SceneManager = lazy(() => import('./3d/SceneManager'));
 
 function Magnetic({ children, scale = 0.25, className = '' }) {
   const ref = useRef(null);
@@ -51,9 +51,6 @@ export default function Hero({ isDarkMode }) {
   const supporting1  = t('hero.supporting1');
   const primaryCTA   = t('hero.primaryCTA');
   const secondaryCTA = t('hero.secondaryCTA');
-
-  const vh = typeof window !== 'undefined' ? window.innerHeight : 900;
-  const scrollFade  = Math.max(0, 1 - scrollY / (vh * 0.55));
   const scrollShift = scrollY * 0.15;
 
   return (
@@ -61,7 +58,9 @@ export default function Hero({ isDarkMode }) {
 
       {/* 3D Scene - Unified Background/Centerpiece */}
       <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-auto mix-blend-normal opacity-90 dark:opacity-100">
-        <SceneManager isDarkMode={isDarkMode} />
+        <Suspense fallback={null}>
+          <SceneManager isDarkMode={isDarkMode} />
+        </Suspense>
       </div>
 
       {/* Ultra-Minimal Drafting Grid */}
@@ -82,9 +81,8 @@ export default function Hero({ isDarkMode }) {
 
       <div
         style={{
-          opacity: scrollFade,
           transform: `translateY(-${scrollShift}px)`,
-          willChange: 'transform, opacity',
+          willChange: 'transform',
         }}
         className="relative z-10 w-full max-w-7xl mx-auto px-4 flex flex-col items-center text-center justify-center min-h-[100dvh] pointer-events-none"
       >
@@ -97,15 +95,15 @@ export default function Hero({ isDarkMode }) {
         </div>
         
         <h1 className="hero-reveal text-[20vw] sm:text-[16vw] lg:text-[14vw] font-black tracking-tighter leading-none font-base uppercase drop-shadow-xl flex flex-col items-center justify-center gap-5 sm:gap-6 mt-4">
-          <span className="text-[#F5F5F5]">UMAR</span>
+          <span className="text-[#161616] dark:text-[#F5F5F5]">UMAR</span>
           <span className="text-[#E07A5F]">BUILDS</span>
         </h1>
         
-        <div className="hero-reveal mt-12 w-full max-w-2xl flex flex-col items-center pointer-events-auto">
-          <h2 className="text-xl sm:text-2xl font-bold tracking-tight leading-tight font-editorial mb-6 text-primary-text dark:text-primary-text-dark drop-shadow-md">
+        <div className="hero-reveal mt-6 w-full max-w-2xl flex flex-col items-center pointer-events-auto">
+          <h2 className="text-xl sm:text-2xl font-bold tracking-tight leading-tight font-editorial mb-6 text-[#2F2F2F] dark:text-[rgba(245,245,245,0.85)] drop-shadow-md">
             {tagline}
           </h2>
-          <p className="text-base sm:text-lg text-primary-text/80 dark:text-primary-text-dark/80 leading-loose font-host mb-12 max-w-[600px] drop-shadow-md mx-auto">
+          <p className="text-base sm:text-lg text-[#5C5C5C] dark:text-[rgba(245,245,245,0.65)] leading-loose font-host mb-12 max-w-[600px] drop-shadow-md mx-auto">
             {supporting1}
           </p>
           
@@ -123,9 +121,9 @@ export default function Hero({ isDarkMode }) {
             <Magnetic scale={0.2} className="w-full sm:w-auto flex-1">
               <a
                 href="#contact"
-                className="inline-flex items-center justify-center gap-3 w-full px-8 py-4 bg-transparent text-[#F5F5F5] border border-[#F5F5F5]/80 hover:border-[#F5F5F5] rounded-xl font-host font-bold tracking-widest uppercase hover:bg-white/10 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 cursor-pointer text-xs active:scale-[0.98]"
+                className="inline-flex items-center justify-center gap-3 w-full px-8 py-4 bg-transparent text-[#161616] dark:text-[#F5F5F5] border border-[#161616]/80 dark:border-[#F5F5F5]/80 hover:border-[#161616] dark:hover:border-[#F5F5F5] rounded-xl font-host font-bold tracking-widest uppercase hover:bg-black/5 dark:hover:bg-white/10 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 cursor-pointer text-xs active:scale-[0.98]"
               >
-                <Mail size={14} className="text-[#F5F5F5]" />
+                <Mail size={14} className="text-[#161616] dark:text-[#F5F5F5]" />
                 {secondaryCTA}
               </a>
             </Magnetic>

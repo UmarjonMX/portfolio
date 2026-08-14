@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
-import About from './components/About';
-import Projects from './components/Projects';
-import BuilderDashboard from './components/BuilderDashboard';
-import Contact from './components/Contact';
+const About = lazy(() => import('./components/About'));
+const Projects = lazy(() => import('./components/Projects'));
+const BuilderDashboard = lazy(() => import('./components/BuilderDashboard'));
+const Contact = lazy(() => import('./components/Contact'));
 import Footer from './components/Footer';
 import CommandPalette from './components/CommandPalette';
 import ToastProvider from './components/ToastProvider';
@@ -145,16 +145,24 @@ function AppContent() {
       <main style={{ position: 'relative', zIndex: 10 }} className="flex-grow pt-20 w-full overflow-x-hidden">
         <Hero isDarkMode={isDarkMode} />
         <FadeSection>
-          <About />
+          <Suspense fallback={<div>Loading...</div>}>
+            <About />
+          </Suspense>
         </FadeSection>
         <FadeSection>
-          <Projects />
+          <Suspense fallback={<div>Loading...</div>}>
+            <Projects />
+          </Suspense>
         </FadeSection>
         <FadeSection>
-          <BuilderDashboard />
+          <Suspense fallback={<div>Loading...</div>}>
+            <BuilderDashboard />
+          </Suspense>
         </FadeSection>
         <FadeSection>
-          <Contact />
+          <Suspense fallback={<div>Loading...</div>}>
+            <Contact />
+          </Suspense>
         </FadeSection>
       </main>
       
