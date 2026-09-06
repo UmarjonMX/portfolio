@@ -36,6 +36,18 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
     };
   }, [isOpen]);
 
+  // Close mobile menu on Escape key
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
+
   return (
     <>
       {/* Mobile Drawer Overlay */}

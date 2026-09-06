@@ -15,18 +15,27 @@ import { LanguageProvider } from './context/LanguageContext';
 
 function FadeSection({ children }) {
   const ref = useRef(null);
-  const [style, setStyle] = useState({ opacity: 0, transform: 'translateY(15px)' });
+  const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const [style, setStyle] = useState(
+    prefersReducedMotion
+      ? { opacity: 1, transform: 'none' }
+      : { opacity: 0, transform: 'translateY(15px)' }
+  );
 
   useEffect(() => {
+    // Respect prefers-reduced-motion
+    if (prefersReducedMotion) return;
+
     let isVisible = false;
     const currentRef = ref.current;
+    let scrollHandler = null;
 
     const handleScroll = () => {
       if (!isVisible || !currentRef) return;
       const rect = currentRef.getBoundingClientRect();
       const viewHeight = window.innerHeight;
       
-      const threshold = 180; // boundary limit for progressive fading
+      const threshold = 180;
       let opacity = 1;
       let translateY = 0;
 
@@ -51,8 +60,18 @@ function FadeSection({ children }) {
       ([entry]) => {
         isVisible = entry.isIntersecting;
         if (isVisible) {
+          // Add scroll listener only when visible
+          if (!scrollHandler) {
+            scrollHandler = handleScroll;
+            window.addEventListener('scroll', scrollHandler, { passive: true });
+          }
           handleScroll();
         } else {
+          // Remove scroll listener when not visible
+          if (scrollHandler) {
+            window.removeEventListener('scroll', scrollHandler);
+            scrollHandler = null;
+          }
           setStyle({ opacity: 0, transform: 'translateY(15px)' });
         }
       },
@@ -60,13 +79,12 @@ function FadeSection({ children }) {
     );
 
     if (currentRef) observer.observe(currentRef);
-    window.addEventListener('scroll', handleScroll, { passive: true });
     
     return () => {
       if (currentRef) observer.unobserve(currentRef);
-      window.removeEventListener('scroll', handleScroll);
+      if (scrollHandler) window.removeEventListener('scroll', scrollHandler);
     };
-  }, []);
+  }, [prefersReducedMotion]);
 
   return (
     <div ref={ref} style={style} className="w-full">
@@ -124,6 +142,13 @@ function AppContent() {
 
   return (
     <div className="min-h-screen relative selection:bg-accent selection:text-white bg-transparent text-primary-text dark:text-primary-text-dark flex flex-col overflow-x-hidden">
+      {/* Skip to content link for keyboard accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[200] focus:px-4 focus:py-2 focus:bg-accent focus:text-white focus:rounded-lg focus:font-bold focus:text-sm focus:outline-none"
+      >
+        Skip to main content
+      </a>
       <CommandPalette isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
       
       {/* Moment 1: Resonating Pulse */}
@@ -142,7 +167,7 @@ function AppContent() {
       {/* Global 3D background removed as per EPIC-15 */}
       <Navbar isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
       
-      <main style={{ position: 'relative', zIndex: 10 }} className="flex-grow pt-20 w-full overflow-x-hidden">
+      <main id="main-content" style={{ position: 'relative', zIndex: 10 }} className="flex-grow pt-20 w-full overflow-x-hidden">
         <Hero isDarkMode={isDarkMode} />
         <FadeSection>
           <Suspense fallback={<div>Loading...</div>}>

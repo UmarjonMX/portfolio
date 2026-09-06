@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { Loader2 } from 'lucide-react';
+import { copyToClipboard } from '../utils/clipboard';
 import { useLanguage } from '../context/LanguageContext';
 import SectionHeader from './SectionHeader';
 
@@ -203,14 +204,14 @@ export default function Contact() {
 
               <button 
                 type="button"
-                onClick={() => { navigator.clipboard.writeText('umarmx2008@gmail.com'); toast.success('Email address copied to clipboard.'); }}
+                onClick={async () => { const ok = await copyToClipboard('umarjonmx@gmail.com'); ok ? toast.success('Email address copied to clipboard.') : toast.error('Failed to copy email address.'); }}
                 className="flex items-center text-left space-x-5 p-5 bg-background/50 dark:bg-background-dark/50 backdrop-blur-sm border border-primary-text/10 dark:border-primary-text-dark/10 rounded-xl hover:border-accent/50 dark:hover:border-accent/50 hover:bg-white dark:hover:bg-card-bg-dark hover:shadow-lg transition-all group cursor-pointer active:scale-[0.98]"
                 aria-label="Copy email address"
               >
                 <img src="/icons/mail.png" alt="Email" style={{ width: 28, height: 28, objectFit: 'contain' }} className="dark:invert group-hover:scale-105 transition-all duration-300" />
                 <div className="flex flex-col overflow-hidden">
                   <span className="font-host font-bold text-base group-hover:text-accent transition-colors leading-tight truncate">Email</span>
-                  <span className="text-xs font-josefin opacity-50 truncate">umarmx2008@gmail.com</span>
+                  <span className="text-xs font-josefin opacity-50 truncate">umarjonmx@gmail.com</span>
                 </div>
               </button>
               

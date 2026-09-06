@@ -2,33 +2,35 @@ import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { useLanguage } from '../context/LanguageContext';
 import { Moon, Sun, Globe, Code, Mail, Search, Download, Copy } from 'lucide-react';
+import { copyToClipboard } from '../utils/clipboard';
 
 export default function CommandPalette({ isDarkMode, toggleTheme }) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const [activeIndex, setActiveIndex] = useState(0);
   const { lang, toggleLanguage } = useLanguage();
   const inputRef = useRef(null);
+  const listRef = useRef(null);
+  const previousFocusRef = useRef(null);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
-        setIsOpen((prev) => !prev);
-      }
-      if (e.key === 'Escape') {
-        setIsOpen(false);
-      }
-      if (e.key === '/' && !e.metaKey && !e.ctrlKey && !e.altKey) {
-        const dialog = document.querySelector('[role="dialog"]');
-        if (dialog) {
-          e.preventDefault();
+        if (isOpen) {
+          setIsOpen(false);
+        } else {
+          previousFocusRef.current = document.activeElement;
+          setSearch('');
+          setActiveIndex(0);
+          setIsOpen(true);
         }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [isOpen]);
 
   useEffect(() => {
     if (isOpen) {
@@ -38,9 +40,11 @@ export default function CommandPalette({ isDarkMode, toggleTheme }) {
         }
       }, 50);
     } else {
-      setTimeout(() => {
-        setSearch('');
-      }, 0);
+      // Restore focus to the element that was focused before opening
+      const prevEl = previousFocusRef.current;
+      if (prevEl && typeof prevEl.focus === 'function') {
+        requestAnimationFrame(() => prevEl.focus());
+      }
     }
   }, [isOpen]);
 
@@ -113,9 +117,9 @@ export default function CommandPalette({ isDarkMode, toggleTheme }) {
       id: 'copy-email',
       title: 'Copy Email Address',
       icon: <Copy size={18} />,
-      onSelect: () => {
-        navigator.clipboard.writeText('umarjonmx@gmail.com');
-        toast.success('Email address copied to clipboard.');
+      onSelect: async () => {
+        const ok = await copyToClipboard('umarjonmx@gmail.com');
+        ok ? toast.success('Email address copied to clipboard.') : toast.error('Failed to copy email address.');
         setIsOpen(false);
       }
     }
@@ -125,8 +129,33 @@ export default function CommandPalette({ isDarkMode, toggleTheme }) {
     action.title.toLowerCase().includes(search.toLowerCase())
   );
 
+  // Keyboard navigation handler for the palette
+  const handlePaletteKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      setIsOpen(false);
+      return;
+    }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveIndex(i => (i + 1) % Math.max(filteredActions.length, 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveIndex(i => (i - 1 + filteredActions.length) % Math.max(filteredActions.length, 1));
+    } else if (e.key === 'Enter' && filteredActions.length > 0) {
+      e.preventDefault();
+      filteredActions[activeIndex]?.onSelect();
+    } else if (e.key === 'Tab') {
+      // Focus trap: keep focus within the palette
+      e.preventDefault();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/45">
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/45"
+      onKeyDown={handlePaletteKeyDown}
+    >
       {/* Overlay to close when clicking outside */}
       <div 
         className="absolute inset-0 cursor-pointer" 
@@ -139,6 +168,7 @@ export default function CommandPalette({ isDarkMode, toggleTheme }) {
         className="relative w-full max-w-lg bg-white dark:bg-card-bg-dark rounded-xl shadow-hard-light dark:shadow-hard-dark border border-primary-text dark:border-primary-text-dark overflow-hidden flex flex-col transform transition-all font-host text-primary-text dark:text-primary-text-dark"
         role="dialog"
         aria-modal="true"
+        aria-label="Command palette"
       >
         {/* Search input header */}
         <div className="flex items-center px-4 border-b border-primary-text/10 dark:border-primary-text-dark/10 bg-[#FAFAFA] dark:bg-background-dark">
@@ -149,7 +179,7 @@ export default function CommandPalette({ isDarkMode, toggleTheme }) {
             className="flex-1 bg-transparent py-4 outline-none text-primary-text dark:text-primary-text-dark placeholder-primary-text/40 dark:text-primary-text-dark/40 font-bold font-host"
             placeholder="Search console ledger commands..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => { setSearch(e.target.value); setActiveIndex(0); }}
           />
           <kbd className="hidden sm:inline-block px-2.5 py-1 text-[9px] font-josefin font-bold text-primary-text/60 dark:text-primary-text-dark/60 bg-primary-text/5 dark:bg-primary-text-dark/5 rounded border border-primary-text/10 dark:border-primary-text-dark/10">
             ESC
@@ -157,13 +187,15 @@ export default function CommandPalette({ isDarkMode, toggleTheme }) {
         </div>
 
         {/* Action list */}
-        <div className="max-h-[50vh] overflow-y-auto p-2 bg-white dark:bg-card-bg-dark">
+        <div ref={listRef} className="max-h-[50vh] overflow-y-auto p-2 bg-white dark:bg-card-bg-dark" role="listbox">
           {filteredActions.length > 0 ? (
-            filteredActions.map((action) => (
+            filteredActions.map((action, index) => (
               <button
                 key={action.id}
                 onClick={action.onSelect}
-                className="w-full flex items-center px-4 py-3 text-left rounded-lg text-primary-text/75 dark:text-primary-text-dark/75 hover:bg-accent/15 hover:text-accent focus:bg-accent/15 focus:text-accent focus:outline-none transition-colors duration-150 font-bold font-host cursor-pointer"
+                role="option"
+                aria-selected={index === activeIndex}
+                className={`w-full flex items-center px-4 py-3 text-left rounded-lg text-primary-text/75 dark:text-primary-text-dark/75 hover:bg-accent/15 hover:text-accent focus:bg-accent/15 focus:text-accent focus:outline-none transition-colors duration-150 font-bold font-host cursor-pointer ${index === activeIndex ? 'bg-accent/15 text-accent' : ''}`}
               >
                 <span className="mr-3 opacity-60">{action.icon}</span>
                 <span>{action.title}</span>

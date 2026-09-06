@@ -1,5 +1,6 @@
 import { Mail } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { copyToClipboard } from '../utils/clipboard';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function Footer() {
@@ -31,7 +32,7 @@ export default function Footer() {
         <div className="flex flex-col space-y-4">
           <h4 className="font-josefin font-bold text-sm tracking-widest uppercase mb-2 text-accent">Connect</h4>
           <button 
-            onClick={() => { navigator.clipboard.writeText('umarjonmx@gmail.com'); toast.success('Email address copied to clipboard.'); }}
+            onClick={async () => { const ok = await copyToClipboard('umarjonmx@gmail.com'); ok ? toast.success('Email address copied to clipboard.') : toast.error('Failed to copy email address.'); }}
             className="font-host flex items-center gap-3 text-primary-text/70 hover:text-accent dark:text-primary-text-dark/70 dark:hover:text-accent transition-colors cursor-pointer active:scale-[0.98]"
             aria-label="Copy email address"
           >

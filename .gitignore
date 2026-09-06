@@ -25,3 +25,9 @@ dist-ssr
 
 # Virtual environments
 .venv/
+
+# Debug/build artifacts
+check_errors.cjs
+screenshot.cjs
+screenshot.png
+out.css

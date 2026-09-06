@@ -1,6 +1,6 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, memo } from 'react';
 
-export default function BentoCard({ children, className = '', containerClassName = '' }) {
+const BentoCard = memo(function BentoCard({ children, className = '', containerClassName = '' }) {
   const divRef = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
@@ -58,4 +58,6 @@ export default function BentoCard({ children, className = '', containerClassName
       </div>
     </div>
   );
-}
+});
+
+export default BentoCard;
