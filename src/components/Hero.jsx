@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect, lazy, Suspense } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { ArrowRight, Mail } from 'lucide-react';
+import SceneErrorBoundary from './3d/SceneErrorBoundary';
+
 const SceneManager = lazy(() => import('./3d/SceneManager'));
 
 function Magnetic({ children, scale = 0.25, className = '' }) {
@@ -58,9 +60,11 @@ export default function Hero({ isDarkMode }) {
 
       {/* 3D Scene - Unified Background/Centerpiece */}
       <div className="absolute inset-0 z-0 flex items-center justify-center pointer-events-auto mix-blend-normal opacity-90 dark:opacity-100">
-        <Suspense fallback={null}>
-          <SceneManager isDarkMode={isDarkMode} />
-        </Suspense>
+        <SceneErrorBoundary fallback={null}>
+          <Suspense fallback={null}>
+            <SceneManager isDarkMode={isDarkMode} />
+          </Suspense>
+        </SceneErrorBoundary>
       </div>
 
       {/* Ultra-Minimal Drafting Grid */}
