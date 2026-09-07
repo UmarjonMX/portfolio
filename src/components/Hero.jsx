@@ -100,7 +100,7 @@ export default function Hero({ isDarkMode }) {
         
         <h1 className="hero-reveal text-[20vw] sm:text-[16vw] lg:text-[14vw] font-black tracking-tighter leading-none font-base uppercase drop-shadow-xl flex flex-col items-center justify-center gap-5 sm:gap-6 mt-4">
           <span className="text-[#161616] dark:text-[#F5F5F5]">UMAR</span>
-          <span className="text-[#E07A5F]">BUILDS</span>
+          <span className="text-accent">BUILDS</span>
         </h1>
         
         <div className="hero-reveal mt-6 w-full max-w-2xl flex flex-col items-center pointer-events-auto">
@@ -115,7 +115,7 @@ export default function Hero({ isDarkMode }) {
             <Magnetic scale={0.2} className="w-full sm:w-auto flex-1">
               <a
                 href="#projects"
-                className="inline-flex items-center justify-center gap-3 w-full px-8 py-4 bg-[#E07A5F] text-white rounded-xl font-host font-bold tracking-widest uppercase hover:-translate-y-1 hover:shadow-[0_10px_30px_-10px_rgba(224,122,95,0.6)] transition-all duration-300 cursor-pointer text-xs active:scale-[0.98]"
+                className="inline-flex items-center justify-center gap-3 w-full px-8 py-4 bg-accent text-white rounded-xl font-host font-bold tracking-widest uppercase hover:-translate-y-1 hover:shadow-[0_10px_30px_-10px_rgba(224,122,95,0.6)] transition-all duration-300 cursor-pointer text-xs active:scale-[0.98]"
               >
                 {primaryCTA}
                 <ArrowRight size={14} />

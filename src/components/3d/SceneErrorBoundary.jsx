@@ -6,12 +6,12 @@ export default class SceneErrorBoundary extends Component {
     this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError(_error) {
     return { hasError: true };
   }
 
-  componentDidCatch(error, errorInfo) {
-    console.warn('SceneErrorBoundary caught a WebGL or Network error. The 3D scene has been disabled to prevent app crash.', error);
+  componentDidCatch(_error, _errorInfo) {
+    console.warn('SceneErrorBoundary caught a WebGL or Network error. The 3D scene has been disabled to prevent app crash.');
   }
 
   render() {

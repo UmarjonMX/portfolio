@@ -129,7 +129,7 @@ html {
 }
 
 .shadow-hard-accent {
-  box-shadow: 4px 4px 0px 0px #E07A5F;
+  box-shadow: 4px 4px 0px 0px var(--color-accent);
 }
 
 .shadow-hard-interactive-light {

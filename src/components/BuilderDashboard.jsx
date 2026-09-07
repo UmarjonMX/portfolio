@@ -86,7 +86,7 @@ export default function BuilderDashboard() {
         {/* Card 2: What I'm learning (Single Width) */}
         <BentoCard containerClassName="md:col-span-1" className="p-8 sm:p-10 h-full flex flex-col justify-between">
           <div>
-            <span className="font-josefin text-xs font-bold uppercase tracking-widest text-[#E07A5F] block mb-6">
+            <span className="font-josefin text-xs font-bold uppercase tracking-widest text-accent block mb-6">
               {t('resume.activeFocus.label')}
             </span>
             <h3 className="text-2xl font-bold mb-4 tracking-tight font-host text-primary-text dark:text-primary-text-dark">
