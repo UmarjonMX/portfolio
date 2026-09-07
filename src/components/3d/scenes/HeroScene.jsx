@@ -13,32 +13,33 @@ function EngineeredSculpture({ scrollProgress, isDarkMode }) {
     const time = state.clock.elapsedTime;
     
     if (groupRef.current) {
-      const easeProgress = Math.pow(scrollProgress, 1.5);
+      const easeProgress = Math.pow(scrollProgress, 2.0);
       
-      // Sink back and down slightly on scroll to support typography
-      // Base Z moved deeper (-2.5) and scale reduced (0.75) so it never overlaps BUILDS
-      const targetZ = -2.5 - easeProgress * 4.0; 
-      const targetY = -0.5 - easeProgress * 1.5; 
-      const targetScale = 0.75 - easeProgress * 0.2;
+      // In Hero V3 the sculpture has a dedicated window — stay present
+      // Only retreat significantly when user is well past the hero
+      const targetZ = -1.5 - easeProgress * 5.0; 
+      const targetY = 0 - easeProgress * 1.0; 
+      // Scaled down slightly to fit perfectly between UMAR and BUILDS
+      const targetScale = 0.72 - easeProgress * 0.25;
       
-      groupRef.current.position.z = THREE.MathUtils.damp(groupRef.current.position.z, targetZ, 3, delta);
-      groupRef.current.position.y = THREE.MathUtils.damp(groupRef.current.position.y, targetY, 3, delta);
-      groupRef.current.scale.setScalar(THREE.MathUtils.damp(groupRef.current.scale.x, Math.max(0.4, targetScale), 3, delta));
+      groupRef.current.position.z = THREE.MathUtils.damp(groupRef.current.position.z, targetZ, 2.5, delta);
+      groupRef.current.position.y = THREE.MathUtils.damp(groupRef.current.position.y, targetY, 2.5, delta);
+      groupRef.current.scale.setScalar(THREE.MathUtils.damp(groupRef.current.scale.x, Math.max(0.35, targetScale), 2.5, delta));
     }
     
     if (coreRef.current) {
-      coreRef.current.rotation.y = time * 0.08;
-      coreRef.current.rotation.x = time * 0.05;
+      coreRef.current.rotation.y = time * 0.06;
+      coreRef.current.rotation.x = time * 0.04;
     }
     
     if (ringRef.current) {
-      ringRef.current.rotation.x = -time * 0.04;
-      ringRef.current.rotation.y = time * 0.06;
+      ringRef.current.rotation.x = -time * 0.03;
+      ringRef.current.rotation.y = time * 0.045;
     }
 
     if (outerRingRef.current) {
-      outerRingRef.current.rotation.z = time * 0.03;
-      outerRingRef.current.rotation.x = time * 0.05;
+      outerRingRef.current.rotation.z = time * 0.025;
+      outerRingRef.current.rotation.x = time * 0.04;
     }
   });
 

@@ -23,7 +23,7 @@ export default function SceneManager({ isDarkMode }) {
     <div className="absolute inset-0 pointer-events-none z-[-1] bg-transparent">
       <Canvas dpr={[1, 2]} gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}>
         
-        <PerspectiveCamera makeDefault position={[0, 0, 10]} fov={35} />
+        <PerspectiveCamera makeDefault position={[0, 0, 10]} fov={30} />
         
         {/* Cinematic Lighting Setup */}
         <directionalLight 
@@ -42,8 +42,15 @@ export default function SceneManager({ isDarkMode }) {
         {/* Deep background fill */}
         <pointLight 
           position={[0, -5, -5]} 
-          intensity={isDarkMode ? 0.5 : 1.0} 
+          intensity={isDarkMode ? 0.4 : 0.8} 
           color={isDarkMode ? "#4060ff" : "#ffccaa"} 
+        />
+
+        {/* Warm accent fill for shaping */}
+        <pointLight
+          position={[3, 2, 4]}
+          intensity={isDarkMode ? 0.6 : 0.5}
+          color={isDarkMode ? "#E07A5F" : "#ffd4b8"}
         />
         
         <Environment preset={isDarkMode ? "city" : "studio"} />
