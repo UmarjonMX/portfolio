@@ -165,7 +165,7 @@ export default function CommandPalette({ isDarkMode, toggleTheme }) {
       
       {/* Drafting Ledger Modal Console */}
       <div 
-        className="relative w-full max-w-lg bg-white dark:bg-card-bg-dark rounded-xl shadow-hard-light dark:shadow-hard-dark border border-primary-text dark:border-primary-text-dark overflow-hidden flex flex-col transform transition-all font-host text-primary-text dark:text-primary-text-dark"
+        className="glass3d relative w-full max-w-lg bg-white dark:bg-card-bg-dark rounded-xl shadow-hard-light dark:shadow-hard-dark border border-primary-text dark:border-primary-text-dark overflow-hidden flex flex-col transform transition-all font-host text-primary-text dark:text-primary-text-dark"
         role="dialog"
         aria-modal="true"
         aria-label="Command palette"

@@ -71,7 +71,7 @@ export default function Contact() {
         </div>
 
         {/* Paper Ledger Form Sheet */}
-        <div className="bg-white/70 dark:bg-card-bg-dark/70 backdrop-blur-xl border border-primary-text/10 dark:border-primary-text-dark/10 p-8 md:p-14 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] relative z-20">
+        <div className="glass3d bg-white/70 dark:bg-card-bg-dark/70 backdrop-blur-xl border border-primary-text/10 dark:border-primary-text-dark/10 p-8 md:p-14 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] relative z-20">
           
           <form onSubmit={handleEmailSend} className="space-y-6 mb-12 relative z-30">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative">

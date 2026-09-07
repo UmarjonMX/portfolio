@@ -77,7 +77,7 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
 
       {/* Premium Floating Navigation Pill */}
       <nav 
-        className={`fixed left-1/2 -translate-x-1/2 z-50 flex items-center justify-between px-6 rounded-2xl w-[92%] max-w-5xl transition-all duration-700 cubic-bezier(0.25, 1, 0.5, 1)
+        className={`glass3d fixed left-1/2 -translate-x-1/2 z-50 flex items-center justify-between px-6 rounded-2xl w-[92%] max-w-5xl transition-all duration-700 cubic-bezier(0.25, 1, 0.5, 1)
           ${scrolled 
             ? 'top-4 py-2 bg-[#FAF8F4]/60 dark:bg-card-bg-dark/70 backdrop-blur-3xl border border-white/40 dark:border-white/10 shadow-[0_12px_40px_-12px_rgba(224,122,95,0.15)] dark:shadow-[0_24px_50px_-12px_rgba(0,0,0,0.6)]' 
             : 'top-6 py-4 bg-[#FAF8F4]/40 dark:bg-card-bg-dark/30 backdrop-blur-2xl border border-white/20 dark:border-white/5 shadow-[0_8px_24px_-8px_rgba(224,122,95,0.1)] dark:shadow-[0_8px_30px_-8px_rgba(0,0,0,0.3)]'

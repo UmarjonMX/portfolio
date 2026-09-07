@@ -310,7 +310,7 @@ export default function Projects() {
               role="dialog"
               aria-modal="true"
               aria-label={`Project details: ${selectedProject.title}`}
-              className="fixed top-0 right-0 h-full w-full max-w-xl bg-white dark:bg-card-bg-dark border-l-2 border-primary-text dark:border-primary-text-dark z-[250] shadow-2xl p-8 sm:p-12 overflow-y-auto text-primary-text dark:text-primary-text-dark"
+              className="glass3d fixed top-0 right-0 h-full w-full max-w-xl bg-white dark:bg-card-bg-dark border-l-2 border-primary-text dark:border-primary-text-dark z-[250] shadow-2xl p-8 sm:p-12 overflow-y-auto text-primary-text dark:text-primary-text-dark"
             >
               <div className="flex justify-between items-center border-b border-primary-text/10 dark:border-primary-text-dark/10 pb-6 mb-8">
                 <div>
