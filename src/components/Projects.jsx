@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 // eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { X, ExternalLink } from 'lucide-react';
@@ -50,12 +50,23 @@ function ProjectCard({ project, index, onClick }) {
 
   const isWide = index === 0 || index === 1 || index === 3;
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClick();
+    }
+  };
+
   return (
     <motion.div
       ref={ref}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       onClick={onClick}
+      onKeyDown={handleKeyDown}
+      role="button"
+      tabIndex={0}
+      aria-label={`View details for ${project.title}`}
       style={{
         rotateX,
         rotateY,
@@ -210,6 +221,36 @@ export default function Projects() {
   const [selectedProject, setSelectedProject] = useState(null);
   const { t } = useLanguage();
   const projects = t('projects.items') || [];
+  const closeButtonRef = useRef(null);
+  const previousFocusRef = useRef(null);
+
+  const closeDrawer = useCallback(() => setSelectedProject(null), []);
+
+  // Open: save previously focused element and focus close button
+  useEffect(() => {
+    if (selectedProject) {
+      previousFocusRef.current = document.activeElement;
+      requestAnimationFrame(() => {
+        if (closeButtonRef.current) closeButtonRef.current.focus();
+      });
+    } else {
+      // Restore focus when closed
+      const prev = previousFocusRef.current;
+      if (prev && typeof prev.focus === 'function') {
+        requestAnimationFrame(() => prev.focus());
+      }
+    }
+  }, [selectedProject]);
+
+  // Escape closes the drawer
+  useEffect(() => {
+    if (!selectedProject) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') closeDrawer();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedProject, closeDrawer]);
 
   return (
     <section
@@ -266,6 +307,9 @@ export default function Projects() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 220 }}
+              role="dialog"
+              aria-modal="true"
+              aria-label={`Project details: ${selectedProject.title}`}
               className="fixed top-0 right-0 h-full w-full max-w-xl bg-white dark:bg-card-bg-dark border-l-2 border-primary-text dark:border-primary-text-dark z-[250] shadow-2xl p-8 sm:p-12 overflow-y-auto text-primary-text dark:text-primary-text-dark"
             >
               <div className="flex justify-between items-center border-b border-primary-text/10 dark:border-primary-text-dark/10 pb-6 mb-8">
@@ -276,7 +320,9 @@ export default function Projects() {
                   <h3 className="text-3xl font-bold font-editorial tracking-tight mt-1">{selectedProject.title}</h3>
                 </div>
                 <button
-                  onClick={() => setSelectedProject(null)}
+                  ref={closeButtonRef}
+                  onClick={closeDrawer}
+                  aria-label="Close project details"
                   className="p-2 border border-primary-text dark:border-primary-text-dark rounded-lg bg-white dark:bg-card-bg-dark shadow-hard-interactive-light dark:shadow-hard-interactive-dark transition-all cursor-pointer"
                 >
                   <X size={18} />
