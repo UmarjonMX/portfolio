@@ -1,9 +1,6 @@
-import { useState, useRef, useEffect, lazy, Suspense } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { ArrowRight, Mail } from 'lucide-react';
-import SceneErrorBoundary from './3d/SceneErrorBoundary';
-
-const SceneManager = lazy(() => import('./3d/SceneManager'));
 
 function Magnetic({ children, scale = 0.25, className = '' }) {
   const ref = useRef(null);
@@ -37,7 +34,7 @@ function Magnetic({ children, scale = 0.25, className = '' }) {
   );
 }
 
-export default function Hero({ isDarkMode }) {
+export default function Hero() {
   const { t } = useLanguage();
   const [scrollY, setScrollY] = useState(0);
 
@@ -60,15 +57,6 @@ export default function Hero({ isDarkMode }) {
       className="relative min-h-[100dvh] flex flex-col justify-center overflow-hidden w-full select-none border-b border-primary-text/8 dark:border-primary-text-dark/8"
       aria-label="Hero"
     >
-      {/* ─── 3D Scene — full-bleed behind composition ─────────────────── */}
-      <div className="absolute inset-0 z-0 pointer-events-auto">
-        <SceneErrorBoundary fallback={null}>
-          <Suspense fallback={null}>
-            <SceneManager isDarkMode={isDarkMode} />
-          </Suspense>
-        </SceneErrorBoundary>
-      </div>
-
       {/* ─── Subtle paper texture grain ────────────────────────────────── */}
       <div
         className="absolute inset-0 z-0 pointer-events-none opacity-[0.035] dark:opacity-[0.06] mix-blend-overlay"

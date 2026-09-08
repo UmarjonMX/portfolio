@@ -54,9 +54,12 @@
 
 @layer base {
   body {
-    @apply font-host bg-background text-primary-text dark:bg-background-dark dark:text-primary-text-dark transition-colors duration-300 antialiased overflow-x-hidden;
+    /* Background is now driven by the Three.js AmbientMesh canvas.
+       Do NOT add bg-background here — it would cover the WebGL layer. */
+    @apply font-host text-primary-text dark:text-primary-text-dark transition-colors duration-300 antialiased overflow-x-hidden;
   }
   
+  /* Grain overlay — kept very subtle so it reads as texture not background */
   body::before {
     content: "";
     position: fixed;
@@ -65,25 +68,19 @@
     width: 100vw;
     height: 100vh;
     pointer-events: none;
-    z-index: -20;
-    opacity: 0.25;
+    z-index: 0;  /* sits above canvas (-1), below UI (10) */
+    opacity: 0.04;
+    mix-blend-mode: overlay;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
   }
   
   html.dark body::before {
-    opacity: 0.15;
+    opacity: 0.04;
   }
 
+  /* Remove the old light-mode radial gradient — AmbientMesh handles this */
   html:not(.dark) body::after {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    pointer-events: none;
-    z-index: -30;
-    background: radial-gradient(circle at 50% 0%, rgba(224,122,95,0.03) 0%, transparent 60%);
+    display: none;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-host font-bold tracking-tight;

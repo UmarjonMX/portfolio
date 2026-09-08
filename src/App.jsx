@@ -10,6 +10,9 @@ import Footer from './components/Footer';
 import CommandPalette from './components/CommandPalette';
 import ToastProvider from './components/ToastProvider';
 import ErrorBoundary from './components/ErrorBoundary';
+import SceneErrorBoundary from './components/3d/SceneErrorBoundary';
+
+const SceneManager = lazy(() => import('./components/3d/SceneManager'));
 
 import { LanguageProvider } from './context/LanguageContext';
 
@@ -164,7 +167,13 @@ function AppContent() {
         </div>
       )}
       
-      {/* Global 3D background removed as per EPIC-15 */}
+      {/* Global 3D Ambient Mesh Background — SceneManager positions itself fixed z-[-1] */}
+      <SceneErrorBoundary fallback={null}>
+        <Suspense fallback={null}>
+          <SceneManager isDarkMode={isDarkMode} />
+        </Suspense>
+      </SceneErrorBoundary>
+      
       <Navbar isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
       
       <main id="main-content" style={{ position: 'relative', zIndex: 10 }} className="flex-grow pt-20 w-full overflow-x-hidden">

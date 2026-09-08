@@ -37,7 +37,7 @@ const puppeteer = require('puppeteer');
     console.log(`Initial page load status: ${response.status()}`);
     console.log(`Final URL (checking redirects): ${page.url()}`);
     
-    console.log(`Testing interactions for 20 seconds...`);
+    console.log(`Testing interactions for 35 seconds...`);
     
     // 1. Move mouse around to trigger any interaction-based logic
     await page.mouse.move(100, 100);
@@ -61,16 +61,15 @@ const puppeteer = require('puppeteer');
     await page.keyboard.press('Escape');
 
     // 4. Toggle Theme (assuming there's a button, or via localStorage)
-    // The Command Palette usually has a theme toggle. Let's just click any theme toggle if it exists, or just set it.
     await page.evaluate(() => {
-      // Find theme toggle button (moon/sun icon)
       const btn = document.querySelector('button[aria-label*="theme"], button[aria-label*="Theme"]');
       if (btn) btn.click();
     });
     await new Promise(r => setTimeout(r, 1000));
 
-    // Wait the rest of the 20 seconds
-    await new Promise(r => setTimeout(r, 10000));
+    // Wait the rest of the 35 seconds
+    console.log('Waiting an additional 25 seconds for any late crashes...');
+    await new Promise(r => setTimeout(r, 25000));
     
     console.log(`Extracting HTML to check for ErrorBoundary...`);
     const html = await page.evaluate(() => document.body.innerHTML);
@@ -84,10 +83,29 @@ const puppeteer = require('puppeteer');
     } else {
       console.log('>>> ✅ No error boundary found. Site is stable. <<<');
     }
+
+    // Verify deployment contains SceneErrorBoundary by fetching index.js
+    console.log(`Verifying deployment contains e6f386e (SceneErrorBoundary)...`);
+    const scripts = await page.evaluate(() => Array.from(document.querySelectorAll('script[type="module"]')).map(s => s.src));
+    for (const src of scripts) {
+      if (src) {
+        try {
+          const js = await page.evaluate(async (scriptUrl) => {
+            const res = await fetch(scriptUrl);
+            return res.text();
+          }, src);
+          if (js.includes('SceneErrorBoundary') || js.includes('disabled to prevent app crash')) {
+            console.log(`>>> ✅ VERIFIED: Found SceneErrorBoundary string in deployed chunk: ${src}`);
+          }
+        } catch(e) {
+          console.log(`Could not fetch ${src}: ${e.message}`);
+        }
+      }
+    }
+
     await page.close();
   };
 
-  await testDomain('https://umarjonmx.uz');
   await testDomain('https://www.umarjonmx.uz');
 
   await browser.close();

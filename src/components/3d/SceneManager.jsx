@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Environment, PerspectiveCamera } from '@react-three/drei';
 import HeroScene from './scenes/HeroScene';
+import AmbientMesh from './scenes/AmbientMesh';
 
 export default function SceneManager({ isDarkMode }) {
   const [scrollY, setScrollY] = useState(0);
@@ -20,8 +21,16 @@ export default function SceneManager({ isDarkMode }) {
   const scrollProgress = Math.max(0, scrollY / vh);
 
   return (
-    <div className="absolute inset-0 pointer-events-none z-[-1] bg-transparent">
-      <Canvas dpr={[1, 2]} gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}>
+    /* Fixed behind everything — the AmbientMesh shader IS the background */
+    <div className="fixed inset-0 pointer-events-none" style={{ zIndex: -1 }}>
+      <Canvas
+        dpr={[1, 1.5]}
+        gl={{
+          antialias: true,
+          alpha: false,          /* opaque — mesh drives ALL background color */
+          powerPreference: "high-performance",
+        }}
+      >
         
         <PerspectiveCamera makeDefault position={[0, 0, 10]} fov={30} />
         
@@ -55,6 +64,7 @@ export default function SceneManager({ isDarkMode }) {
         
         <Environment preset={isDarkMode ? "city" : "studio"} />
 
+        <AmbientMesh scrollProgress={scrollProgress} isDarkMode={isDarkMode} />
         <HeroScene scrollProgress={scrollProgress} isDarkMode={isDarkMode} />
         
       </Canvas>
