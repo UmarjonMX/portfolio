@@ -6,7 +6,7 @@ const vertexShader = /* glsl */`
   varying vec2 vUv;
   void main() {
     vUv = uv;
-    gl_Position = vec4(position.xy, 1.0, 1.0); // fullscreen clip-space quad trick
+    gl_Position = vec4(position.xy, 1.0, 1.0); // Fullscreen clip-space quad
   }
 `;
 
@@ -28,7 +28,7 @@ const fragmentShader = /* glsl */`
   float noise(vec2 p) {
     vec2 i = floor(p);
     vec2 f = fract(p);
-    f = f * f * (3.0 - 2.0 * f); // Hermite curve
+    f = f * f * (3.0 - 2.0 * f); // Hermite smoothstep curve
     return mix(
       mix(hash(i + vec2(0.0, 0.0)), hash(i + vec2(1.0, 0.0)), f.x),
       mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x),
@@ -50,73 +50,98 @@ const fragmentShader = /* glsl */`
   }
 
   void main() {
-    // Subtle pointer interaction (soft offset)
+    // Subtle pointer interaction (soft 1-1.5% offset on desktop)
     vec2 uv = vUv;
-    uv += uPointer * 0.02;
+    uv += uPointer * 0.015;
     
-    // Smooth continuous movement
-    float t = uTime * 0.025;
+    // Extremely slow, continuous movement (25–35 second visual cycles)
+    float t = uTime * 0.010;
     
-    // Parallax shift on scroll
-    uv.y += uScroll * 0.15;
+    // Subtle parallax shift on scroll
+    uv.y += uScroll * 0.12;
 
-    // Organic fields moving across each other
-    float field1 = fbm(uv * 1.5 + vec2(t * 0.8, -t * 0.5));
-    float field2 = fbm(uv * 2.2 - vec2(t * 0.4, t * 0.7) + vec2(3.2, 1.8));
+    // Organic atmospheric fields drifting across each other
+    float field1 = fbm(uv * 1.3 + vec2(t * 0.6, -t * 0.4));
+    float field2 = fbm(uv * 1.9 - vec2(t * 0.3, t * 0.5) + vec2(4.1, 2.3));
     
     float combined = field1 * 0.65 + field2 * 0.35;
     
-    // Radial vignette calculation
+    // Radial center calm — center around UMAR and 3D sculpture stays clean and calm
     float distFromCenter = length(vUv - vec2(0.5, 0.45));
-    float vignette = smoothstep(0.1, 0.95, distFromCenter);
-    float centerCalm = 1.0 - smoothstep(0.0, 0.6, distFromCenter);
+    float vignette = smoothstep(0.15, 0.95, distFromCenter);
+    float centerCalm = 1.0 - smoothstep(0.0, 0.55, distFromCenter);
     
-    // Soft warm atmospheric glow on the upper-right side
-    float accentRadial = smoothstep(0.9, 0.15, length(vUv - vec2(0.72, 0.38)));
-    float accentPool = accentRadial * (0.5 + 0.5 * field1);
+    // Soft, restrained environmental warmth situated in the upper-right corner area
+    // Away from UMAR and the center 3D sculpture
+    float accentRadial = smoothstep(0.85, 0.2, length(vUv - vec2(0.82, 0.22)));
+    float accentPool = accentRadial * (0.4 + 0.6 * field1);
     
-    // Scroll smoothly tones down the accent intensity as visitor scrolls down
-    float scrollFade = clamp(1.0 - uScroll * 0.5, 0.15, 1.0);
+    // Section-aware scroll warmth modulation:
+    // Hero (scroll 0.0): richer warmth (1.0)
+    // Projects (scroll 1.0): cleaner, calmer graphite (0.35)
+    // About (scroll 2.0): neutral (0.25)
+    // Contact (scroll 3.0+): gentle warm return (0.55)
+    float scrollWarmth = 1.0;
+    if (uScroll < 1.0) {
+      scrollWarmth = mix(1.0, 0.35, smoothstep(0.0, 1.0, uScroll));
+    } else if (uScroll < 2.0) {
+      scrollWarmth = mix(0.35, 0.25, smoothstep(1.0, 2.0, uScroll));
+    } else {
+      scrollWarmth = mix(0.25, 0.55, smoothstep(2.0, 3.2, uScroll));
+    }
 
     vec3 color;
 
     if (uIsDark == 1) {
       // ─── DARK MODE ARCHITECTURAL PALETTE ────────────────────────────────
-      vec3 deepBase   = vec3(0.035, 0.039, 0.047); // #090A0C pitch charcoal corners
-      vec3 meshMid    = vec3(0.075, 0.086, 0.106); // #13161B mid graphite field
-      vec3 meshHigh   = vec3(0.115, 0.130, 0.157); // #1D2128 elevated slate field
-      vec3 warmAccent = vec3(0.878, 0.478, 0.369); // #E07A5F terracotta warm glow
+      // Base: #090A0C
+      vec3 base09     = vec3(0.035, 0.039, 0.047); 
+      // Graphite shades: #11141A, #15181E, #1B1F26
+      vec3 graphite11 = vec3(0.067, 0.078, 0.102); 
+      vec3 graphite15 = vec3(0.082, 0.094, 0.118); 
+      vec3 graphite1B = vec3(0.106, 0.122, 0.149); 
+      // Warm terracotta: #E07A5F (restrained)
+      vec3 warmAccent = vec3(0.878, 0.478, 0.369); 
 
-      // Base mesh gradientdriven by fBm noise
-      color = mix(deepBase, meshMid, smoothstep(0.25, 0.75, combined));
+      // Primary graphite terrain driven by smooth noise
+      color = mix(base09, graphite11, smoothstep(0.2, 0.8, combined));
       
-      // Gentle center elevation (calm atmospheric center behind UMAR)
-      color = mix(color, meshHigh, centerCalm * 0.25 * smoothstep(0.3, 0.7, combined));
+      // Subtle depth contours toward upper corners
+      color = mix(color, graphite15, smoothstep(0.4, 0.85, combined) * 0.5);
       
-      // Warm terracotta ambient pool on upper right (subtle, expensive aura)
-      color = mix(color, warmAccent, accentPool * 0.12 * scrollFade);
+      // Center remains calm (kept close to base/graphite11, no bright glow behind UMAR)
+      color = mix(color, graphite1B, centerCalm * 0.15 * smoothstep(0.3, 0.7, combined));
       
-      // Smooth corner vignette for depth
-      color = mix(color, deepBase * 0.6, vignette * 0.45);
+      // Restrained upper-right environmental warmth (looks monochrome at first, reveals warmth gradually)
+      color = mix(color, warmAccent, accentPool * 0.065 * scrollWarmth);
+      
+      // Deep corner vignette
+      color = mix(color, base09 * 0.7, vignette * 0.4);
 
     } else {
       // ─── LIGHT MODE ARCHITECTURAL PALETTE ───────────────────────────────
-      vec3 paperBase  = vec3(0.968, 0.961, 0.945); // #F7F5F1 warm architectural paper
-      vec3 meshStone  = vec3(0.915, 0.898, 0.875); // #EAE5DF soft graphite/stone field
-      vec3 meshHigh   = vec3(0.875, 0.855, 0.828); // #DFDAD3 visible depth contours
-      vec3 warmAccent = vec3(0.851, 0.430, 0.322); // #D96D52 subtle warm blush
+      // Base: #F7F5F1 (warm paper)
+      vec3 paperBase  = vec3(0.968, 0.961, 0.945); 
+      // Stone shades: #EAE5DF, #E4DED7
+      vec3 stoneEAE   = vec3(0.918, 0.898, 0.875); 
+      vec3 stoneE4D   = vec3(0.894, 0.871, 0.843); 
+      // Warm blush: #E07A5F (delicate tint)
+      vec3 warmBlush  = vec3(0.878, 0.478, 0.369); 
 
-      // Smooth stone mesh field
-      color = mix(paperBase, meshStone, smoothstep(0.2, 0.8, combined));
+      // Soft stone paper field
+      color = mix(paperBase, stoneEAE, smoothstep(0.2, 0.8, combined));
       
-      // Subtle depth variation
-      color = mix(color, meshHigh, centerCalm * 0.2 * smoothstep(0.4, 0.8, combined));
+      // Architectural depth contours
+      color = mix(color, stoneE4D, smoothstep(0.45, 0.85, combined) * 0.4);
       
-      // Delicate warm atmospheric accent pool
-      color = mix(color, warmAccent, accentPool * 0.075 * scrollFade);
+      // Center remains clean paper
+      color = mix(color, paperBase, centerCalm * 0.25);
       
-      // Soft outer edge grounding
-      color = mix(color, meshStone * 0.96, vignette * 0.3);
+      // Extremely subtle warm environmental blush on upper right
+      color = mix(color, warmBlush, accentPool * 0.038 * scrollWarmth);
+      
+      // Gentle edge grounding
+      color = mix(color, stoneEAE * 0.97, vignette * 0.25);
     }
 
     gl_FragColor = vec4(color, 1.0);
@@ -125,6 +150,13 @@ const fragmentShader = /* glsl */`
 
 export default function AmbientMesh({ scrollProgress, isDarkMode }) {
   const materialRef = useRef();
+
+  const [isMobile] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 768 || ('ontouchstart' in window);
+    }
+    return false;
+  });
 
   const [prefersReducedMotion] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -156,8 +188,13 @@ export default function AmbientMesh({ scrollProgress, isDarkMode }) {
     }
 
     u.uScroll.value = THREE.MathUtils.damp(u.uScroll.value, scrollProgress, 2.5, delta);
-    u.uPointer.value.x = THREE.MathUtils.damp(u.uPointer.value.x, state.pointer.x, 2.0, delta);
-    u.uPointer.value.y = THREE.MathUtils.damp(u.uPointer.value.y, state.pointer.y, 2.0, delta);
+
+    if (!isMobile) {
+      u.uPointer.value.x = THREE.MathUtils.damp(u.uPointer.value.x, state.pointer.x, 2.0, delta);
+      u.uPointer.value.y = THREE.MathUtils.damp(u.uPointer.value.y, state.pointer.y, 2.0, delta);
+    } else {
+      u.uPointer.value.set(0, 0);
+    }
   });
 
   return (
