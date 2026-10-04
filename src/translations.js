@@ -4,14 +4,16 @@ export default {
     hero: {
       tagline: 'Product-first engineering.',
       headline: 'Building products people actually use.',
-      supporting1: 'Software Engineer focused on AI, Backend and Product Engineering.',
+      supporting1: 'AI & Robotics student. Software developer focused on AI, Backend and Product Engineering.',
       supporting2: 'Turning ambitious ideas into products that solve real problems.',
       primaryCTA: 'Explore Projects',
       secondaryCTA: 'Get in Touch'
     },
     about: {
       title: 'Builder Manifesto',
-      introduction: 'I build software because a real problem deserves a better solution. Not just because a technology is interesting. Here is my current focus.',
+      introduction: 'An AI & Robotics student at the International Digital University, with a foundation in backend and full-stack development. I learn by building — through practical projects, hackathons and IT camps.',
+      role: 'AI & Robotics Student · Software Developer',
+      education: 'B.Sc. — Artificial Intelligence & Robotics, 2026–Present',
       manifesto: {
         focus1: { title: 'AI Products', description: 'Expanding human capability without replacing human judgment.' },
         focus2: { title: 'Developer Tools', description: 'Creating lightweight utilities that respect user privacy, attention, and time.' },
@@ -78,7 +80,9 @@ export default {
     resume: {
       title: 'Builder Dashboard',
       subtitle: 'A product-focused map of active builds, focus stack, and long-term directions.',
-      downloadText: 'Download Timeline PDF',
+      downloadText: 'Download CV',
+      downloadSuccess: 'CV downloaded successfully.',
+      downloadError: 'CV document is currently unavailable.',
       activeBuild: {
         label: 'Active Build',
         title: 'What I\'m building',
@@ -87,7 +91,7 @@ export default {
       activeFocus: {
         label: 'Active Focus',
         title: 'What I\'m learning',
-        desc: 'Deep-diving into low-level backend memory caching (Redis architectures), WebGL shader graphics, and the foundations of client-side performance.'
+        desc: 'Algorithms & Data Structures, Artificial Intelligence, Robotics and Machine Learning — the core of my degree, applied to real projects.'
       },
       sandbox: {
         label: 'Mental Sandbox',
@@ -100,12 +104,23 @@ export default {
         desc: 'To ship reliable, accessible products that solve real human problems—proving that software that makes life simpler can start from Namangan.'
       },
       skillsTitle: 'Technical Arsenal',
-      frontend: 'Frontend',
+      frontend: 'Programming',
       backend: 'Backend',
-      otherTools: 'Other Tools',
-      frontendTech: 'React, HTML, CSS, JavaScript, Three.js',
-      backendTech: 'Python, Django, C++',
-      otherTech: 'Graphic Design, 3D Modeling, No-code, AI'
+      otherTools: 'Tools',
+      frontendTech: 'Python, JavaScript, HTML, CSS',
+      backendTech: 'Django, Backend development',
+      otherTech: 'Git, GitHub, Linux, Terminal, VS Code, Blender',
+      credentialsTitle: 'Credentials',
+      educationLabel: 'Education',
+      educationSchool: 'International Digital University (IDU)',
+      achievementsLabel: 'Achievements',
+      achievements: [
+        '1st Place — Regional Informatics Competition, 2024–2025 academic year',
+        '2nd Place — TeenHack 2024 hackathon',
+        'Zakovat — 3× inter-provincial winner'
+      ],
+      certificationsLabel: 'Certifications',
+      certifications: 'IELTS Academic — Overall 5.5 · TEPS — 161'
     },
     contact: {
       title: 'Get in Touch',
@@ -130,7 +145,9 @@ export default {
     },
     about: {
       title: 'Yaratuvchi Manifesti',
-      introduction: 'Texnologiya qiziqarli bo\'lgani uchun emas, balki haqiqiy muammo yaxshiroq yechimni kutgani uchun dasturiy ta\'minot yarataman. Hozirgi e\'tibor markazim:',
+      introduction: 'International Digital Universityda AI & Robotics talabasiyman; backend va full-stack dasturlash asoslarim bor. Amaliy loyihalar, hakkoniylar va IT lagerlarida qurish orqali o\'rganaman.',
+      role: 'AI & Robotics Talabasi · Dasturchi',
+      education: 'B.Sc. — Artificial Intelligence & Robotics, 2026–hozir',
       manifesto: {
         focus1: { title: 'AI Mahsulotlar', description: 'Inson qobiliyatini kengaytirish, lekin inson hukmini almashtirmaslik.' },
         focus2: { title: 'Dasturchilar Uchun Vositalar', description: 'Foydalanuvchi maxfiyligi va vaqtini qadrlaydigan yengil tizimli vositalar.' },
@@ -197,7 +214,9 @@ export default {
     resume: {
       title: 'Yaratuvchi Paneli',
       subtitle: 'Amaldagi loyihalar, o\'rganish yo\'nalishlari va uzoq muddatli maqsadlarning mahsulotga yo\'naltirilgan xaritasi.',
-      downloadText: 'PDF Xronologiyani Yuklab Olish',
+      downloadText: 'CV yuklab olish',
+      downloadSuccess: 'CV muvaffaqiyatli yuklab olindi.',
+      downloadError: 'CV hujjati hozircha mavjud emas.',
       activeBuild: {
         label: 'Amaldagi Loyiha',
         title: 'Nima yaratyapman',
@@ -206,7 +225,7 @@ export default {
       activeFocus: {
         label: 'Amaldagi Diqqat',
         title: 'Nima o\'rganyapman',
-        desc: 'Past darajali backend xotira keshini optimallashtirish (Redis arxitekturasi), WebGL shader grafikasi va mijoz tomoni (client-side) unumdorligi asoslari.'
+        desc: 'Algorithms & Data Structures, Artificial Intelligence, Robotics va Machine Learning — oliy ta\'limimning asosi, amaliy loyihalarga qo\'llanmoqda.'
       },
       sandbox: {
         label: 'Falsafiy Sandbox',
@@ -219,12 +238,23 @@ export default {
         desc: 'Haqiqiy insoniy muammolarni hal qiladigan ishonchli, sodda va qulay mahsulotlarni yaratish—hayotni soddalashtiruvchi dasturlar Namangandan boshlanishi mumkinligini isbotlash.'
       },
       skillsTitle: "Texnik Ko'nikmalar",
-      frontend: 'Frontend',
+      frontend: 'Dasturlash',
       backend: 'Backend',
-      otherTools: 'Boshqa Vositalar',
-      frontendTech: 'React, HTML, CSS, JavaScript, Three.js',
-      backendTech: 'Python, Django, C++',
-      otherTech: "Grafik Dizayn, 3D Modellashtirish, No-code, AI"
+      otherTools: 'Vositalar',
+      frontendTech: 'Python, JavaScript, HTML, CSS',
+      backendTech: 'Django, Backend development',
+      otherTech: 'Git, GitHub, Linux, Terminal, VS Code, Blender',
+      credentialsTitle: 'Malakaviy hujjatlar',
+      educationLabel: "Ta'lim",
+      educationSchool: 'International Digital University (IDU)',
+      achievementsLabel: 'Yutuqlar',
+      achievements: [
+        "1-o'rin — Viloyat Informatika Musobaqasi, 2024–2025 o'quv yili",
+        "2-o'rin — TeenHack 2024 hakkoniysi",
+        'Zakovat — 3 marta viloyatlararo g\'olib'
+      ],
+      certificationsLabel: 'Sertifikatlar',
+      certifications: 'IELTS Academic — Overall 5.5 · TEPS — 161'
     },
     contact: {
       title: "Bog'lanish",

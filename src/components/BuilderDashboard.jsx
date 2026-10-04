@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { useLanguage } from '../context/LanguageContext';
 import BentoCard from './BentoCard';
 import SectionHeader from './SectionHeader';
+import { downloadCV } from '../utils/cv';
 import { LayoutTemplate, Database, PenTool, Download, Loader2 } from 'lucide-react';
 
 export default function BuilderDashboard() {
@@ -13,21 +14,9 @@ export default function BuilderDashboard() {
     if (downloading) return;
     setDownloading(true);
     try {
-      const res = await fetch('/resume.pdf', { method: 'HEAD' });
-      await new Promise(r => setTimeout(r, 700));
-      if (res.ok) {
-        const link = document.createElement('a');
-        link.href = '/resume.pdf';
-        link.download = 'Umarjon_MX_Resume.pdf';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        toast.success('Resume downloaded successfully.');
-      } else {
-        toast.error('Resume document is currently unavailable.');
-      }
-    } catch {
-      toast.error('Resume document is currently unavailable.');
+      const ok = await downloadCV();
+      if (ok) toast.success(t('resume.downloadSuccess'));
+      else toast.error(t('resume.downloadError'));
     } finally {
       setDownloading(false);
     }
@@ -152,16 +141,40 @@ export default function BuilderDashboard() {
         </div>
       </div>
 
+      {/* Credentials — Education, Achievements, Certifications (minimal ledger) */}
+      <div className="mt-24 max-w-4xl mx-auto relative z-10">
+        <h3 className="text-2xl font-bold mb-10 text-center tracking-tight font-josefin uppercase">{t('resume.credentialsTitle')}</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="flex flex-col gap-3">
+            <span className="font-josefin text-xs font-bold uppercase tracking-widest text-accent">{t('resume.educationLabel')}</span>
+            <p className="font-host text-sm leading-relaxed text-primary-text dark:text-primary-text-dark">{t('resume.educationSchool')}</p>
+            <p className="font-host text-xs leading-relaxed text-primary-text/60 dark:text-primary-text-dark/60">{t('about.education')}</p>
+          </div>
+          <div className="flex flex-col gap-3">
+            <span className="font-josefin text-xs font-bold uppercase tracking-widest text-accent">{t('resume.achievementsLabel')}</span>
+            <ul className="flex flex-col gap-2">
+              {t('resume.achievements').map((item) => (
+                <li key={item} className="font-host text-xs leading-relaxed text-primary-text/70 dark:text-primary-text-dark/70">{item}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="flex flex-col gap-3">
+            <span className="font-josefin text-xs font-bold uppercase tracking-widest text-accent">{t('resume.certificationsLabel')}</span>
+            <p className="font-host text-xs leading-relaxed text-primary-text/70 dark:text-primary-text-dark/70">{t('resume.certifications')}</p>
+          </div>
+        </div>
+      </div>
+
       {/* Infinite Tech Marquee (Blueprint Strip Format) */}
       <div className="mt-32 w-full overflow-hidden py-8 relative rounded-xl bg-white dark:bg-card-bg-dark border border-primary-text dark:border-primary-text-dark shadow-hard-light dark:shadow-hard-dark">
         <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-background dark:from-background-dark to-transparent z-10 pointer-events-none"></div>
         <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-background dark:from-background-dark to-transparent z-10 pointer-events-none"></div>
         <div className="flex w-max animate-marquee flex-nowrap">
           <div className="flex justify-around flex-nowrap px-4">
-            <span className="font-josefin text-lg md:text-xl font-bold opacity-40 whitespace-nowrap tracking-widest uppercase">React • Python • Django • Three.js • Framer Motion • C++ • Tailwind • AI • JavaScript • </span>
+            <span className="font-josefin text-lg md:text-xl font-bold opacity-40 whitespace-nowrap tracking-widest uppercase">Python • JavaScript • Django • Algorithms • Artificial Intelligence • Robotics • Machine Learning • Linux • Git • Blender • </span>
           </div>
           <div className="flex justify-around flex-nowrap px-4">
-            <span className="font-josefin text-lg md:text-xl font-bold opacity-40 whitespace-nowrap tracking-widest uppercase">React • Python • Django • Three.js • Framer Motion • C++ • Tailwind • AI • JavaScript • </span>
+            <span className="font-josefin text-lg md:text-xl font-bold opacity-40 whitespace-nowrap tracking-widest uppercase">Python • JavaScript • Django • Algorithms • Artificial Intelligence • Robotics • Machine Learning • Linux • Git • Blender • </span>
           </div>
         </div>
       </div>

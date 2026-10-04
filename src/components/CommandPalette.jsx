@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { useLanguage } from '../context/LanguageContext';
 import { Moon, Sun, Globe, Code, Mail, Search, Download, Copy } from 'lucide-react';
 import { copyToClipboard } from '../utils/clipboard';
+import { downloadCV } from '../utils/cv';
 
 export default function CommandPalette({ isDarkMode, toggleTheme }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -91,25 +92,16 @@ export default function CommandPalette({ isDarkMode, toggleTheme }) {
     },
     {
       id: 'download-resume',
-      title: 'Download Resume',
+      title: 'Download CV',
       icon: <Download size={18} />,
       onSelect: async () => {
         setIsOpen(false);
         try {
-          const res = await fetch('/resume.pdf', { method: 'HEAD' });
-          if (res.ok) {
-            const link = document.createElement('a');
-            link.href = '/resume.pdf';
-            link.download = 'Umarjon_MX_Resume.pdf';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            toast.success('Resume downloaded successfully.');
-          } else {
-            toast.error('Resume document is currently unavailable.');
-          }
+          const ok = await downloadCV({ delay: 0 });
+          if (ok) toast.success('CV downloaded successfully.');
+          else toast.error('CV document is currently unavailable.');
         } catch {
-          toast.error('Resume document is currently unavailable.');
+          toast.error('CV document is currently unavailable.');
         }
       }
     },

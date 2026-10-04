@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, FileText } from 'lucide-react';
 import { copyToClipboard } from '../utils/clipboard';
+import { CV_PATH, CV_FILENAME } from '../utils/cv';
 import { useLanguage } from '../context/LanguageContext';
 import SectionHeader from './SectionHeader';
 
@@ -199,6 +200,19 @@ export default function Contact() {
                 <div className="flex flex-col overflow-hidden">
                   <span className="font-host font-bold text-base group-hover:text-accent transition-colors leading-tight truncate">Phone</span>
                   <span className="text-xs font-josefin opacity-50 truncate">+998 97 123 36 67</span>
+                </div>
+              </a>
+
+              <a
+                href={CV_PATH}
+                download={CV_FILENAME}
+                aria-label="Download CV (PDF)"
+                className="flex items-center space-x-5 p-5 bg-background/50 dark:bg-background-dark/50 backdrop-blur-sm border border-primary-text/10 dark:border-primary-text-dark/10 rounded-xl hover:border-accent/50 dark:hover:border-accent/50 hover:bg-white dark:hover:bg-card-bg-dark hover:shadow-lg transition-all group cursor-pointer"
+              >
+                <FileText size={28} className="text-primary-text dark:text-primary-text-dark dark:invert group-hover:scale-105 group-hover:text-accent transition-all duration-300" />
+                <div className="flex flex-col overflow-hidden">
+                  <span className="font-host font-bold text-base group-hover:text-accent transition-colors leading-tight truncate">CV</span>
+                  <span className="text-xs font-josefin opacity-50 truncate">{CV_FILENAME}</span>
                 </div>
               </a>
 

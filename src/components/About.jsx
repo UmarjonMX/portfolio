@@ -60,6 +60,10 @@ export default function About() {
               {t('about.introduction')}
             </h3>
             <div className="w-12 h-1 bg-accent/50 rounded-full mb-8"></div>
+            <div className="flex flex-col gap-2 font-josefin text-xs font-bold uppercase tracking-[0.25em]">
+              <span className="text-primary-text/50 dark:text-primary-text-dark/50">{t('about.role')}</span>
+              <span className="text-accent">{t('about.education')}</span>
+            </div>
           </div>
 
           {/* Timeline / Focus Areas */}
