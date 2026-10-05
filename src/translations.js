@@ -131,6 +131,13 @@ export default {
       send: 'Send Message',
       emailValue: 'umarjonmx@gmail.com',
       phoneValue: '+998-(97)-123-36-67'
+    },
+    finale: {
+      chapter: 'Contact',
+      echo: 'Umar builds',
+      line1: 'Useful',
+      line2: 'Software.',
+      kicker: 'Product-first engineering. Built to solve a real problem, not to admire a technology.'
     }
   },
   uz: {
@@ -265,6 +272,13 @@ export default {
       send: 'Xabarni Yuborish',
       emailValue: 'umarjonmx@gmail.com',
       phoneValue: '+998-(97)-123-36-67'
+    },
+    finale: {
+      chapter: 'Aloqa',
+      echo: 'Umar quradi',
+      line1: 'Foydali',
+      line2: 'Dasturiy taqminot.',
+      kicker: "Mahsulotga yo'naltirilgan muhandislik. Texnologiyani ko'rsatish uchun emas, haqiqiy muammoni hal qilish uchun qurilgan."
     }
   }
 };

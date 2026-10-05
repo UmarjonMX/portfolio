@@ -6,6 +6,46 @@ import { useLanguage } from '../context/LanguageContext';
 import BentoCard from './BentoCard';
 import BuilderConsole from './BuilderConsole';
 import SectionHeader from './SectionHeader';
+import {
+  seg,
+  useChapterProgress,
+  usePrefersReducedMotion,
+} from './scroll/ScrollStage';
+
+/**
+ * Chapter 04 — one entrance gesture for the whole grid.
+ *
+ * Every card is masked open from the same edge and travels the same distance;
+ * only the offset changes. A single motion language, indexed — not a set of
+ * cards flying in from different directions.
+ */
+function GridReveal({ index, total, children }) {
+  const p = useChapterProgress('projects', 'enter');
+  const reduced = usePrefersReducedMotion();
+
+  // Stagger window, expressed against 'enter' progress so the grid is already
+  // resolved by the time it is properly on screen. One gesture, indexed.
+  const start = 0.5 + (total > 1 ? (index / (total - 1)) * 0.16 : 0);
+  const end = Math.min(0.99, start + 0.26);
+
+  const clip = useTransform(
+    p,
+    (v) =>
+      reduced
+        ? 'inset(0 0% 0 0)'
+        : `inset(0 0 ${100 - 100 * seg(v, start, end)}% 0)`
+  );
+  const y = useTransform(
+    p,
+    (v) => (reduced ? 0 : 56 * (1 - seg(v, start, end)))
+  );
+
+  return (
+    <motion.div style={{ clipPath: clip, y }} className="h-full">
+      {children}
+    </motion.div>
+  );
+}
 
 function ProjectCard({ project, index, onClick }) {
   const ref = useRef(null);
@@ -255,6 +295,7 @@ export default function Projects() {
   return (
     <section
       id="projects"
+      data-chapter="projects"
       style={{ position: 'relative', zIndex: 50, isolation: 'isolate' }}
       className="relative py-32 px-6 sm:px-10 lg:px-16 max-w-[90rem] mx-auto border-b border-primary-text/10 dark:border-primary-text-dark/10"
     >
@@ -273,15 +314,34 @@ export default function Projects() {
 
       <SectionHeader title={t('projects.title')} number="03" />
 
+      {/* Ledger row — the previous chapter's typography resolves into the
+          project's own numbering before the grid itself arrives. */}
+      <div className="relative z-10 mb-10 flex items-center gap-4 sm:gap-6">
+        {projects.map((project, i) => (
+          <div key={project.title} className="flex items-center gap-4 sm:gap-6">
+            <span className="font-josefin text-[10px] font-bold tracking-[0.25em] text-accent uppercase">
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            <span className="font-josefin text-[10px] font-bold tracking-[0.2em] text-primary-text/40 dark:text-primary-text-dark/40 uppercase truncate">
+              {project.title}
+            </span>
+            {i < projects.length - 1 && (
+              <span className="hidden sm:block w-8 h-px bg-primary-text/15 dark:bg-primary-text-dark/15" />
+            )}
+          </div>
+        ))}
+      </div>
+
       {/* 3D Bento Projects Grid */}
       <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-32" style={{ perspective: '1200px' }}>
         {projects.map((project, index) => (
-          <ProjectCard 
-            key={index} 
-            project={project} 
-            index={index} 
-            onClick={() => setSelectedProject(project)} 
-          />
+          <GridReveal key={project.title} index={index} total={projects.length}>
+            <ProjectCard
+              project={project}
+              index={index}
+              onClick={() => setSelectedProject(project)}
+            />
+          </GridReveal>
         ))}
       </div>
 

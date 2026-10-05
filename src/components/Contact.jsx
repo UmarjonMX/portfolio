@@ -48,7 +48,7 @@ export default function Contact() {
   };
 
   return (
-    <section id="contact" className="py-32 relative z-10 w-full overflow-hidden">
+    <section id="contact" data-chapter="contact" className="py-32 relative z-10 w-full overflow-hidden">
       
       {/* Editorial Background: Signal Waves */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-20 dark:opacity-10 text-primary-text dark:text-primary-text-dark flex items-center justify-center">

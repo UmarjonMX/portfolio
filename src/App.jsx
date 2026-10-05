@@ -1,4 +1,6 @@
-import { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
+// eslint-disable-next-line no-unused-vars
+import { motion, useTransform } from 'framer-motion';
 
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
@@ -6,93 +8,47 @@ const About = lazy(() => import('./components/About'));
 const Projects = lazy(() => import('./components/Projects'));
 const BuilderDashboard = lazy(() => import('./components/BuilderDashboard'));
 const Contact = lazy(() => import('./components/Contact'));
-import Footer from './components/Footer';
 import CommandPalette from './components/CommandPalette';
 import ToastProvider from './components/ToastProvider';
 import ErrorBoundary from './components/ErrorBoundary';
 import SceneErrorBoundary from './components/3d/SceneErrorBoundary';
+import FinalStatement from './components/FinalStatement';
+
+import {
+  ScrollStage,
+  seg,
+  useChapterProgress,
+  usePrefersReducedMotion,
+} from './components/scroll/ScrollStage';
+import ChapterReadout from './components/scroll/ChapterReadout';
 
 const SceneManager = lazy(() => import('./components/3d/SceneManager'));
 
 import { LanguageProvider } from './context/LanguageContext';
 
-function FadeSection({ children }) {
-  const ref = useRef(null);
-  const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const [style, setStyle] = useState(
-    prefersReducedMotion
-      ? { opacity: 1, transform: 'none' }
-      : { opacity: 0, transform: 'translateY(15px)' }
-  );
+/**
+ * Chapter entry.
+ *
+ * Previously each section owned an IntersectionObserver plus a scroll listener
+ * and called setState on every scroll event. Now the whole page shares one
+ * scroll MotionValue, and a section's arrival is a transform on that value —
+ * no observers, no per-scroll renders, and no exit fade that would break the
+ * sense of one continuous composition.
+ */
+function Chapter({ id, children }) {
+  const p = useChapterProgress(id, 'enter');
+  const reduced = usePrefersReducedMotion();
 
-  useEffect(() => {
-    // Respect prefers-reduced-motion
-    if (prefersReducedMotion) return;
-
-    let isVisible = false;
-    const currentRef = ref.current;
-    let scrollHandler = null;
-
-    const handleScroll = () => {
-      if (!isVisible || !currentRef) return;
-      const rect = currentRef.getBoundingClientRect();
-      const viewHeight = window.innerHeight;
-      
-      const threshold = 180;
-      let opacity = 1;
-      let translateY = 0;
-
-      if (rect.top > viewHeight - threshold) {
-        const factor = Math.max(0, Math.min(1, (viewHeight - rect.top) / threshold));
-        opacity = factor;
-        translateY = (1 - factor) * 15;
-      } else if (rect.bottom < threshold) {
-        const factor = Math.max(0, Math.min(1, rect.bottom / threshold));
-        opacity = factor;
-        translateY = (1 - factor) * -15;
-      }
-
-      setStyle({
-        opacity: opacity,
-        transform: `translateY(${translateY}px)`,
-        transition: 'opacity 0.25s ease-out, transform 0.25s ease-out'
-      });
-    };
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        isVisible = entry.isIntersecting;
-        if (isVisible) {
-          // Add scroll listener only when visible
-          if (!scrollHandler) {
-            scrollHandler = handleScroll;
-            window.addEventListener('scroll', scrollHandler, { passive: true });
-          }
-          handleScroll();
-        } else {
-          // Remove scroll listener when not visible
-          if (scrollHandler) {
-            window.removeEventListener('scroll', scrollHandler);
-            scrollHandler = null;
-          }
-          setStyle({ opacity: 0, transform: 'translateY(15px)' });
-        }
-      },
-      { rootMargin: '50px 0px' }
-    );
-
-    if (currentRef) observer.observe(currentRef);
-    
-    return () => {
-      if (currentRef) observer.unobserve(currentRef);
-      if (scrollHandler) window.removeEventListener('scroll', scrollHandler);
-    };
-  }, [prefersReducedMotion]);
+  // Arrival is keyed to the section entering the viewport, and begins
+  // immediately — the previous chapter is still scrolling out at that point,
+  // so a late fade would leave a dead frame between the two.
+  const opacity = useTransform(p, (v) => (reduced ? 1 : seg(v, 0.02, 0.5)));
+  const y = useTransform(p, (v) => (reduced ? 0 : 30 * (1 - seg(v, 0.02, 0.55))));
 
   return (
-    <div ref={ref} style={style} className="w-full">
+    <motion.div style={{ opacity, y }} className="w-full">
       {children}
-    </div>
+    </motion.div>
   );
 }
 
@@ -144,7 +100,7 @@ function AppContent() {
   const toggleTheme = () => setIsDarkMode(!isDarkMode);
 
   return (
-    <div className="min-h-screen relative selection:bg-accent selection:text-white bg-transparent text-primary-text dark:text-primary-text-dark flex flex-col overflow-x-hidden">
+    <div className="min-h-screen relative selection:bg-accent selection:text-white bg-transparent text-primary-text dark:text-primary-text-dark flex flex-col overflow-x-clip">
       {/* Skip to content link for keyboard accessibility */}
       <a
         href="#main-content"
@@ -174,33 +130,34 @@ function AppContent() {
         </Suspense>
       </SceneErrorBoundary>
       
+      <ChapterReadout />
+
       <Navbar isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
-      
-      <main id="main-content" style={{ position: 'relative', zIndex: 10 }} className="flex-grow pt-20 w-full overflow-x-hidden">
+
+      <main id="main-content" style={{ position: 'relative', zIndex: 10 }} className="flex-grow pt-20 w-full overflow-x-clip">
         <Hero isDarkMode={isDarkMode} />
-        <FadeSection>
-          <Suspense fallback={<div>Loading...</div>}>
+        <Chapter id="about">
+          <Suspense fallback={<div />}>
             <About />
           </Suspense>
-        </FadeSection>
-        <FadeSection>
-          <Suspense fallback={<div>Loading...</div>}>
+        </Chapter>
+        <Chapter id="projects">
+          <Suspense fallback={<div />}>
             <Projects />
           </Suspense>
-        </FadeSection>
-        <FadeSection>
-          <Suspense fallback={<div>Loading...</div>}>
+        </Chapter>
+        <Chapter id="engineering">
+          <Suspense fallback={<div />}>
             <BuilderDashboard />
           </Suspense>
-        </FadeSection>
-        <FadeSection>
-          <Suspense fallback={<div>Loading...</div>}>
+        </Chapter>
+        <Chapter id="contact">
+          <Suspense fallback={<div />}>
             <Contact />
           </Suspense>
-        </FadeSection>
+        </Chapter>
+        <FinalStatement />
       </main>
-      
-      <Footer />
     </div>
   );
 }
@@ -209,8 +166,10 @@ export default function App() {
   return (
     <LanguageProvider>
       <ErrorBoundary>
-        <ToastProvider />
-        <AppContent />
+        <ScrollStage>
+          <ToastProvider />
+          <AppContent />
+        </ScrollStage>
       </ErrorBoundary>
     </LanguageProvider>
   );

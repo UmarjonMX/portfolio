@@ -23,8 +23,8 @@ export default function BuilderDashboard() {
   };
 
   return (
-    <section id="resume" className="relative py-32 px-6 sm:px-10 lg:px-16 max-w-[90rem] mx-auto z-10 border-b border-primary-text/10 dark:border-primary-text-dark/10">
-      
+    <section id="resume" data-chapter="engineering" className="relative py-32 px-6 sm:px-10 lg:px-16 max-w-[90rem] mx-auto z-10 border-b border-primary-text/10 dark:border-primary-text-dark/10">
+
       {/* Editorial Background: Logic / PCB Lines */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-20 dark:opacity-10 text-primary-text dark:text-primary-text-dark flex items-center justify-center overflow-hidden">
         <svg className="w-full h-full opacity-40" xmlns="http://www.w3.org/2000/svg">
@@ -37,6 +37,16 @@ export default function BuilderDashboard() {
               <circle cx="400" cy="500" r="3" fill="currentColor" />
            </g>
         </svg>
+      </div>
+
+      {/* Chapter 05 register — the measuring rule the whole narrative resolves
+          against. Real measurements only: chapter index and vertical position. */}
+      <div
+        aria-hidden="true"
+        className="hidden xl:block absolute left-0 top-0 bottom-0 w-8 pointer-events-none"
+      >
+        <div className="absolute left-1/2 top-0 bottom-0 w-px bg-primary-text/10 dark:bg-primary-text-dark/10" />
+        <div className="absolute inset-y-0 left-1/2 w-3 -translate-x-1/2 [background-image:repeating-linear-gradient(to_bottom,currentColor_0,currentColor_1px,transparent_1px,transparent_48px)] opacity-[0.18] text-primary-text dark:text-primary-text-dark" />
       </div>
 
       <SectionHeader title={t('resume.title')} number="04" />

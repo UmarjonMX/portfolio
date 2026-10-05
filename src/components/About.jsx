@@ -1,12 +1,38 @@
+// eslint-disable-next-line no-unused-vars
+import { motion, useTransform } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 import SectionHeader from './SectionHeader';
+import {
+  seg,
+  useChapterProgress,
+  usePrefersReducedMotion,
+} from './scroll/ScrollStage';
 
 export default function About() {
   const { t } = useLanguage();
   const manifesto = t('about.manifesto');
-  
+
+  // Chapter 03 — the statement arrives at hero scale and settles into the
+  // editorial register before the timeline takes over. One MotionValue, no
+  // viewport observer.
+  const p = useChapterProgress('about', 'enter');
+  const reduced = usePrefersReducedMotion();
+
+  const statementScale = useTransform(
+    p,
+    (v) => (reduced ? 1 : 1 - 0.24 * seg(v, 0.62, 0.95))
+  );
+  const statementY = useTransform(
+    p,
+    (v) => (reduced ? 0 : -46 * seg(v, 0.62, 0.95))
+  );
+  const statementOpacity = useTransform(
+    p,
+    (v) => (reduced ? 1 : 1 - 0.2 * seg(v, 0.66, 0.99))
+  );
+
   return (
-    <section id="about" className="relative py-32 px-6 sm:px-10 lg:px-16 max-w-7xl mx-auto z-10 border-b border-primary-text/10 dark:border-primary-text-dark/10">
+    <section id="about" data-chapter="about" className="relative py-32 px-6 sm:px-10 lg:px-16 max-w-7xl mx-auto z-10 border-b border-primary-text/10 dark:border-primary-text-dark/10">
       
       {/* Editorial Background: Neural Paths / System Diagram */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-20 dark:opacity-10 text-primary-text dark:text-primary-text-dark flex items-center justify-center overflow-hidden">
@@ -56,9 +82,12 @@ export default function About() {
           
           {/* Introduction Block */}
           <div className="prose prose-lg dark:prose-invert">
-            <h3 className="text-2xl sm:text-3xl md:text-4xl font-editorial leading-snug text-primary-text dark:text-primary-text-dark mb-8">
+            <motion.h3
+              style={{ scale: statementScale, y: statementY, opacity: statementOpacity }}
+              className="text-2xl sm:text-3xl md:text-4xl font-editorial leading-snug text-primary-text dark:text-primary-text-dark mb-8 origin-top"
+            >
               {t('about.introduction')}
-            </h3>
+            </motion.h3>
             <div className="w-12 h-1 bg-accent/50 rounded-full mb-8"></div>
             <div className="flex flex-col gap-2 font-josefin text-xs font-bold uppercase tracking-[0.25em]">
               <span className="text-primary-text/50 dark:text-primary-text-dark/50">{t('about.role')}</span>
