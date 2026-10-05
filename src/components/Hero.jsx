@@ -57,14 +57,6 @@ export default function Hero() {
       className="relative min-h-[100dvh] flex flex-col justify-center overflow-hidden w-full select-none border-b border-primary-text/8 dark:border-primary-text-dark/8"
       aria-label="Hero"
     >
-      {/* ─── Subtle paper texture grain ────────────────────────────────── */}
-      <div
-        className="absolute inset-0 z-0 pointer-events-none opacity-[0.035] dark:opacity-[0.06] mix-blend-overlay"
-        style={{
-          backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.75\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")',
-        }}
-      />
-
       {/* ─── Very subtle column rule grid ───────────────────────────────── */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.018] dark:opacity-[0.012]">
         <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
