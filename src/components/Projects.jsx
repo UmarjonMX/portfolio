@@ -43,33 +43,36 @@ function GridReveal({ index, total, children }) {
 function ProjectCard({ project, index, onOpen }) {
   return (
     <article className="group h-full flex flex-col">
-      {/* Number + status — the project's own coordinate in the ledger */}
-      {/* Number sits in the left gutter on desktop and aligns with the
-          section's own measure, rather than floating above the title. */}
-      <div className="flex items-baseline gap-5 lg:gap-8 pb-4">
+      {/* Number + timeline — the project's coordinate in the ledger, set in the
+          left gutter and aligned with the section's own measure. */}
+      <div className="flex items-baseline gap-5 lg:gap-8 pb-5">
         <span className="font-josefin text-[11px] font-bold tracking-[0.3em] text-accent uppercase tabular-nums shrink-0 w-8">
           {String(index + 1).padStart(2, '0')}
         </span>
         <span className="font-josefin text-[10px] font-bold tracking-[0.2em] text-primary-text/40 dark:text-primary-text-dark/40 uppercase">
           {project.timeline}
         </span>
+        <span className="hidden lg:block flex-1 h-px bg-primary-text/10 dark:bg-primary-text-dark/10" />
       </div>
 
-      <h3 className="font-editorial font-bold tracking-tight text-3xl sm:text-4xl lg:text-[2.75rem] lg:leading-[1.05] text-primary-text dark:text-primary-text-dark">
+      <h3 className="font-editorial font-bold tracking-tight text-[2rem] sm:text-[2.5rem] lg:text-[3.25rem] lg:leading-[1.02] text-primary-text dark:text-primary-text-dark">
         {project.title}
       </h3>
 
-      <p className="mt-5 font-host text-base lg:text-lg leading-relaxed text-primary-text/70 dark:text-primary-text-dark/70">
+      <p className="mt-5 max-w-lg font-host text-base lg:text-lg leading-relaxed text-primary-text/70 dark:text-primary-text-dark/70">
         {project.summary}
       </p>
 
-      <div className="mt-8 overflow-hidden border border-primary-text/10 dark:border-primary-text-dark/10">
-        <div className="transition-colors duration-500 group-hover:border-accent/40">
-          <ProjectVisual previewType={project.previewType} />
-        </div>
+      {/* The preview is the artifact, so it is given the room and sits on a
+          hairline rather than inside a filled card. No fill, no blur — the
+          AmbientMesh has to stay legible straight through the frame. */}
+      <div className="mt-9">
+        <ProjectVisual previewType={project.previewType} />
       </div>
 
       <div className="mt-auto pt-8">
+        <div className="h-px w-full bg-primary-text/10 dark:bg-primary-text-dark/10 mb-6" />
+
         {/* Technology — plain text, not pills */}
         <p className="font-josefin text-[10px] font-bold tracking-[0.2em] uppercase text-primary-text/45 dark:text-primary-text-dark/45">
           {(project.tech || []).join(' · ')}

@@ -121,11 +121,13 @@ export default function ProjectDetail({ project }) {
         </motion.div>
       </header>
 
-      {/* ── Full-bleed visual ──────────────────────────────────────────── */}
+      {/* ── The artifact ─────────────────────────────────────────────────
+          The visual is the case study's main object, so it runs the full
+          measure at `lg` rather than sitting small inside a wide frame.
+          It carries its own hairline; no wrapper fill or blur, which would
+          read as haze over the ambient background. */}
       <motion.div {...reveal(0.2)} className="max-w-[90rem] mx-auto px-6 sm:px-10 lg:px-16 mt-16">
-        <div className="border border-primary-text/10 dark:border-primary-text-dark/10">
-          <ProjectVisual previewType={project.previewType} scale="lg" />
-        </div>
+        <ProjectVisual previewType={project.previewType} scale="lg" />
       </motion.div>
 
       {/* ── Case study ─────────────────────────────────────────────────── */}

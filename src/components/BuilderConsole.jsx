@@ -36,9 +36,15 @@ export default function BuilderConsole() {
     return () => clearInterval(interval);
   }, []);
 
+  /* NOTE: the console is the largest surface in the Projects chapter, so it
+     paints its own background rather than blurring whatever is behind it.
+     `backdrop-blur-3xl` under a 90%-opaque dark fill was measured as the
+     single biggest contributor to a hazy sheet over the AmbientMesh — the
+     blur was sampling the mesh and re-compositing it as a flat brown film.
+     The gradient ring outside it is kept: it reads as a printed edge. */
   return (
     <div className="max-w-4xl mx-auto mt-20 p-1 rounded-2xl bg-gradient-to-b from-primary-text/10 to-transparent dark:from-primary-text-dark/10 shadow-hard-light dark:shadow-hard-dark">
-      <div className="bg-white/80 dark:bg-[#0A0A0B]/90 backdrop-blur-3xl rounded-xl overflow-hidden border border-primary-text/10 dark:border-primary-text-dark/10">
+      <div className="bg-white dark:bg-card-bg-dark rounded-xl overflow-hidden border border-primary-text/10 dark:border-primary-text-dark/10">
         
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-primary-text/5 dark:border-primary-text-dark/10 bg-primary-text/5 dark:bg-primary-text-dark/5">
