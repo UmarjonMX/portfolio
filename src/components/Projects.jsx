@@ -1,9 +1,9 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
 // eslint-disable-next-line no-unused-vars
-import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { X, ExternalLink } from 'lucide-react';
+import { motion, useTransform } from 'framer-motion';
+import { ArrowUpRight } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
-import BentoCard from './BentoCard';
+import { navigate } from '../router';
+import ProjectVisual from './ProjectVisual';
 import BuilderConsole from './BuilderConsole';
 import SectionHeader from './SectionHeader';
 import {
@@ -13,284 +13,88 @@ import {
 } from './scroll/ScrollStage';
 
 /**
- * Chapter 04 — one entrance gesture for the whole grid.
+ * Chapter 04 — Selected Works.
  *
- * Every card is masked open from the same edge and travels the same distance;
- * only the offset changes. A single motion language, indexed — not a set of
- * cards flying in from different directions.
+ * The grid is deliberately two columns at desktop and one on mobile: a
+ * project is a case study, and a case study needs room for a number, a name,
+ * a sentence of framing, a preview and a link. Three columns compressed this
+ * into dashboard tiles.
+ *
+ * Cards are not rounded containers. Each one is an editorial block separated
+ * by a rule, so the grid reads as a page rather than a deck of cards.
  */
 function GridReveal({ index, total, children }) {
   const p = useChapterProgress('projects', 'enter');
   const reduced = usePrefersReducedMotion();
 
-  // Stagger window, expressed against 'enter' progress so the grid is already
-  // resolved by the time it is properly on screen. One gesture, indexed.
   const start = 0.5 + (total > 1 ? (index / (total - 1)) * 0.16 : 0);
   const end = Math.min(0.99, start + 0.26);
 
-  const clip = useTransform(
-    p,
-    (v) =>
-      reduced
-        ? 'inset(0 0% 0 0)'
-        : `inset(0 0 ${100 - 100 * seg(v, start, end)}% 0)`
-  );
-  const y = useTransform(
-    p,
-    (v) => (reduced ? 0 : 56 * (1 - seg(v, start, end)))
-  );
+  const opacity = useTransform(p, (v) => (reduced ? 1 : seg(v, start, end)));
+  const y = useTransform(p, (v) => (reduced ? 0 : 40 * (1 - seg(v, start, end))));
 
   return (
-    <motion.div style={{ clipPath: clip, y }} className="h-full">
+    <motion.div style={{ opacity, y }} className="h-full">
       {children}
     </motion.div>
   );
 }
 
-function ProjectCard({ project, index, onClick }) {
-  const ref = useRef(null);
-  
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  
-  const mouseXSpring = useSpring(x, { stiffness: 300, damping: 40 });
-  const mouseYSpring = useSpring(y, { stiffness: 300, damping: 40 });
-  
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["3deg", "-3deg"]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-3deg", "3deg"]);
-  const glareX = useTransform(mouseXSpring, [-0.5, 0.5], ["100%", "0%"]);
-  const glareY = useTransform(mouseYSpring, [-0.5, 0.5], ["100%", "0%"]);
-
-  const handleMouseMove = (e) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    
-    const xPct = (mouseX / width) - 0.5;
-    const yPct = (mouseY / height) - 0.5;
-    x.set(xPct);
-    y.set(yPct);
-  };
-  
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
-
-  const getBentoClasses = (idx) => {
-    if (idx === 0) return 'md:col-span-2 lg:col-span-3'; // Hero
-    if (idx === 1) return 'md:col-span-2 lg:col-span-2'; // Large supporting
-    if (idx === 2) return 'md:col-span-1 lg:col-span-1'; // Small supporting
-    if (idx === 3) return 'md:col-span-2 lg:col-span-3'; // Wide supporting
-    return 'col-span-1';
-  };
-
-  const isWide = index === 0 || index === 1 || index === 3;
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      onClick();
-    }
-  };
-
+function ProjectCard({ project, index, onOpen }) {
   return (
-    <motion.div
-      ref={ref}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      onClick={onClick}
-      onKeyDown={handleKeyDown}
-      role="button"
-      tabIndex={0}
-      aria-label={`View details for ${project.title}`}
-      style={{
-        rotateX,
-        rotateY,
-        transformStyle: "preserve-3d"
-      }}
-      className={`relative group cursor-pointer ${getBentoClasses(index)} z-10 transition-shadow duration-500 hover:z-20`}
-    >
-      {/* Dynamic Cursor Shadow */}
-      <motion.div 
-        className="absolute inset-0 rounded-2xl bg-black/5 dark:bg-black/40 blur-2xl -z-10 transition-opacity opacity-0 group-hover:opacity-100"
-        style={{
-          x: useTransform(mouseXSpring, [-0.5, 0.5], [-20, 20]),
-          y: useTransform(mouseYSpring, [-0.5, 0.5], [-20, 20]),
-        }}
-      />
-      
-      <BentoCard containerClassName="h-full" className="h-full relative overflow-hidden flex flex-col p-6 sm:p-10 bg-white/70 dark:bg-card-bg-dark border border-primary-text/10 dark:border-primary-text-dark/20 shadow-hard-light dark:shadow-hard-dark">
-        {/* Dynamic Glare */}
-        <motion.div 
-          style={{ left: glareX, top: glareY }}
-          className="absolute pointer-events-none w-[800px] h-[800px] bg-white/40 dark:bg-white/10 blur-[100px] rounded-full -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-30" 
-        />
+    <article className="group h-full flex flex-col">
+      {/* Number + status — the project's own coordinate in the ledger */}
+      {/* Number sits in the left gutter on desktop and aligns with the
+          section's own measure, rather than floating above the title. */}
+      <div className="flex items-baseline gap-5 lg:gap-8 pb-4">
+        <span className="font-josefin text-[11px] font-bold tracking-[0.3em] text-accent uppercase tabular-nums shrink-0 w-8">
+          {String(index + 1).padStart(2, '0')}
+        </span>
+        <span className="font-josefin text-[10px] font-bold tracking-[0.2em] text-primary-text/40 dark:text-primary-text-dark/40 uppercase">
+          {project.timeline}
+        </span>
+      </div>
 
-        <div className="flex flex-col h-full z-10 relative pointer-events-none group-hover:pointer-events-auto">
-          {/* Status & Timeline Header */}
-          <div className="flex items-center gap-4 mb-8">
-            <span className="px-3 py-1 bg-primary-text/5 dark:bg-primary-text-dark/5 border border-primary-text/10 dark:border-primary-text-dark/10 rounded-full font-josefin text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
-              {project.status === 'Building' || project.status === 'Qurilmoqda' ? (
-                <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-              ) : (
-                <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-              )}
-              {project.status}
-            </span>
-            <span className="font-josefin text-[11px] font-bold text-primary-text/40 dark:text-primary-text-dark/40 tracking-widest uppercase">
-              {project.timeline}
-            </span>
-          </div>
+      <h3 className="font-editorial font-bold tracking-tight text-3xl sm:text-4xl lg:text-[2.75rem] lg:leading-[1.05] text-primary-text dark:text-primary-text-dark">
+        {project.title}
+      </h3>
 
-          <h3 className="text-3xl lg:text-4xl font-bold mb-8 font-editorial tracking-tight text-primary-text dark:text-primary-text-dark">
-            {project.title}
-          </h3>
-          
-          <div className={`grid grid-cols-1 ${isWide ? 'lg:grid-cols-2 gap-12' : 'gap-8'} flex-1`}>
-            {/* Information Column */}
-            <div className="flex flex-col space-y-6 justify-center">
-              <div>
-                <h4 className="font-josefin text-xs font-bold text-accent uppercase tracking-widest mb-2 flex items-center before:content-[''] before:w-3 before:h-[2px] before:bg-accent before:mr-2">
-                  Problem
-                </h4>
-                <p className="font-host text-sm text-primary-text/80 dark:text-primary-text-dark/80 leading-relaxed">
-                  {project.problem}
-                </p>
-              </div>
-              <div>
-                <h4 className="font-josefin text-xs font-bold text-primary-text/50 dark:text-primary-text-dark/50 uppercase tracking-widest mb-2 flex items-center before:content-[''] before:w-3 before:h-[2px] before:bg-primary-text/20 dark:before:bg-primary-text-dark/20 before:mr-2">
-                  Solution
-                </h4>
-                <p className="font-host text-sm text-primary-text/80 dark:text-primary-text-dark/80 leading-relaxed">
-                  {project.solution}
-                </p>
-              </div>
-              <div>
-                <h4 className="font-josefin text-xs font-bold text-primary-text/50 dark:text-primary-text-dark/50 uppercase tracking-widest mb-2 flex items-center before:content-[''] before:w-3 before:h-[2px] before:bg-primary-text/20 dark:before:bg-primary-text-dark/20 before:mr-2">
-                  Impact
-                </h4>
-                <p className="font-host text-sm font-bold text-primary-text/90 dark:text-primary-text-dark/90 leading-relaxed">
-                  {project.impact}
-                </p>
-              </div>
-            </div>
+      <p className="mt-5 font-host text-base lg:text-lg leading-relaxed text-primary-text/70 dark:text-primary-text-dark/70">
+        {project.summary}
+      </p>
 
-            {/* Preview Frame Column */}
-            <div className="relative h-full min-h-[200px] w-full rounded-2xl bg-gradient-to-br from-primary-text/[0.03] to-transparent dark:from-primary-text-dark/[0.03] border border-primary-text/10 dark:border-primary-text-dark/10 flex items-center justify-center p-6 lg:p-10 group-hover:border-accent/30 transition-colors duration-500 overflow-hidden shadow-inner">
-              
-              {/* Conditional Previews based on type */}
-              {project.previewType === 'mobile' && (
-                <div className="w-[140px] h-[280px] rounded-[24px] border-[6px] border-primary-text/10 dark:border-primary-text-dark/20 bg-white dark:bg-[#0A0A0B] shadow-2xl relative overflow-hidden flex flex-col group-hover:scale-105 transition-transform duration-700 ease-out">
-                  <div className="absolute top-0 w-full h-4 bg-primary-text/5 dark:bg-primary-text-dark/10 flex justify-center"><div className="w-12 h-1 bg-primary-text/20 dark:bg-primary-text-dark/30 rounded-b-lg"></div></div>
-                  <div className="mt-8 px-3 space-y-3">
-                    <div className="w-full h-24 bg-primary-text/5 dark:bg-primary-text-dark/10 rounded-lg"></div>
-                    <div className="w-3/4 h-2 bg-primary-text/10 dark:bg-primary-text-dark/20 rounded"></div>
-                    <div className="w-1/2 h-2 bg-primary-text/10 dark:bg-primary-text-dark/20 rounded"></div>
-                  </div>
-                </div>
-              )}
-
-              {project.previewType === 'chat' && (
-                <div className="w-full max-w-sm h-64 rounded-xl border border-primary-text/10 dark:border-primary-text-dark/20 bg-white dark:bg-[#0A0A0B] shadow-2xl flex flex-col overflow-hidden group-hover:scale-105 transition-transform duration-700 ease-out">
-                  <div className="h-12 border-b border-primary-text/5 dark:border-primary-text-dark/10 flex items-center px-4 bg-primary-text/[0.02] dark:bg-primary-text-dark/[0.02]">
-                    <div className="w-8 h-8 rounded-full bg-accent/20"></div>
-                    <div className="ml-3 w-24 h-2 bg-primary-text/20 dark:bg-primary-text-dark/30 rounded"></div>
-                  </div>
-                  <div className="flex-1 p-4 space-y-4">
-                    <div className="flex gap-3">
-                      <div className="w-8 h-8 rounded-full bg-primary-text/10 dark:bg-primary-text-dark/20 shrink-0"></div>
-                      <div className="w-3/4 h-16 bg-primary-text/5 dark:bg-primary-text-dark/10 rounded-r-xl rounded-bl-xl"></div>
-                    </div>
-                    <div className="flex gap-3 flex-row-reverse">
-                      <div className="w-2/3 h-12 bg-accent/10 rounded-l-xl rounded-br-xl"></div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {(project.previewType === 'browser' || !project.previewType) && (
-                <div className="w-full max-w-sm h-56 rounded-xl border border-primary-text/10 dark:border-primary-text-dark/20 bg-white dark:bg-[#0A0A0B] shadow-2xl flex flex-col overflow-hidden group-hover:scale-105 transition-transform duration-700 ease-out">
-                  <div className="h-8 border-b border-primary-text/5 dark:border-primary-text-dark/10 flex items-center px-3 gap-1.5 bg-primary-text/[0.02] dark:bg-primary-text-dark/[0.02]">
-                    <div className="w-2.5 h-2.5 rounded-full bg-red-400/80"></div>
-                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-400/80"></div>
-                    <div className="w-2.5 h-2.5 rounded-full bg-green-400/80"></div>
-                  </div>
-                  <div className="flex-1 p-5 space-y-4">
-                    <div className="w-full h-20 bg-primary-text/5 dark:bg-primary-text-dark/10 rounded-lg"></div>
-                    <div className="flex gap-3">
-                      <div className="w-1/3 h-12 bg-primary-text/5 dark:bg-primary-text-dark/10 rounded-lg"></div>
-                      <div className="w-1/3 h-12 bg-primary-text/5 dark:bg-primary-text-dark/10 rounded-lg"></div>
-                      <div className="w-1/3 h-12 bg-primary-text/5 dark:bg-primary-text-dark/10 rounded-lg"></div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-            </div>
-          </div>
-
-          <div className="mt-8 pt-6 border-t border-primary-text/5 dark:border-primary-text-dark/10 flex flex-col md:flex-row md:items-center justify-between gap-6 pointer-events-auto">
-            {/* Technology Badges */}
-            <div className="flex flex-wrap gap-2">
-              <span className="font-josefin text-[10px] font-bold tracking-widest uppercase text-primary-text/40 dark:text-primary-text-dark/40 mr-2 flex items-center">Tech Stack</span>
-              {(project.tech || []).map((tItem, i) => (
-                <span
-                  key={i}
-                  className="font-josefin text-[10px] font-bold tracking-widest uppercase px-3 py-1 bg-primary-text/[0.03] dark:bg-primary-text-dark/[0.05] rounded-md border border-primary-text/10 dark:border-primary-text-dark/10 text-primary-text/70 dark:text-primary-text-dark/70"
-                >
-                  {tItem}
-                </span>
-              ))}
-            </div>
-            
-            <div className="font-host text-xs font-bold uppercase tracking-widest text-accent flex items-center gap-2 group-hover:translate-x-2 transition-transform duration-300 cursor-pointer">
-              View Details <ExternalLink size={14} />
-            </div>
-          </div>
+      <div className="mt-8 overflow-hidden border border-primary-text/10 dark:border-primary-text-dark/10">
+        <div className="transition-colors duration-500 group-hover:border-accent/40">
+          <ProjectVisual previewType={project.previewType} />
         </div>
-      </BentoCard>
-    </motion.div>
+      </div>
+
+      <div className="mt-auto pt-8">
+        {/* Technology — plain text, not pills */}
+        <p className="font-josefin text-[10px] font-bold tracking-[0.2em] uppercase text-primary-text/45 dark:text-primary-text-dark/45">
+          {(project.tech || []).join(' · ')}
+        </p>
+
+        <button
+          type="button"
+          onClick={onOpen}
+          aria-label={`View project: ${project.title}`}
+          className="mt-5 inline-flex items-center gap-2 font-josefin text-[11px] font-bold tracking-[0.25em] uppercase text-accent group/link cursor-pointer hover:opacity-75 transition-opacity duration-300"
+        >
+          View Project
+          <ArrowUpRight
+            size={14}
+            className="transition-transform duration-300 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5"
+          />
+        </button>
+      </div>
+    </article>
   );
 }
 
 export default function Projects() {
-  const [selectedProject, setSelectedProject] = useState(null);
   const { t } = useLanguage();
   const projects = t('projects.items') || [];
-  const closeButtonRef = useRef(null);
-  const previousFocusRef = useRef(null);
-
-  const closeDrawer = useCallback(() => setSelectedProject(null), []);
-
-  // Open: save previously focused element and focus close button
-  useEffect(() => {
-    if (selectedProject) {
-      previousFocusRef.current = document.activeElement;
-      requestAnimationFrame(() => {
-        if (closeButtonRef.current) closeButtonRef.current.focus();
-      });
-    } else {
-      // Restore focus when closed
-      const prev = previousFocusRef.current;
-      if (prev && typeof prev.focus === 'function') {
-        requestAnimationFrame(() => prev.focus());
-      }
-    }
-  }, [selectedProject]);
-
-  // Escape closes the drawer
-  useEffect(() => {
-    if (!selectedProject) return;
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') closeDrawer();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedProject, closeDrawer]);
 
   return (
     <section
@@ -314,142 +118,52 @@ export default function Projects() {
 
       <SectionHeader title={t('projects.title')} number="03" />
 
-      {/* Ledger row — the previous chapter's typography resolves into the
-          project's own numbering before the grid itself arrives. */}
-      <div className="relative z-10 mb-10 flex items-center gap-4 sm:gap-6">
-        {projects.map((project, i) => (
-          <div key={project.title} className="flex items-center gap-4 sm:gap-6">
-            <span className="font-josefin text-[10px] font-bold tracking-[0.25em] text-accent uppercase">
-              {String(i + 1).padStart(2, '0')}
-            </span>
-            <span className="font-josefin text-[10px] font-bold tracking-[0.2em] text-primary-text/40 dark:text-primary-text-dark/40 uppercase truncate">
-              {project.title}
-            </span>
-            {i < projects.length - 1 && (
-              <span className="hidden sm:block w-8 h-px bg-primary-text/15 dark:bg-primary-text-dark/15" />
-            )}
-          </div>
-        ))}
+      {/* ── The ledger ───────────────────────────────────────────────────
+          Projects and Engineering are read as one continuous ledger, so this
+          row carries the coordinate line forward: the chapter number sits in
+          a fixed gutter and the rule between the two chapters is drawn once,
+          here, rather than each section closing itself off. */}
+      <div className="relative z-10 mb-16 flex items-baseline gap-5 sm:gap-8">
+        <span className="font-josefin text-[11px] font-bold tracking-[0.3em] text-accent uppercase tabular-nums">
+          01 — 04
+        </span>
+        <span className="hidden sm:block flex-1 h-px bg-primary-text/15 dark:bg-primary-text-dark/15" />
+        <span className="font-josefin text-[10px] font-bold tracking-[0.25em] text-primary-text/40 dark:text-primary-text-dark/40 uppercase">
+          {projects.length} works
+        </span>
       </div>
 
-      {/* 3D Bento Projects Grid */}
-      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-32" style={{ perspective: '1200px' }}>
+      {/* Two columns at desktop, one on mobile. */}
+      {/* Two columns from `lg` (1024px) up. Between 640 and 1024 the card
+          is already ~600px wide, so splitting there would put two
+          constrained previews side by side — one full-width column reads
+          better at tablet. */}
+      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-x-16 lg:gap-x-20 gap-y-20 lg:gap-y-28 mb-24">
         {projects.map((project, index) => (
-          <GridReveal key={project.title} index={index} total={projects.length}>
+          <GridReveal key={project.slug || project.title} index={index} total={projects.length}>
             <ProjectCard
               project={project}
               index={index}
-              onClick={() => setSelectedProject(project)}
+              onOpen={() => navigate(`/projects/${project.slug}`)}
             />
           </GridReveal>
         ))}
       </div>
 
-      {/* Living Builder Console (Replaces generic terminal) */}
-      <div className="mt-32">
-        <BuilderConsole />
+      {/* ── Connector to the next chapter ──────────────────────────────────
+          A single rule and the next chapter's number. Enough to say the
+          ledger continues; not enough to become its own animation. */}
+      <div aria-hidden="true" className="relative z-10 flex items-center gap-6 mb-32">
+        <span className="font-josefin text-[10px] font-bold tracking-[0.3em] text-primary-text/30 dark:text-primary-text-dark/30 uppercase tabular-nums">
+          04
+        </span>
+        <span className="flex-1 h-px bg-gradient-to-r from-primary-text/25 dark:from-primary-text-dark/25 to-transparent" />
       </div>
 
-      {/* Cabinet Drawer Side-Drawer Modal */}
-      <AnimatePresence>
-        {selectedProject && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.4 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedProject(null)}
-              className="fixed inset-0 z-[240] bg-black cursor-pointer"
-            />
-
-            <motion.div
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 30, stiffness: 220 }}
-              role="dialog"
-              aria-modal="true"
-              aria-label={`Project details: ${selectedProject.title}`}
-              className="glass3d fixed top-0 right-0 h-full w-full max-w-xl bg-white dark:bg-card-bg-dark border-l-2 border-primary-text dark:border-primary-text-dark z-[250] shadow-2xl p-8 sm:p-12 overflow-y-auto text-primary-text dark:text-primary-text-dark"
-            >
-              <div className="flex justify-between items-center border-b border-primary-text/10 dark:border-primary-text-dark/10 pb-6 mb-8">
-                <div>
-                  <span className="font-josefin text-[10px] font-bold text-accent tracking-[0.2em] uppercase">
-                    Ledger Sheet Detail // Shipped Project
-                  </span>
-                  <h3 className="text-3xl font-bold font-editorial tracking-tight mt-1">{selectedProject.title}</h3>
-                </div>
-                <button
-                  ref={closeButtonRef}
-                  onClick={closeDrawer}
-                  aria-label="Close project details"
-                  className="p-2 border border-primary-text dark:border-primary-text-dark rounded-lg bg-white dark:bg-card-bg-dark shadow-hard-interactive-light dark:shadow-hard-interactive-dark transition-all cursor-pointer"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-
-              <div className="mb-8 border-b border-primary-text/5 dark:border-primary-text-dark/5 pb-6">
-                <p className="text-xs font-josefin font-bold tracking-widest uppercase text-accent mb-2">Problem Statement</p>
-                <p className="text-base text-primary-text/90 dark:text-primary-text-dark/90 leading-relaxed font-host">
-                  {selectedProject.problem}
-                </p>
-              </div>
-
-              <div className="mb-8 border-b border-primary-text/5 dark:border-primary-text-dark/5 pb-6">
-                <p className="text-xs font-josefin font-bold tracking-widest uppercase text-primary-text/50 dark:text-primary-text-dark/50 mb-2">Solution Implementation</p>
-                <p className="text-base text-primary-text/90 dark:text-primary-text-dark/90 leading-relaxed font-host">
-                  {selectedProject.solution}
-                </p>
-              </div>
-
-              <div className="mb-8 border-b border-primary-text/5 dark:border-primary-text-dark/5 pb-6">
-                <p className="text-xs font-josefin font-bold tracking-widest uppercase text-primary-text/50 dark:text-primary-text-dark/50 mb-2">Quantified Impact</p>
-                <p className="text-base text-primary-text/80 dark:text-primary-text-dark/80 leading-relaxed font-host">
-                  {selectedProject.impact}
-                </p>
-              </div>
-
-              {selectedProject.engineering && (
-                <div className="mb-8 p-6 recess-inset-light dark:recess-inset-dark border border-primary-text/10 dark:border-primary-text-dark/10 rounded-xl">
-                  <p className="text-xs font-josefin font-bold tracking-widest uppercase text-accent mb-3">Engineering Highlights</p>
-                  <p className="text-sm text-primary-text/80 dark:text-primary-text-dark/80 leading-relaxed font-host">
-                    {selectedProject.engineering}
-                  </p>
-                </div>
-              )}
-
-              <div className="mb-8">
-                <p className="text-xs font-josefin font-bold tracking-widest uppercase text-primary-text/40 dark:text-primary-text-dark/40 mb-3">Built With</p>
-                <div className="flex flex-wrap gap-2">
-                  {(selectedProject.tech || []).map((tItem, i) => (
-                    <span 
-                      key={i} 
-                      className="font-josefin text-[10px] font-bold uppercase px-3 py-1 bg-accent/10 border border-accent/20 text-accent rounded-md"
-                    >
-                      {tItem}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {selectedProject.link && (
-                <div className="mb-8 pt-4">
-                  <a 
-                    href={selectedProject.link} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="inline-flex items-center space-x-3 bg-accent text-white dark:text-[#1C1C1D] border border-primary-text dark:border-primary-text-dark px-6 py-3 rounded-lg font-bold font-host tracking-widest uppercase text-xs shadow-hard-interactive-light dark:shadow-hard-interactive-dark hover:translate-y-0.5 active:translate-y-1 transition-all"
-                  >
-                    <span>Visit Live Project</span>
-                    <ExternalLink size={14} />
-                  </a>
-                </div>
-              )}
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      {/* Living Builder Console */}
+      <div className="mt-8">
+        <BuilderConsole />
+      </div>
     </section>
   );
 }

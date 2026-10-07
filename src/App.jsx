@@ -23,8 +23,16 @@ import {
 import ChapterReadout from './components/scroll/ChapterReadout';
 
 const SceneManager = lazy(() => import('./components/3d/SceneManager'));
+const ProjectDetail = lazy(() =>
+  import('./components/ProjectDetail').then((m) => ({ default: m.default }))
+);
+const ProjectNotFound = lazy(() =>
+  import('./components/ProjectDetail').then((m) => ({ default: m.ProjectNotFound }))
+);
 
 import { LanguageProvider } from './context/LanguageContext';
+import { useRoute, useHashLinkBridge, projectSlugFrom } from './router';
+import { useLanguage } from './context/LanguageContext';
 
 /**
  * Chapter entry.
@@ -53,6 +61,14 @@ function Chapter({ id, children }) {
 }
 
 function AppContent() {
+  const { pathname } = useRoute();
+  useHashLinkBridge();
+
+  const { t } = useLanguage();
+  const projects = t('projects.items') || [];
+  const slug = projectSlugFrom(pathname);
+  const project = slug ? projects.find((p) => p.slug === slug) : null;
+
   const [isDarkMode, setIsDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('theme');
@@ -134,30 +150,48 @@ function AppContent() {
 
       <Navbar isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
 
-      <main id="main-content" style={{ position: 'relative', zIndex: 10 }} className="flex-grow pt-20 w-full overflow-x-clip">
-        <Hero isDarkMode={isDarkMode} />
-        <Chapter id="about">
+      {slug ? (
+        /* A project page replaces the narrative rather than layering over it —
+           one background, one scroll position, one document. */
+        <main
+          id="main-content"
+          style={{ position: 'relative', zIndex: 10 }}
+          className="flex-grow pt-20 w-full overflow-x-clip"
+        >
           <Suspense fallback={<div />}>
-            <About />
+            {project ? <ProjectDetail project={project} /> : <ProjectNotFound />}
           </Suspense>
-        </Chapter>
-        <Chapter id="projects">
-          <Suspense fallback={<div />}>
-            <Projects />
-          </Suspense>
-        </Chapter>
-        <Chapter id="engineering">
-          <Suspense fallback={<div />}>
-            <BuilderDashboard />
-          </Suspense>
-        </Chapter>
-        <Chapter id="contact">
-          <Suspense fallback={<div />}>
-            <Contact />
-          </Suspense>
-        </Chapter>
-        <FinalStatement />
-      </main>
+        </main>
+      ) : (
+        <main
+          id="main-content"
+          style={{ position: 'relative', zIndex: 10 }}
+          className="flex-grow pt-20 w-full overflow-x-clip"
+        >
+          <Hero isDarkMode={isDarkMode} />
+          <Chapter id="about">
+            <Suspense fallback={<div />}>
+              <About />
+            </Suspense>
+          </Chapter>
+          <Chapter id="projects">
+            <Suspense fallback={<div />}>
+              <Projects />
+            </Suspense>
+          </Chapter>
+          <Chapter id="engineering">
+            <Suspense fallback={<div />}>
+              <BuilderDashboard />
+            </Suspense>
+          </Chapter>
+          <Chapter id="contact">
+            <Suspense fallback={<div />}>
+              <Contact />
+            </Suspense>
+          </Chapter>
+          <FinalStatement />
+        </main>
+      )}
     </div>
   );
 }
