@@ -176,7 +176,12 @@ export function useGlobalProgress() {
   return useScrollStage().scrollYProgress;
 }
 
-function useMediaQuery(query) {
+/**
+ * Any media query as a boolean. Exported so layout-critical components can
+ * branch on the same breakpoints their own markup uses, instead of each
+ * component inventing a second subscription.
+ */
+export function useMediaQuery(query) {
   const [matches, setMatches] = useState(() => {
     if (typeof window === 'undefined' || !window.matchMedia) return false;
     return window.matchMedia(query).matches;

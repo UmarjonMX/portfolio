@@ -180,8 +180,8 @@ export default {
     finale: {
       chapter: 'Contact',
       echo: 'Umar builds',
-      line1: 'Useful',
-      line2: 'Software.',
+      line1: 'My',
+      line2: 'Workbench.',
       kicker: 'Product-first engineering. Built to solve a real problem, not to admire a technology.'
     }
   },
@@ -366,8 +366,12 @@ export default {
     finale: {
       chapter: 'Aloqa',
       echo: 'Umar quradi',
-      line1: 'Foydali',
-      line2: 'Dasturiy taqminot.',
+      // Deliberately not a literal translation of "workbench" (which would be
+      // "ish stoli"). "Raqamli ustaxona" is the digital workshop — the place
+      // where things get built and experimented with — which is the sense the
+      // section is meant to carry.
+      line1: 'Mening raqamli',
+      line2: 'Ustaxonam.',
       kicker: "Mahsulotga yo'naltirilgan muhandislik. Texnologiyani ko'rsatish uchun emas, haqiqiy muammoni hal qilish uchun qurilgan."
     }
   }

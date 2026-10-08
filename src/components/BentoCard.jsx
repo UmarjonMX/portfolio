@@ -1,5 +1,16 @@
 import { useState, useRef, memo } from 'react';
 
+/**
+ * A card cell.
+ *
+ * Both the cell and its surface are `h-full`, so a row of cards shares one
+ * height: the grid stretches the cells, and the surface fills the cell instead
+ * of stopping at its own content. Without the second `h-full` the cell would
+ * stretch while the surface inside it stayed content-height, which is exactly
+ * the uneven row this component is used to avoid.
+ *
+ * Cells stack naturally on a single-column grid, where there is no row to match.
+ */
 const BentoCard = memo(function BentoCard({ children, className = '', containerClassName = '' }) {
   const divRef = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -30,7 +41,7 @@ const BentoCard = memo(function BentoCard({ children, className = '', containerC
   };
 
   return (
-    <div className={`w-full ${containerClassName}`}>
+    <div className={`h-full w-full ${containerClassName}`}>
       <div
         ref={divRef}
         onMouseMove={handleMouseMove}
@@ -49,7 +60,7 @@ const BentoCard = memo(function BentoCard({ children, className = '', containerC
             : `${shadowOffset.x.toFixed(1)}px ${shadowOffset.y.toFixed(1)}px var(--shadow-blur, 0px) var(--shadow-spread, 0px) var(--shadow-color)`,
           transition: isPressed ? 'none' : 'transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s cubic-bezier(0.16, 1, 0.3, 1)',
         }}
-        className={`glass3d relative overflow-hidden group rounded-2xl bg-white/70 dark:bg-card-bg-dark backdrop-blur-2xl border border-white/60 dark:border-primary-text-dark [--shadow-color:rgba(224,122,95,0.06)] [--shadow-blur:24px] [--shadow-spread:-4px] dark:[--shadow-color:rgba(250,250,250,0.95)] dark:[--shadow-blur:0px] dark:[--shadow-spread:0px] text-primary-text dark:text-primary-text-dark shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-none ${className}`}
+        className={`glass3d relative h-full overflow-hidden group rounded-2xl bg-white/70 dark:bg-card-bg-dark backdrop-blur-2xl border border-white/60 dark:border-primary-text-dark [--shadow-color:rgba(224,122,95,0.06)] [--shadow-blur:24px] [--shadow-spread:-4px] dark:[--shadow-color:rgba(250,250,250,0.95)] dark:[--shadow-blur:0px] dark:[--shadow-spread:0px] text-primary-text dark:text-primary-text-dark shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] dark:shadow-none ${className}`}
       >
         {/* Content Wrapper */}
         <div className="relative z-10 h-full w-full">

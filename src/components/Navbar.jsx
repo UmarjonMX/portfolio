@@ -1,23 +1,122 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { useMotionValueEvent } from 'framer-motion';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import {
+  animate,
+  useMotionValue,
+  useMotionValueEvent,
+  useTransform,
+  motion as Motion,
+} from 'framer-motion';
 import { Moon, Sun, Globe } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
-import { useScrollStage, usePrefersReducedMotion } from './scroll/ScrollStage';
+import {
+  seg,
+  useChapterProgress,
+  useMediaQuery,
+  usePrefersReducedMotion,
+  useScrollStage,
+} from './scroll/ScrollStage';
 
 /**
- * Floating navigation.
+ * Floating navigation — one object that reorganises itself.
  *
- * Three zones — logo, one shared link pill, controls — inside a single
- * surface that is inset from the viewport edge on the same measure as the
- * page's own content grid (max-w-[90rem], px-6 / sm:px-10 / lg:px-16), so the
- * navbar lines up with the Hero below it rather than floating arbitrarily.
+ * There is only one set of nodes here and there are always the same three of
+ * them. At the top of the Hero they sit flush against one another and share a
+ * single surface, so they read as one bar: logo left, links centre, controls
+ * right. Scrolling does not swap a bar for a cluster — it opens the gaps
+ * between those same three elements and lets each one take on its own outline,
+ * radius and shadow, so the bar separates into three coordinated objects:
  *
- * Separation from the moving ambient field comes from surface, a thin border
- * and a short shadow — not from a large blur sheet. This element deliberately
- * opts out of `.glass3d`: at full width that treatment stacks a 48px backdrop
- * blur with the class's own 8px one and reads as a glass slab rather than a
- * piece of hardware.
+ *     [ LOGO ]      [ HOME ABOUT PROJECTS RESUME CONTACT ]      [ UZ ☼ ☰ ]
+ *
+ * Every continuous property is derived from the one scroll MotionValue
+ * ScrollStage already maintains, through MotionValue transforms. There is no
+ * scroll listener in this file, no per-frame React render and no second scroll
+ * system: the whole morph is arithmetic on that single value.
+ *
+ * The unified state is not a separate surface that fades out. It is the sum of
+ * the three capsules — at rest they are welded into one another, so their
+ * identical backgrounds, square inner corners and coincident borders read as a
+ * single rounded bar. Verified by walking a scanline across it: at the top of
+ * the Hero it is one uninterrupted run of surface; past the Hero, three.
+ *
+ * `.glass3d` is deliberately not used here. Its `position: relative; z-index: 4`
+ * and `.glass3d > * { position: relative; z-index: 6 }` are unlayered rules
+ * that would rewrite the positioning of these capsules, and at this size the
+ * material reads better as a hard surface than as glass. Glass3D itself is
+ * unchanged.
  */
+
+/* ── Geometry ─────────────────────────────────────────────────────────────
+   Both states are declared here once, so the unified bar and the separated
+   capsules cannot drift apart. */
+const NAV_QUERY = '(min-width: 768px)';
+
+/** The page's own content inset, so the capsules land on the same measure as
+ *  everything below them (px-6 / sm:px-10 / lg:px-16). */
+const insetFor = (w) => (w < 640 ? 24 : w < 1024 ? 40 : 64);
+
+const WELD = 1; // how far each piece overlaps its neighbour while welded shut.
+                 // The unified bar has no clear gap at all — the three surfaces
+                 // are one surface, and the thin outline that runs across the
+                 // whole bar is simply the sum of their shared edges.
+const PAD_X_REST = 10; // capsule padding, unified → separated
+const PAD_X_SPLIT = 13;
+const BAR_H_REST = 48; // bar height, unified → separated
+const BAR_H_SPLIT = 44;
+const RAIL_TOP_REST = 20; // distance from the viewport edge, unified → separated
+const RAIL_TOP_SPLIT = 14;
+const RADIUS_BAR = 16; // outer corner radius of the unified bar
+const RADIUS_CAPSULE = 22; // radius once each piece is its own object
+const LINKS_INSET = 12; // slack the centre tile keeps around the five links
+const MENU_W = 36; // hamburger
+const MENU_GAP = 6;
+const PANEL_W = 360; // widest the disclosure may become
+const PANEL_W_REST = 460;
+
+/* Windows into the morph. Geometry leads — the pieces move first — and the
+   material follows, so each piece arrives somewhere before it becomes an
+   object. Both are read against the Hero's own pinned runway. */
+const TRAVEL_WINDOW = [0.06, 0.6];
+const MATERIAL_WINDOW = [0.2, 0.68];
+
+/** Smoothstep: no overshoot, no bounce — the pieces settle, they do not snap. */
+const smooth = (v) => v * v * (3 - 2 * v);
+
+/**
+ * Width of a piece's content, as a MotionValue.
+ *
+ * The capsules are sized from their own contents rather than from constants,
+ * because those contents are not fixed: the logo is an image, the links change
+ * language, and both tighten at narrower widths. Sub-pixel churn is ignored so
+ * a font swap cannot ripple through the geometry chain.
+ */
+function useContentWidth(ref, mv) {
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    let live = true;
+    const read = () => {
+      if (!live || !el.isConnected) return;
+      const next = Math.round(el.offsetWidth);
+      if (Math.abs(mv.get() - next) > 0.5) mv.set(next);
+    };
+    read();
+    let ro;
+    if (typeof ResizeObserver !== 'undefined') {
+      ro = new ResizeObserver(read);
+      ro.observe(el);
+    }
+    // The display faces load after first paint; measure again once they are in.
+    if (typeof document !== 'undefined' && document.fonts?.ready) {
+      document.fonts.ready.then(read, () => {});
+    }
+    return () => {
+      live = false;
+      if (ro) ro.disconnect();
+    };
+  }, [mv, ref]);
+}
+
 export default function Navbar({ toggleTheme, isDarkMode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeId, setActiveId] = useState('hero');
@@ -25,17 +124,34 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
   const { scrollY, bounds } = useScrollStage();
   const reduced = usePrefersReducedMotion();
 
-  const toggleRef = useRef(null);
-  const panelRef = useRef(null);
-  const firstLinkRef = useRef(null);
+  /* Below 768px there is no room for a centre capsule at all, so the same
+     spatial idea is reduced to two pieces and the five links live in the
+     disclosure. This mirrors the `md:` classes on the markup exactly. */
+  const isSplit = useMediaQuery(NAV_QUERY);
 
-  const navLinks = [
-    { id: 'hero', title: t('nav.home'), href: '#' },
-    { id: 'about', title: t('nav.about'), href: '#about' },
-    { id: 'projects', title: t('nav.projects'), href: '#projects' },
-    { id: 'engineering', title: t('nav.resume'), href: '#resume' },
-    { id: 'contact', title: t('nav.contact'), href: '#contact' },
-  ];
+  const menuRef = useRef(null);
+  const toggleRef = useRef(null);
+  const firstLinkRef = useRef(null);
+  const linksRef = useRef(null);
+  const logoRef = useRef(null);
+  const controlsRef = useRef(null);
+  const linkRefs = useRef([]);
+
+  /* Memoised so the label list is stable between renders: it is both a render
+     input and an effect dependency, and a fresh array each render would restart
+     the measurement work below every frame. `t` is a new function identity on
+     every render and reads nothing but `lang`, so `lang` is the real input. */
+  const navLinks = useMemo(
+    () => [
+      { id: 'hero', title: t('nav.home'), href: '#' },
+      { id: 'about', title: t('nav.about'), href: '#about' },
+      { id: 'projects', title: t('nav.projects'), href: '#projects' },
+      { id: 'engineering', title: t('nav.resume'), href: '#resume' },
+      { id: 'contact', title: t('nav.contact'), href: '#contact' },
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [lang]
+  );
 
   /**
    * Active section, read from the offsets ScrollStage already measured —
@@ -51,11 +167,216 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
     setActiveId((prev) => (prev === next ? prev : next));
   });
 
-  const closeMenu = useCallback(() => setIsOpen(false), []);
+  /* ── Morph driver ──────────────────────────────────────────────────────
+     One progress value for the whole navbar, read from the Hero's own pinned
+     runway so the separation happens while the hero is still leaving. A page
+     without a hero has no runway to read, so it falls back to a short fixed
+     lead-in; nothing else about the morph changes. */
+  const heroProgress = useChapterProgress('hero', 'pin');
+  const leadIn = useTransform(scrollY, [0, 320], [0, 1], { clamp: true });
+  const source = bounds.hero ? heroProgress : leadIn;
 
-  // Escape closes the mobile menu and returns focus to its trigger.
+  /* Reduced motion quantises the morph to its two resting states instead of
+     travelling between them: the same object, the same content, no large
+     spatial animation. */
+  const morph = useTransform(source, (v) => (reduced ? (v > 0.5 ? 1 : 0) : v));
+  const travel = useTransform(morph, (v) =>
+    smooth(seg(v, TRAVEL_WINDOW[0], TRAVEL_WINDOW[1]))
+  );
+  const material = useTransform(morph, (v) =>
+    smooth(seg(v, MATERIAL_WINDOW[0], MATERIAL_WINDOW[1]))
+  );
+
+  /* ── Viewport ───────────────────────────────────────────────────────────
+     A MotionValue rather than state: it feeds the geometry chain and never
+     re-renders the tree. */
+  const vw = useMotionValue(typeof window === 'undefined' ? 1280 : window.innerWidth);
   useEffect(() => {
-    if (!isOpen) return;
+    const onResize = () => vw.set(window.innerWidth);
+    window.addEventListener('resize', onResize);
+    window.addEventListener('orientationchange', onResize);
+    return () => {
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('orientationchange', onResize);
+    };
+  }, [vw]);
+
+  /* ── Measured content ───────────────────────────────────────────────────
+     Three widths: the logo row, the five links, and the always-present
+     language/theme controls. */
+  const logoW = useMotionValue(0);
+  const linksW = useMotionValue(0);
+  const controlsW = useMotionValue(0);
+  useContentWidth(logoRef, logoW);
+  useContentWidth(linksRef, linksW);
+  useContentWidth(controlsRef, controlsW);
+
+  /* ── Geometry ─────────────────────────────────────────────────────────
+     The two layouts are computed independently and then blended by a single
+     factor, so the resting composition is always exactly centred and the
+     separated composition is always exactly on the content measure. */
+
+  const padX = useTransform(travel, (v) => PAD_X_REST + (PAD_X_SPLIT - PAD_X_REST) * v);
+  const barH = useTransform(travel, (v) => BAR_H_REST + (BAR_H_SPLIT - BAR_H_REST) * v);
+  const railTop = useTransform(travel, (v) => RAIL_TOP_REST + (RAIL_TOP_SPLIT - RAIL_TOP_REST) * v);
+  const inset = useTransform(vw, (w) => insetFor(w));
+
+  /* The hamburger belongs to the right capsule only once the pieces have
+     separated — while they are one bar, its five links are already on screen. */
+  const menuW = useTransform(material, (v) => (isSplit ? MENU_W * v : MENU_W));
+  const menuGap = useTransform(material, (v) => (isSplit ? MENU_GAP * v : MENU_GAP));
+
+  /* Widths. The centre tile is the five links plus its own border plus the
+     slack that turns them from an inner pill into a capsule. */
+  const wLeft = useTransform(
+    [travel, logoW],
+    ([e, l]) => l + 2 * (PAD_X_REST + (PAD_X_SPLIT - PAD_X_REST) * e) + 2
+  );
+  const wLinks = useTransform(linksW, (c) => (c > 20 ? c + LINKS_INSET : 0));
+  const wRight = useTransform(
+    [material, travel, controlsW],
+    ([m, e, c]) =>
+      c + MENU_GAP * m + MENU_W * m + 2 * (PAD_X_REST + (PAD_X_SPLIT - PAD_X_REST) * e) + 2
+  );
+
+  /* Unified geometry — the same three pieces, welded into one surface and
+     centred as a single bar. There is no gap between them here: the pieces
+     overlap by WELD so their borders coincide and read as a single outline,
+     and the 1px outline across the top and bottom of the bar is the sum of
+     three shared edges rather than three separate ones. */
+  const restSpan = useTransform(
+    [wLeft, wLinks, wRight],
+    ([l, c, r]) => l + c + r - (c > 20 ? 2 * WELD : WELD)
+  );
+  const restLeft = useTransform([vw, restSpan], ([v, s]) => (v - s) / 2);
+  const restLinks = useTransform(
+    [restLeft, wLeft, wLinks],
+    ([x, l, c]) => x + l - (c > 20 ? WELD : 0)
+  );
+  const restRight = useTransform([restLinks, wLinks], ([x, c]) => x + c - (c > 20 ? WELD : 0));
+
+  /* Separated geometry — left capsule on the page inset, centre capsule on the
+     viewport's centre line, right capsule on the right inset. */
+  const splitLinks = useTransform([vw, wLinks], ([v, c]) => (c > 20 ? (v - c) / 2 : -600));
+  const splitRight = useTransform([vw, inset, wRight], ([v, p, r]) => v - p - r);
+
+  /* One blend factor for all three, so the pieces move as one system. */
+  const xLeft = useTransform([restLeft, inset, travel], ([a, b, e]) => a + (b - a) * e);
+  const xLinks = useTransform([restLinks, splitLinks, travel], ([a, b, e]) => a + (b - a) * e);
+  const xRight = useTransform([restRight, splitRight, travel], ([a, b, e]) => a + (b - a) * e);
+
+  /* ── Material ──────────────────────────────────────────────────────────
+     Corners stay square on the faces that are still welded to a neighbour and
+     only round as the gap in front of them opens. */
+  const outerRadius = useTransform(
+    travel,
+    (v) => RADIUS_BAR + (RADIUS_CAPSULE - RADIUS_BAR) * v
+  );
+  const innerRadius = useTransform(travel, (v) => RADIUS_CAPSULE * smooth(seg(v, 0.45, 1)));
+  const sheen = useTransform(travel, (v) => 0.25 + 0.75 * v);
+
+  const tone = isDarkMode ? '250, 250, 250' : '28, 28, 28';
+  const edgeAlpha = isDarkMode ? 0.14 : 0.12;
+  const edge = `rgba(${tone}, ${edgeAlpha})`;
+  /* Every piece carries the same 1px outline, welded or separated. That is what
+     makes the unified state read as one bar rather than three: the outline
+     across the top of the bar is the sum of three coincident edges, and the
+     vertical outlines of the inner pieces fall exactly on the seams. No colour
+     needs to animate — the pieces move, and the outline travels with them. */
+  const seam = edge;
+  /* And its mirror: the inner outline around the five links, which is what
+     marks them as part of the bar until the capsule takes over. */
+  const linkSeam = useTransform(
+    travel,
+    (v) => `rgba(${tone}, ${(edgeAlpha * 0.7 * (1 - smooth(seg(v, 0.1, 0.55)))).toFixed(3)})`
+  );
+  /* The five links spread by a couple of pixels as the capsule forms — a real
+     width change in the piece, not an effect painted over it. */
+  const linkGap = useTransform(travel, (v) => 2 + 2 * v);
+  const linkScale = useTransform(travel, (v) => 0.985 + 0.015 * v);
+  const menuOpacity = useTransform(material, (v) => smooth(seg(v, 0.25, 0.7)));
+
+  /* One surface, one border and one shadow for all three pieces, so the
+     separated composition still reads as three objects of the same kind.
+     Translucent enough to float, opaque enough that a heading passing
+     underneath does not stay readable. */
+  const surface = isDarkMode ? 'rgba(20, 20, 22, 0.94)' : 'rgba(255, 255, 255, 0.93)';
+  const panelSurface = isDarkMode ? 'rgba(20, 20, 22, 0.97)' : 'rgba(255, 255, 255, 0.98)';
+
+  const pieceClass =
+    'pointer-events-auto absolute left-0 top-0 flex items-center border backdrop-blur-md shadow-[0_1px_2px_rgba(28,28,28,0.05),0_2px_6px_-2px_rgba(28,28,28,0.10),0_14px_32px_-20px_rgba(28,28,28,0.35)] dark:shadow-[0_2px_8px_-2px_rgba(0,0,0,0.5),0_16px_38px_-22px_rgba(0,0,0,1)]';
+  const sheenClass =
+    'pointer-events-none absolute inset-0 rounded-[inherit] shadow-[inset_0_1px_0_rgba(255,255,255,0.45)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.07)]';
+
+  /* ── Disclosure ────────────────────────────────────────────────────────
+     The menu hangs from the right capsule: it starts exactly that capsule's
+     width and opens to a compact panel still flush with its right edge, so it
+     reads as the same object unfolding rather than a sheet appearing. */
+  const panelW = useTransform(
+    [wRight, travel, vw],
+    ([r, e, v]) => {
+      const max = Math.min(PANEL_W, v - 2 * insetFor(v));
+      const rest = Math.min(r, PANEL_W_REST);
+      return rest + (max - rest) * e;
+    }
+  );
+  const panelX = useTransform([xRight, wRight, panelW], ([x, r, w]) => x + r - w);
+
+  /* ── Active state ──────────────────────────────────────────────────────
+     One marker travels between the links instead of five separate marks.
+     Measured on the few events that can move a link's box, never on scroll. */
+  const chipX = useMotionValue(0);
+  const chipW = useMotionValue(0);
+  const [chipReady, setChipReady] = useState(false);
+  const chipAnimations = useRef([]);
+
+  useEffect(() => {
+    const ul = linksRef.current;
+    const index = navLinks.findIndex((l) => l.id === activeId);
+    const el = index >= 0 ? linkRefs.current[index] : null;
+    if (!ul || !el) return undefined;
+
+    const stop = () => chipAnimations.current.forEach((a) => a.stop());
+    stop();
+    chipAnimations.current = [];
+
+    if (reduced) {
+      chipX.set(el.offsetLeft);
+      chipW.set(el.offsetWidth);
+      setChipReady(true);
+      return undefined;
+    }
+    const options = { type: 'spring', stiffness: 420, damping: 38, mass: 0.7 };
+    chipAnimations.current = [
+      animate(chipX, el.offsetLeft, options),
+      animate(chipW, el.offsetWidth, options),
+    ];
+    setChipReady(true);
+    return stop;
+  }, [activeId, navLinks, reduced, chipX, chipW]);
+
+  /**
+   * `splitState` is the only boolean the morph needs and it changes once per
+   * crossing. It exists so the hamburger — which sits in the right capsule the
+   * whole time but only has width once the pieces have separated — never
+   * becomes a half-sized or invisible focus stop.
+   */
+  const [splitState, setSplitState] = useState(false);
+  useMotionValueEvent(morph, 'change', (v) => {
+    const next = v > 0.5;
+    setSplitState((prev) => (prev === next ? prev : next));
+  });
+  useEffect(() => {
+    setSplitState(morph.get() > 0.5);
+  }, [morph]);
+  const menuReachable = !isSplit || splitState;
+
+  const closeMenu = useCallback(() => setIsOpen(false), []);
+  const openMenu = useCallback(() => setIsOpen(true), []);
+
+  // Escape closes the menu and returns focus to its trigger.
+  useEffect(() => {
+    if (!isOpen) return undefined;
     const onKeyDown = (e) => {
       if (e.key === 'Escape') {
         closeMenu();
@@ -74,9 +395,9 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
 
   // Click anywhere outside dismisses the menu.
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) return undefined;
     const onPointerDown = (e) => {
-      if (panelRef.current?.contains(e.target)) return;
+      if (menuRef.current?.contains(e.target)) return;
       if (toggleRef.current?.contains(e.target)) return;
       closeMenu();
     };
@@ -84,161 +405,263 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
     return () => document.removeEventListener('pointerdown', onPointerDown);
   }, [isOpen, closeMenu]);
 
-  const openMenu = () => setIsOpen(true);
-
-  const duration = reduced ? 0 : 200;
-
   return (
-    <header className="fixed inset-x-0 top-0 z-50 pointer-events-none">
-      {/* Centred and capped well inside the viewport so the bar reads as a
-          discrete object on the page rather than a strip attached to the top
-          edge. The measure matches the Hero's own content column. */}
-      <div className="mx-auto w-full max-w-5xl px-6 pt-6 sm:px-8 sm:pt-7 lg:pt-8">
-        <nav
-          aria-label="Primary"
-          className="pointer-events-auto flex items-center justify-between gap-3 rounded-2xl border border-primary-text/[0.12] bg-white/80 py-1.5 pl-2.5 pr-2 backdrop-blur-md dark:border-white/[0.12] dark:bg-[#161618]/85 dark:backdrop-blur-md shadow-[0_1px_2px_rgba(28,28,28,0.05),0_2px_6px_-2px_rgba(28,28,28,0.10),0_16px_36px_-18px_rgba(28,28,28,0.35)] dark:shadow-[0_1px_0_rgba(255,255,255,0.05)_inset,0_2px_8px_-2px_rgba(0,0,0,0.5),0_18px_40px_-20px_rgba(0,0,0,1)]"
-        >
-          {/* ── LEFT · logo ─────────────────────────────────────────────── */}
-          <a
-            href="#"
-            aria-label="Umar — home"
-            className="shrink-0 -m-1.5 p-1.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#141416] transition-opacity duration-200 hover:opacity-70"
+    /* Real floating UI: fixed, and above every in-page layer, so no section
+       marker can ever paint across it. pointer-events-none here; the pieces
+       and the disclosure re-enable it. */
+    <header className="fixed inset-x-0 top-0 z-[70] pointer-events-none">
+      <Motion.nav
+        aria-label="Primary"
+        style={{ paddingTop: railTop }}
+        className="relative w-full"
+      >
+        {/* The rail is exactly as tall as the capsules, so the disclosure always
+            hangs from their bottom edge. */}
+        <Motion.div className="relative w-full" style={{ height: barH }}>
+          {/* ── LEFT · the logo, its own capsule ─────────────────────────── */}
+          <Motion.div
+            style={{
+              x: xLeft,
+              width: wLeft,
+              height: barH,
+              backgroundColor: surface,
+              paddingLeft: padX,
+              paddingRight: padX,
+              borderTopLeftRadius: outerRadius,
+              borderBottomLeftRadius: outerRadius,
+              borderTopRightRadius: innerRadius,
+              borderBottomRightRadius: innerRadius,
+              borderTopColor: edge,
+              borderBottomColor: edge,
+              borderLeftColor: edge,
+              borderRightColor: seam,
+            }}
+            className={`${pieceClass} justify-start`}
           >
-            <img
-              src={isDarkMode ? '/images/logo_dark.png' : '/images/logo_light.png'}
-              alt="UMX"
-              className="h-8 w-auto object-contain sm:h-9"
-            />
-          </a>
+            <Motion.span aria-hidden="true" style={{ opacity: sheen }} className={sheenClass} />
+            <a
+              href="#"
+              aria-label="Umar — home"
+              className="relative z-10 -m-1 rounded-lg p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-white transition-opacity duration-200 hover:opacity-70 dark:focus-visible:ring-offset-[#141416]"
+            >
+              {/* `min-w-max` matters: the capsule's own width is derived from
+                  this element's width, so a shrink-to-fit wrapper would clamp
+                  itself to the capsule's not-yet-correct width and report a
+                  smaller and smaller logo. This makes the measurement
+                  independent of the width it feeds. */}
+              <div ref={logoRef} className="inline-flex min-w-max items-center">
+                <img
+                  src={isDarkMode ? '/images/logo_dark.png' : '/images/logo_light.png'}
+                  alt="UMX"
+                  className="h-8 w-auto shrink-0 object-contain sm:h-9"
+                />
+              </div>
+            </a>
+          </Motion.div>
 
-          {/* ── CENTER · one shared link pill ──────────────────────────── */}
-          <ul className="hidden md:flex items-center gap-0.5 rounded-full border border-primary-text/[0.07] bg-primary-text/[0.025] p-1 dark:border-white/[0.07] dark:bg-white/[0.03]">
-            {navLinks.map((link) => {
-              const isActive = activeId === link.id;
-              return (
-                <li key={link.id}>
-                  <a
-                    href={link.href}
-                    aria-current={isActive ? 'page' : undefined}
-                    className={`relative block rounded-full px-3.5 py-1.5 font-host text-[11px] font-bold uppercase tracking-[0.14em] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#141416] ${
-                      isActive
-                        ? 'text-primary-text dark:text-primary-text-dark'
-                        : 'text-primary-text/55 hover:text-accent dark:text-primary-text-dark/55 dark:hover:text-accent'
-                    }`}
-                  >
-                    {link.title}
-                    {/* Active marker — a short accent rule, not a filled chip. */}
-                    <span
-                      aria-hidden="true"
-                      className={`absolute inset-x-3 -bottom-px h-px origin-center bg-accent transition-transform duration-200 ${
-                        isActive ? 'scale-x-100' : 'scale-x-0'
+          {/* ── CENTRE · the five links, in one shared capsule ───────────── */}
+          <Motion.div
+            style={{
+              x: xLinks,
+              width: wLinks,
+              height: barH,
+              backgroundColor: surface,
+              borderTopLeftRadius: innerRadius,
+              borderTopRightRadius: innerRadius,
+              borderBottomLeftRadius: innerRadius,
+              borderBottomRightRadius: innerRadius,
+              borderTopColor: edge,
+              borderBottomColor: edge,
+              borderLeftColor: seam,
+              borderRightColor: seam,
+            }}
+            className={`${pieceClass} hidden shrink-0 justify-center md:flex`}
+          >
+            <Motion.span aria-hidden="true" style={{ opacity: sheen }} className={sheenClass} />
+
+            {/* The links themselves: one pill, one gap rhythm. shrink-0 and
+                nowrap keep the measured width independent of the tile, so the
+                capsule can be sized without ever squeezing the type. */}
+            <Motion.ul
+              ref={linksRef}
+              aria-label="Sections"
+              style={{ gap: linkGap, scale: linkScale, borderColor: linkSeam }}
+              className="relative z-10 m-0 flex min-w-max shrink-0 list-none items-center whitespace-nowrap rounded-full border px-0 py-0"
+            >
+              {/* Active marker — one shared object that travels between links. */}
+              <Motion.span
+                aria-hidden="true"
+                style={{ x: chipX, width: chipW, opacity: chipReady ? 1 : 0 }}
+                className="absolute inset-y-1 left-0 rounded-full bg-primary-text/[0.06] dark:bg-white/[0.07]"
+              />
+              {navLinks.map((link, i) => {
+                const isActive = activeId === link.id;
+                return (
+                  <li key={link.id} ref={(el) => { linkRefs.current[i] = el; }}>
+                    <a
+                      href={link.href}
+                      aria-current={isActive ? 'page' : undefined}
+                      className={`relative block rounded-full px-2.5 py-2 font-host text-[10px] font-bold uppercase leading-[1.05] tracking-[0.06em] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-white md:px-2 lg:px-3 lg:text-[11px] lg:tracking-[0.12em] dark:focus-visible:ring-offset-[#141416] ${
+                        isActive
+                          ? 'text-primary-text dark:text-primary-text-dark'
+                          : 'text-primary-text/55 hover:text-accent dark:text-primary-text-dark/55 dark:hover:text-accent'
                       }`}
-                    />
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-
-          {/* ── RIGHT · language, theme, menu ──────────────────────────── */}
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={toggleLanguage}
-              aria-label={`Change language, current ${lang.toUpperCase()}`}
-              className="flex items-center gap-1.5 rounded-lg border border-transparent px-2 py-1.5 font-host text-[11px] font-bold uppercase tracking-[0.12em] text-primary-text/65 transition-colors duration-200 hover:border-primary-text/10 hover:text-primary-text dark:text-primary-text-dark/65 dark:hover:border-white/10 dark:hover:text-primary-text-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
-            >
-              <Globe size={12} className="shrink-0 opacity-60" />
-              <span>{lang}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={toggleTheme}
-              aria-label={isDarkMode ? 'Switch to light theme' : 'Switch to dark theme'}
-              aria-pressed={isDarkMode}
-              className="rounded-lg border border-transparent p-2 text-primary-text/65 transition-colors duration-200 hover:border-primary-text/10 hover:text-primary-text dark:text-primary-text-dark/65 dark:hover:border-white/10 dark:hover:text-primary-text-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
-            >
-              {isDarkMode ? (
-                <Sun size={14} className="text-accent" />
-              ) : (
-                <Moon size={14} className="text-primary-text/70 dark:text-primary-text-dark/70" />
-              )}
-            </button>
-
-            <button
-              ref={toggleRef}
-              type="button"
-              onClick={() => (isOpen ? (closeMenu(), toggleRef.current?.focus()) : openMenu())}
-              aria-label={isOpen ? 'Close menu' : 'Open menu'}
-              aria-expanded={isOpen}
-              aria-controls="mobile-menu"
-              className="relative -mr-1 flex h-9 w-9 flex-col items-center justify-center rounded-lg border border-transparent transition-colors duration-200 hover:border-primary-text/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent md:hidden cursor-pointer"
-            >
-              <span className="sr-only">Menu</span>
-              <span
-                aria-hidden="true"
-                className={`absolute h-px w-4 bg-primary-text dark:bg-primary-text-dark transition-all duration-200 ${
-                  isOpen ? 'rotate-45' : '-translate-y-[3px]'
-                }`}
-              />
-              <span
-                aria-hidden="true"
-                className={`absolute h-px w-4 bg-primary-text dark:bg-primary-text-dark transition-all duration-200 ${
-                  isOpen ? 'opacity-0' : 'opacity-100'
-                }`}
-              />
-              <span
-                aria-hidden="true"
-                className={`absolute h-px w-4 bg-primary-text dark:bg-primary-text-dark transition-all duration-200 ${
-                  isOpen ? '-rotate-45' : 'translate-y-[3px]'
-                }`}
-              />
-            </button>
-          </div>
-        </nav>
-
-        {/* ── Mobile menu — a compact sheet, not a full-page drawer ──────── */}
-        <div
-          id="mobile-menu"
-          ref={panelRef}
-          hidden={!isOpen}
-          className="pointer-events-auto md:hidden mt-2 overflow-hidden rounded-2xl border border-primary-text/10 bg-white shadow-[0_16px_36px_-18px_rgba(28,28,28,0.35)] dark:border-white/10 dark:bg-[#161618] dark:shadow-[0_18px_40px_-20px_rgba(0,0,0,1)]"
-          style={{ opacity: isOpen ? 1 : 0, transition: `opacity ${duration}ms ease` }}
-        >
-          <ul className="p-1.5">
-            {navLinks.map((link, i) => {
-              const isActive = activeId === link.id;
-              return (
-                <li key={link.id}>
-                  <a
-                    ref={i === 0 ? firstLinkRef : null}
-                    href={link.href}
-                    onClick={closeMenu}
-                    aria-current={isActive ? 'page' : undefined}
-                    className={`flex items-center justify-between gap-3 rounded-xl px-3.5 py-3 font-host text-xs font-bold uppercase tracking-[0.16em] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                      isActive
-                        ? 'bg-primary-text/[0.04] text-primary-text dark:bg-white/[0.05] dark:text-primary-text-dark'
-                        : 'text-primary-text/60 hover:bg-primary-text/[0.03] hover:text-accent dark:text-primary-text-dark/60 dark:hover:bg-white/[0.04]'
-                    }`}
-                  >
-                    <span className="flex items-center gap-3">
-                      <span
-                        aria-hidden="true"
-                        className={`font-josefin text-[10px] tabular-nums ${isActive ? 'text-accent' : 'text-primary-text/30 dark:text-primary-text-dark/30'}`}
-                      >
-                        {String(i + 1).padStart(2, '0')}
-                      </span>
+                    >
                       {link.title}
-                    </span>
-                    {isActive && <span aria-hidden="true" className="h-1 w-1 rounded-full bg-accent" />}
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      </div>
+                    </a>
+                  </li>
+                );
+              })}
+            </Motion.ul>
+          </Motion.div>
+
+          {/* ── RIGHT · language, theme, menu ───────────────────────────── */}
+          <Motion.div
+            style={{
+              x: xRight,
+              width: wRight,
+              height: barH,
+              backgroundColor: surface,
+              paddingLeft: padX,
+              paddingRight: padX,
+              borderTopLeftRadius: innerRadius,
+              borderBottomLeftRadius: innerRadius,
+              borderTopRightRadius: outerRadius,
+              borderBottomRightRadius: outerRadius,
+              borderTopColor: edge,
+              borderBottomColor: edge,
+              borderRightColor: edge,
+              borderLeftColor: seam,
+            }}
+            className={`${pieceClass} justify-start`}
+          >
+            <Motion.span aria-hidden="true" style={{ opacity: sheen }} className={sheenClass} />
+
+            <div ref={controlsRef} className="relative z-10 inline-flex min-w-max shrink-0 items-center gap-1.5">
+              <button
+                type="button"
+                onClick={toggleLanguage}
+                aria-label={`Change language, current ${lang.toUpperCase()}`}
+                className="flex h-9 items-center gap-1.5 rounded-lg border border-transparent px-2 font-host text-[11px] font-bold uppercase tracking-[0.12em] text-primary-text/65 transition-colors duration-200 hover:border-primary-text/10 hover:text-primary-text dark:text-primary-text-dark/65 dark:hover:border-white/10 dark:hover:text-primary-text-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+              >
+                <Globe size={12} className="shrink-0 opacity-60" />
+                <span>{lang}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={toggleTheme}
+                aria-label={isDarkMode ? 'Switch to light theme' : 'Switch to dark theme'}
+                aria-pressed={isDarkMode}
+                className="rounded-lg border border-transparent p-2 text-primary-text/65 transition-colors duration-200 hover:border-primary-text/10 hover:text-primary-text dark:text-primary-text-dark/65 dark:hover:border-white/10 dark:hover:text-primary-text-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
+              >
+                {isDarkMode ? (
+                  <Sun size={14} className="text-accent" />
+                ) : (
+                  <Moon size={14} className="text-primary-text/70 dark:text-primary-text-dark/70" />
+                )}
+              </button>
+            </div>
+
+            {/* The menu trigger is part of the right capsule, and gets its width
+                only once the pieces have separated — while they are one bar the
+                five links are already on screen. Below 768px it is always there,
+                because the centre capsule never is. */}
+            <Motion.span
+              aria-hidden={!menuReachable}
+              style={{ width: menuW, marginLeft: menuGap, opacity: menuOpacity }}
+              className="relative z-10 inline-flex shrink-0 justify-end overflow-hidden"
+            >
+              <button
+                ref={toggleRef}
+                type="button"
+                onClick={() => (isOpen ? (closeMenu(), toggleRef.current?.focus()) : openMenu())}
+                aria-label={isOpen ? 'Close menu' : 'Open menu'}
+                aria-expanded={isOpen}
+                aria-controls="navbar-menu"
+                tabIndex={menuReachable ? 0 : -1}
+                style={menuReachable ? undefined : { pointerEvents: 'none' }}
+                className="relative h-9 w-9 shrink-0 rounded-lg border border-transparent transition-colors duration-200 hover:border-primary-text/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#141416] cursor-pointer"
+              >
+                <span className="sr-only">Menu</span>
+                <span
+                  aria-hidden="true"
+                  className={`absolute h-px w-4 bg-primary-text dark:bg-primary-text-dark transition-all duration-200 ${
+                    isOpen ? 'rotate-45' : '-translate-y-[3px]'
+                  }`}
+                />
+                <span
+                  aria-hidden="true"
+                  className={`absolute h-px w-4 bg-primary-text dark:bg-primary-text-dark transition-all duration-200 ${
+                    isOpen ? 'opacity-0' : 'opacity-100'
+                  }`}
+                />
+                <span
+                  aria-hidden="true"
+                  className={`absolute h-px w-4 bg-primary-text dark:bg-primary-text-dark transition-all duration-200 ${
+                    isOpen ? '-rotate-45' : 'translate-y-[3px]'
+                  }`}
+                />
+              </button>
+            </Motion.span>
+          </Motion.div>
+        </Motion.div>
+
+        {/* ── The disclosure ────────────────────────────────────────────────
+            Hung from the right capsule's edge and opening to a compact panel,
+            not a full-screen sheet. It serves the mobile composition and the
+            separated desktop one alike — there is no second navigation. */}
+        <Motion.div
+          ref={menuRef}
+          id="navbar-menu"
+          hidden={!isOpen}
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: isOpen ? 1 : 0, y: isOpen ? 0 : -6 }}
+          transition={{ duration: reduced ? 0 : 0.18, ease: [0.16, 1, 0.3, 1] }}
+          style={{ x: panelX, width: panelW }}
+          className="pointer-events-auto absolute left-0 top-full z-10 mt-2 overflow-hidden rounded-2xl border border-primary-text/10 shadow-[0_16px_36px_-18px_rgba(28,28,28,0.35)] dark:border-white/10 dark:shadow-[0_18px_40px_-20px_rgba(0,0,0,1)]"
+        >
+          <div style={{ backgroundColor: panelSurface }}>
+            <ul className="p-1.5">
+              {navLinks.map((link, i) => {
+                const isActive = activeId === link.id;
+                return (
+                  <li key={link.id}>
+                    <a
+                      ref={i === 0 ? firstLinkRef : null}
+                      href={link.href}
+                      onClick={closeMenu}
+                      aria-current={isActive ? 'page' : undefined}
+                      className={`flex items-center justify-between gap-3 rounded-xl px-3.5 py-3 font-host text-xs font-bold uppercase tracking-[0.16em] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                        isActive
+                          ? 'bg-primary-text/[0.04] text-primary-text dark:bg-white/[0.05] dark:text-primary-text-dark'
+                          : 'text-primary-text/60 hover:bg-primary-text/[0.03] hover:text-accent dark:text-primary-text-dark/60 dark:hover:bg-white/[0.04]'
+                      }`}
+                    >
+                      <span className="flex items-center gap-3">
+                        <span
+                          aria-hidden="true"
+                          className={`font-josefin text-[10px] tabular-nums ${
+                            isActive
+                              ? 'text-accent'
+                              : 'text-primary-text/30 dark:text-primary-text-dark/30'
+                          }`}
+                        >
+                          {String(i + 1).padStart(2, '0')}
+                        </span>
+                        {link.title}
+                      </span>
+                      {isActive && (
+                        <span aria-hidden="true" className="h-1 w-1 rounded-full bg-accent" />
+                      )}
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </Motion.div>
+      </Motion.nav>
     </header>
   );
 }

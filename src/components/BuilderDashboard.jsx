@@ -130,23 +130,28 @@ export default function BuilderDashboard() {
       {/* Skills Section */}
       <div className="mt-24 max-w-4xl mx-auto relative z-10">
         <h3 className="text-2xl font-bold mb-10 text-center tracking-tight font-josefin uppercase">{t('resume.skillsTitle')}</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <BentoCard className="p-8 text-center hover:border-accent">
-            <LayoutTemplate className="w-8 h-8 mx-auto mb-4 text-accent" />
+        {/* The three primary skills read as one row: the grid gives them a
+            shared height, the card fills it, and each description is pushed to
+            the card's bottom edge so the text sits on one baseline across the
+            row instead of ending at three different heights. Nothing is padded
+            for effect — only the alignment is shared. */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+          <BentoCard className="p-8 text-center hover:border-accent flex flex-col">
+            <LayoutTemplate className="w-8 h-8 mx-auto mb-4 text-accent shrink-0" />
             <h4 className="font-bold font-josefin text-lg mb-2">{t('resume.frontend')}</h4>
-            <p className="font-host text-xs tracking-wider text-primary-text/60 dark:text-primary-text-dark/60 leading-relaxed">{t('resume.frontendTech')}</p>
-          </BentoCard>
-          
-          <BentoCard className="p-8 text-center hover:border-accent">
-            <Database className="w-8 h-8 mx-auto mb-4 text-accent" />
-            <h4 className="font-bold font-josefin text-lg mb-2">{t('resume.backend')}</h4>
-            <p className="font-host text-xs tracking-wider text-primary-text/60 dark:text-primary-text-dark/60 leading-relaxed">{t('resume.backendTech')}</p>
+            <p className="mt-auto font-host text-xs tracking-wider text-primary-text/60 dark:text-primary-text-dark/60 leading-relaxed">{t('resume.frontendTech')}</p>
           </BentoCard>
 
-          <BentoCard className="p-8 text-center hover:border-accent">
-            <PenTool className="w-8 h-8 mx-auto mb-4 text-accent" />
+          <BentoCard className="p-8 text-center hover:border-accent flex flex-col">
+            <Database className="w-8 h-8 mx-auto mb-4 text-accent shrink-0" />
+            <h4 className="font-bold font-josefin text-lg mb-2">{t('resume.backend')}</h4>
+            <p className="mt-auto font-host text-xs tracking-wider text-primary-text/60 dark:text-primary-text-dark/60 leading-relaxed">{t('resume.backendTech')}</p>
+          </BentoCard>
+
+          <BentoCard className="p-8 text-center hover:border-accent flex flex-col">
+            <PenTool className="w-8 h-8 mx-auto mb-4 text-accent shrink-0" />
             <h4 className="font-bold font-josefin text-lg mb-2">{t('resume.otherTools')}</h4>
-            <p className="font-host text-xs tracking-wider text-primary-text/60 dark:text-primary-text-dark/60 leading-relaxed">{t('resume.otherTech')}</p>
+            <p className="mt-auto font-host text-xs tracking-wider text-primary-text/60 dark:text-primary-text-dark/60 leading-relaxed">{t('resume.otherTech')}</p>
           </BentoCard>
         </div>
       </div>
