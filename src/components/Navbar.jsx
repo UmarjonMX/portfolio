@@ -9,6 +9,12 @@ import {
 import { Moon, Sun, Globe } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import {
+  PANEL_HEIGHT,
+  PANEL_PAD_X,
+  PANEL_RADIUS,
+  panelMaterial,
+} from './floatingPanel';
+import {
   seg,
   useChapterProgress,
   useMediaQuery,
@@ -44,6 +50,12 @@ import {
  * that would rewrite the positioning of these capsules, and at this size the
  * material reads better as a hard surface than as glass. Glass3D itself is
  * unchanged.
+ *
+ * The separated state is not this file's private geometry: its height, radius,
+ * padding, surface, outline, highlight and elevation are read from
+ * `./floatingPanel`, the same system the numbered chapter capsules are built
+ * from. The constants below are therefore only the *unified* bar — its own
+ * state, welded shut — plus the values the morph travels between.
  */
 
 /* ── Geometry ─────────────────────────────────────────────────────────────
@@ -59,14 +71,15 @@ const WELD = 1; // how far each piece overlaps its neighbour while welded shut.
                  // The unified bar has no clear gap at all — the three surfaces
                  // are one surface, and the thin outline that runs across the
                  // whole bar is simply the sum of their shared edges.
-const PAD_X_REST = 10; // capsule padding, unified → separated
-const PAD_X_SPLIT = 13;
-const BAR_H_REST = 48; // bar height, unified → separated
-const BAR_H_SPLIT = 44;
+const PAD_X_REST = 10; // capsule padding, unified → separated. The separated
+                        // value is the shared panel's own padding.
+const BAR_H_REST = 48; // bar height, unified → separated. The separated value is
+                        // the shared panel's own height.
 const RAIL_TOP_REST = 20; // distance from the viewport edge, unified → separated
 const RAIL_TOP_SPLIT = 14;
-const RADIUS_BAR = 16; // outer corner radius of the unified bar
-const RADIUS_CAPSULE = 22; // radius once each piece is its own object
+const RADIUS_BAR = 16; // outer corner radius of the unified bar; a piece travels
+                        // to the shared panel's radius as it becomes its own
+                        // object
 const LINKS_INSET = 12; // slack the centre tile keeps around the five links
 const MENU_W = 36; // hamburger
 const MENU_GAP = 6;
@@ -216,8 +229,8 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
      factor, so the resting composition is always exactly centred and the
      separated composition is always exactly on the content measure. */
 
-  const padX = useTransform(travel, (v) => PAD_X_REST + (PAD_X_SPLIT - PAD_X_REST) * v);
-  const barH = useTransform(travel, (v) => BAR_H_REST + (BAR_H_SPLIT - BAR_H_REST) * v);
+  const padX = useTransform(travel, (v) => PAD_X_REST + (PANEL_PAD_X - PAD_X_REST) * v);
+  const barH = useTransform(travel, (v) => BAR_H_REST + (PANEL_HEIGHT - BAR_H_REST) * v);
   const railTop = useTransform(travel, (v) => RAIL_TOP_REST + (RAIL_TOP_SPLIT - RAIL_TOP_REST) * v);
   const inset = useTransform(vw, (w) => insetFor(w));
 
@@ -230,13 +243,13 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
      slack that turns them from an inner pill into a capsule. */
   const wLeft = useTransform(
     [travel, logoW],
-    ([e, l]) => l + 2 * (PAD_X_REST + (PAD_X_SPLIT - PAD_X_REST) * e) + 2
+    ([e, l]) => l + 2 * (PAD_X_REST + (PANEL_PAD_X - PAD_X_REST) * e) + 2
   );
   const wLinks = useTransform(linksW, (c) => (c > 20 ? c + LINKS_INSET : 0));
   const wRight = useTransform(
     [material, travel, controlsW],
     ([m, e, c]) =>
-      c + MENU_GAP * m + MENU_W * m + 2 * (PAD_X_REST + (PAD_X_SPLIT - PAD_X_REST) * e) + 2
+      c + MENU_GAP * m + MENU_W * m + 2 * (PAD_X_REST + (PANEL_PAD_X - PAD_X_REST) * e) + 2
   );
 
   /* Unified geometry — the same three pieces, welded into one surface and
@@ -270,14 +283,19 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
      only round as the gap in front of them opens. */
   const outerRadius = useTransform(
     travel,
-    (v) => RADIUS_BAR + (RADIUS_CAPSULE - RADIUS_BAR) * v
+    (v) => RADIUS_BAR + (PANEL_RADIUS - RADIUS_BAR) * v
   );
-  const innerRadius = useTransform(travel, (v) => RADIUS_CAPSULE * smooth(seg(v, 0.45, 1)));
+  const innerRadius = useTransform(travel, (v) => PANEL_RADIUS * smooth(seg(v, 0.45, 1)));
   const sheen = useTransform(travel, (v) => 0.25 + 0.75 * v);
 
-  const tone = isDarkMode ? '250, 250, 250' : '28, 28, 28';
-  const edgeAlpha = isDarkMode ? 0.14 : 0.12;
-  const edge = `rgba(${tone}, ${edgeAlpha})`;
+  /* Surface, outline, top-edge highlight and elevation are the shared panel's, for
+     all three pieces: the separated composition still reads as three objects of
+     the same kind, and those are the same objects as the chapter capsules.
+     Translucent enough to float, opaque enough that a heading passing
+     underneath does not stay readable. */
+  const { surface, panelSurface, edge, tone, edgeAlpha, elevation, sheen: sheenBox } =
+    panelMaterial(isDarkMode);
+
   /* Every piece carries the same 1px outline, welded or separated. That is what
      makes the unified state read as one bar rather than three: the outline
      across the top of the bar is the sum of three coincident edges, and the
@@ -297,16 +315,10 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
   const menuOpacity = useTransform(material, (v) => smooth(seg(v, 0.25, 0.7)));
 
   /* One surface, one border and one shadow for all three pieces, so the
-     separated composition still reads as three objects of the same kind.
-     Translucent enough to float, opaque enough that a heading passing
-     underneath does not stay readable. */
-  const surface = isDarkMode ? 'rgba(20, 20, 22, 0.94)' : 'rgba(255, 255, 255, 0.93)';
-  const panelSurface = isDarkMode ? 'rgba(20, 20, 22, 0.97)' : 'rgba(255, 255, 255, 0.98)';
-
+     separated composition still reads as three objects of the same kind. */
   const pieceClass =
-    'pointer-events-auto absolute left-0 top-0 flex items-center border backdrop-blur-md shadow-[0_1px_2px_rgba(28,28,28,0.05),0_2px_6px_-2px_rgba(28,28,28,0.10),0_14px_32px_-20px_rgba(28,28,28,0.35)] dark:shadow-[0_2px_8px_-2px_rgba(0,0,0,0.5),0_16px_38px_-22px_rgba(0,0,0,1)]';
-  const sheenClass =
-    'pointer-events-none absolute inset-0 rounded-[inherit] shadow-[inset_0_1px_0_rgba(255,255,255,0.45)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.07)]';
+    'pointer-events-auto absolute left-0 top-0 flex items-center border backdrop-blur-md';
+  const sheenClass = 'pointer-events-none absolute inset-0 rounded-[inherit]';
 
   /* ── Disclosure ────────────────────────────────────────────────────────
      The menu hangs from the right capsule: it starts exactly that capsule's
@@ -425,6 +437,7 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
               width: wLeft,
               height: barH,
               backgroundColor: surface,
+              boxShadow: elevation,
               paddingLeft: padX,
               paddingRight: padX,
               borderTopLeftRadius: outerRadius,
@@ -438,22 +451,32 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
             }}
             className={`${pieceClass} justify-start`}
           >
-            <Motion.span aria-hidden="true" style={{ opacity: sheen }} className={sheenClass} />
+            <Motion.span
+              aria-hidden="true"
+              style={{ opacity: sheen, boxShadow: sheenBox }}
+              className={sheenClass}
+            />
             <a
               href="#"
               aria-label="Umar — home"
               className="relative z-10 -m-1 rounded-lg p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-white transition-opacity duration-200 hover:opacity-70 dark:focus-visible:ring-offset-[#141416]"
             >
-              {/* `min-w-max` matters: the capsule's own width is derived from
-                  this element's width, so a shrink-to-fit wrapper would clamp
-                  itself to the capsule's not-yet-correct width and report a
-                  smaller and smaller logo. This makes the measurement
-                  independent of the width it feeds. */}
-              <div ref={logoRef} className="inline-flex min-w-max items-center">
+              {/* The mark's own box. Both logo PNGs are a 483×517 canvas whose ink
+                  occupies only 345×355 of it — 69px of air left and right, 65
+                  above and 97 below — so sizing the <img> by height sizes the
+                  canvas, not the mark, and the `inline-flex` wrapper that used
+                  to hold it sat on the text baseline, whose descender pushed
+                  the visible ink ~4.6px above the middle of the capsule.
+                  This wrapper *is* the ink box, and the canvas is laid over it
+                  at the one scale that makes the ink fill it, as percentages of
+                  the wrapper so the ratio holds at every breakpoint. The element
+                  that flex centres, and that measures this capsule's width, is
+                  then the mark itself. */}
+              <div ref={logoRef} className="relative aspect-[345/355] h-[26px] sm:h-[30px]">
                 <img
                   src={isDarkMode ? '/images/logo_dark.png' : '/images/logo_light.png'}
                   alt="UMX"
-                  className="h-8 w-auto shrink-0 object-contain sm:h-9"
+                  className="absolute left-[-20%] top-[-18.31%] h-[145.63%] w-[140%] max-w-none"
                 />
               </div>
             </a>
@@ -466,6 +489,7 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
               width: wLinks,
               height: barH,
               backgroundColor: surface,
+              boxShadow: elevation,
               borderTopLeftRadius: innerRadius,
               borderTopRightRadius: innerRadius,
               borderBottomLeftRadius: innerRadius,
@@ -477,7 +501,11 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
             }}
             className={`${pieceClass} hidden shrink-0 justify-center md:flex`}
           >
-            <Motion.span aria-hidden="true" style={{ opacity: sheen }} className={sheenClass} />
+            <Motion.span
+              aria-hidden="true"
+              style={{ opacity: sheen, boxShadow: sheenBox }}
+              className={sheenClass}
+            />
 
             {/* The links themselves: one pill, one gap rhythm. shrink-0 and
                 nowrap keep the measured width independent of the tile, so the
@@ -522,6 +550,7 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
               width: wRight,
               height: barH,
               backgroundColor: surface,
+              boxShadow: elevation,
               paddingLeft: padX,
               paddingRight: padX,
               borderTopLeftRadius: innerRadius,
@@ -535,7 +564,11 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
             }}
             className={`${pieceClass} justify-start`}
           >
-            <Motion.span aria-hidden="true" style={{ opacity: sheen }} className={sheenClass} />
+            <Motion.span
+              aria-hidden="true"
+              style={{ opacity: sheen, boxShadow: sheenBox }}
+              className={sheenClass}
+            />
 
             <div ref={controlsRef} className="relative z-10 inline-flex min-w-max shrink-0 items-center gap-1.5">
               <button
