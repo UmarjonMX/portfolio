@@ -423,7 +423,7 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
        and the disclosure re-enable it. */
     <header className="fixed inset-x-0 top-0 z-[70] pointer-events-none">
       <Motion.nav
-        aria-label="Primary"
+        aria-label={t('meta.primaryNav')}
         style={{ paddingTop: railTop }}
         className="relative w-full"
       >
@@ -458,7 +458,7 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
             />
             <a
               href="#"
-              aria-label="Umar — home"
+              aria-label={`${t('nav.home')} — Umar`}
               className="relative z-10 -m-1 rounded-lg p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-white transition-opacity duration-200 hover:opacity-70 dark:focus-visible:ring-offset-[#141416]"
             >
               {/* The mark's own box. Both logo PNGs are a 483×517 canvas whose ink
@@ -512,7 +512,7 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
                 capsule can be sized without ever squeezing the type. */}
             <Motion.ul
               ref={linksRef}
-              aria-label="Sections"
+              aria-label={t('meta.sections')}
               style={{ gap: linkGap, scale: linkScale, borderColor: linkSeam }}
               className="relative z-10 m-0 flex min-w-max shrink-0 list-none items-center whitespace-nowrap rounded-full border px-0 py-0"
             >
@@ -574,7 +574,7 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
               <button
                 type="button"
                 onClick={toggleLanguage}
-                aria-label={`Change language, current ${lang.toUpperCase()}`}
+                aria-label={t('meta.changeLanguage', { lang: lang.toUpperCase() })}
                 className="flex h-9 items-center gap-1.5 rounded-lg border border-transparent px-2 font-host text-[11px] font-bold uppercase tracking-[0.12em] text-primary-text/65 transition-colors duration-200 hover:border-primary-text/10 hover:text-primary-text dark:text-primary-text-dark/65 dark:hover:border-white/10 dark:hover:text-primary-text-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
               >
                 <Globe size={12} className="shrink-0 opacity-60" />
@@ -584,7 +584,7 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
               <button
                 type="button"
                 onClick={toggleTheme}
-                aria-label={isDarkMode ? 'Switch to light theme' : 'Switch to dark theme'}
+                aria-label={isDarkMode ? t('meta.changeTheme.toLight') : t('meta.changeTheme.toDark')}
                 aria-pressed={isDarkMode}
                 className="rounded-lg border border-transparent p-2 text-primary-text/65 transition-colors duration-200 hover:border-primary-text/10 hover:text-primary-text dark:text-primary-text-dark/65 dark:hover:border-white/10 dark:hover:text-primary-text-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
               >
@@ -609,14 +609,13 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
                 ref={toggleRef}
                 type="button"
                 onClick={() => (isOpen ? (closeMenu(), toggleRef.current?.focus()) : openMenu())}
-                aria-label={isOpen ? 'Close menu' : 'Open menu'}
+                aria-label={isOpen ? t('meta.closeMenu') : t('meta.openMenu')}
                 aria-expanded={isOpen}
                 aria-controls="navbar-menu"
                 tabIndex={menuReachable ? 0 : -1}
                 style={menuReachable ? undefined : { pointerEvents: 'none' }}
                 className="relative h-9 w-9 shrink-0 rounded-lg border border-transparent transition-colors duration-200 hover:border-primary-text/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#141416] cursor-pointer"
               >
-                <span className="sr-only">Menu</span>
                 <span
                   aria-hidden="true"
                   className={`absolute h-px w-4 bg-primary-text dark:bg-primary-text-dark transition-all duration-200 ${

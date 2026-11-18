@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 // eslint-disable-next-line no-unused-vars
-import { motion, useTransform } from 'framer-motion';
+import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 import { ArrowRight, Mail } from 'lucide-react';
 import {
@@ -10,36 +10,53 @@ import {
   usePrefersReducedMotion,
 } from './scroll/ScrollStage';
 
+/**
+ * A control that leans toward the cursor.
+ *
+ * The offset is two MotionValues and a transform, not React state. It used to
+ * `setPos` on every `mousemove`, which re-rendered the wrapper — and therefore
+ * its whole subtree — up to 60 times a second for as long as the pointer rested
+ * anywhere over the button.
+ */
 function Magnetic({ children, scale = 0.25, className = '' }) {
   const ref = useRef(null);
-  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const [active, setActive] = useState(false);
 
   const onMove = (e) => {
-    if (!ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    setPos({ x: (e.clientX - cx) * scale, y: (e.clientY - cy) * scale });
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    x.set((e.clientX - (rect.left + rect.width / 2)) * scale);
+    y.set((e.clientY - (rect.top + rect.height / 2)) * scale);
   };
 
-  const onLeave = () => setPos({ x: 0, y: 0 });
+  const onLeave = () => {
+    setActive(false);
+    x.set(0);
+    y.set(0);
+  };
 
   return (
-    <div
+    <motion.div
       ref={ref}
       onMouseMove={onMove}
+      onMouseEnter={() => setActive(true)}
       onMouseLeave={onLeave}
       style={{
-        transform: `translate3d(${pos.x}px, ${pos.y}px, 0)`,
-        transition:
-          pos.x === 0
-            ? 'transform 0.6s cubic-bezier(0.25, 1, 0.5, 1)'
-            : 'transform 0.08s linear',
+        x,
+        y,
+        // Snappy while the pointer is on the button, slow and settled as it
+        // releases — the original easing, just without a render per frame.
+        transition: active
+          ? { x: { duration: 0.08 }, y: { duration: 0.08 } }
+          : { x: { duration: 0.6, ease: [0.25, 1, 0.5, 1] }, y: { duration: 0.6, ease: [0.25, 1, 0.5, 1] } },
       }}
       className={className}
     >
       {children}
-    </div>
+    </motion.div>
   );
 }
 
@@ -162,11 +179,11 @@ export default function Hero() {
           >
             <div className="flex items-center gap-3">
               <span className="font-josefin text-[9px] font-bold tracking-[0.35em] text-primary-text/35 dark:text-primary-text-dark/35 uppercase">
-                Software Engineer
+                {t('hero.kickerLeft')}
               </span>
               <span className="w-8 h-px bg-primary-text/20 dark:bg-primary-text-dark/20" />
               <span className="font-josefin text-[9px] font-bold tracking-[0.35em] text-accent uppercase">
-                Product &amp; AI
+                {t('hero.kickerRight')}
               </span>
             </div>
             <span className="hidden sm:block font-josefin text-[9px] font-bold tracking-[0.3em] text-primary-text/25 dark:text-primary-text-dark/25 uppercase">
@@ -183,9 +200,9 @@ export default function Hero() {
             >
               <div className="hero-reveal" style={{ animationDelay: '0.4s' }}>
                 <p className="font-josefin text-[10px] font-bold tracking-[0.25em] text-primary-text/35 dark:text-primary-text-dark/35 uppercase leading-loose">
-                  Tashkent
+                  {t('hero.location')}
                   <br />
-                  Uzbekistan
+                  {t('hero.country')}
                   <br />
                   UTC+05
                 </p>
@@ -193,7 +210,7 @@ export default function Hero() {
               <div className="hero-reveal" style={{ animationDelay: '0.6s' }}>
                 <div className="w-px h-24 bg-gradient-to-b from-transparent via-primary-text/20 dark:via-primary-text-dark/20 to-transparent mx-auto mb-6" />
                 <p className="font-host text-[11px] leading-relaxed text-primary-text/45 dark:text-primary-text-dark/45 text-center">
-                  Building at the intersection of engineering and product
+                  {t('hero.sideNote')}
                 </p>
               </div>
             </motion.div>
@@ -368,12 +385,12 @@ export default function Hero() {
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-accent" />
               </span>
               <span className="font-josefin text-[9px] font-bold tracking-[0.3em] text-primary-text/35 dark:text-primary-text-dark/35 uppercase">
-                Available for work
+                {t('hero.available')}
               </span>
             </div>
             <div className="hidden sm:flex items-center gap-6">
               <span className="font-josefin text-[9px] font-bold tracking-[0.3em] text-primary-text/25 dark:text-primary-text-dark/25 uppercase">
-                Scroll to explore
+                {t('hero.scrollHint')}
               </span>
               <div className="flex flex-col gap-1">
                 <div className="w-3 h-px bg-primary-text/20 dark:bg-primary-text-dark/20" />

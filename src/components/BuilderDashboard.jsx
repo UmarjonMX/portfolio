@@ -17,6 +17,8 @@ export default function BuilderDashboard() {
       const ok = await downloadCV();
       if (ok) toast.success(t('resume.downloadSuccess'));
       else toast.error(t('resume.downloadError'));
+    } catch {
+      toast.error(t('resume.downloadError'));
     } finally {
       setDownloading(false);
     }
@@ -185,12 +187,15 @@ export default function BuilderDashboard() {
         <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-background dark:from-background-dark to-transparent z-10 pointer-events-none"></div>
         <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-background dark:from-background-dark to-transparent z-10 pointer-events-none"></div>
         <div className="flex w-max animate-marquee flex-nowrap">
-          <div className="flex justify-around flex-nowrap px-4">
-            <span className="font-josefin text-lg md:text-xl font-bold opacity-40 whitespace-nowrap tracking-widest uppercase">Python • JavaScript • Django • Algorithms • Artificial Intelligence • Robotics • Machine Learning • Linux • Git • Blender • </span>
-          </div>
-          <div className="flex justify-around flex-nowrap px-4">
-            <span className="font-josefin text-lg md:text-xl font-bold opacity-40 whitespace-nowrap tracking-widest uppercase">Python • JavaScript • Django • Algorithms • Artificial Intelligence • Robotics • Machine Learning • Linux • Git • Blender • </span>
-          </div>
+          {/* Two identical copies: the track is translated by exactly -50%, so
+              the second copy is what makes the loop seamless. */}
+          {[0, 1].map((copy) => (
+            <div key={copy} className="flex justify-around flex-nowrap px-4">
+              <span className="font-josefin text-lg md:text-xl font-bold opacity-40 whitespace-nowrap tracking-widest uppercase">
+                {t('resume.marquee')}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -199,11 +204,11 @@ export default function BuilderDashboard() {
         <button 
           onClick={handleDownload}
           disabled={downloading}
-          aria-label="Download resume"
+          aria-label={t('resume.downloadAria')}
           className={`inline-flex items-center justify-center space-x-3 px-8 py-4 bg-accent text-white dark:text-[#1C1C1D] border border-primary-text dark:border-primary-text-dark font-host font-bold uppercase tracking-widest rounded-xl shadow-[0_8px_30px_-8px_rgba(224,122,95,0.4)] transition-all cursor-pointer hover:-translate-y-1 active:scale-[0.98] ${downloading ? 'opacity-75 cursor-wait' : ''}`}
         >
           {downloading ? <Loader2 size={18} className="animate-spin" /> : <Download size={18} />}
-          <span>{downloading ? 'Preparing Document...' : t('resume.downloadText')}</span>
+          <span>{downloading ? t('resume.downloadingText') : t('resume.downloadText')}</span>
         </button>
       </div>
       

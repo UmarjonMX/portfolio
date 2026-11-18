@@ -40,7 +40,7 @@ function GridReveal({ index, total, children }) {
   );
 }
 
-function ProjectCard({ project, index, onOpen }) {
+function ProjectCard({ project, index, onOpen, t }) {
   return (
     <article className="group h-full flex flex-col">
       {/* Number + timeline — the project's coordinate in the ledger, set in the
@@ -55,7 +55,7 @@ function ProjectCard({ project, index, onOpen }) {
         <span className="hidden lg:block flex-1 h-px bg-primary-text/10 dark:bg-primary-text-dark/10" />
       </div>
 
-      <h3 className="font-editorial font-bold tracking-tight text-[2rem] sm:text-[2.5rem] lg:text-[3.25rem] lg:leading-[1.02] text-primary-text dark:text-primary-text-dark">
+      <h3 className="font-editorial font-bold tracking-tight text-[2rem] sm:text-[2.5rem] lg:text-[3.25rem] lg:leading-[1.02] lg:min-h-[2.04em] text-primary-text dark:text-primary-text-dark">
         {project.title}
       </h3>
 
@@ -84,7 +84,7 @@ function ProjectCard({ project, index, onOpen }) {
           aria-label={`View project: ${project.title}`}
           className="mt-5 inline-flex items-center gap-2 font-josefin text-[11px] font-bold tracking-[0.25em] uppercase text-accent group/link cursor-pointer hover:opacity-75 transition-opacity duration-300"
         >
-          View Project
+          {t('projects.viewProject')}
           <ArrowUpRight
             size={14}
             className="transition-transform duration-300 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5"
@@ -95,9 +95,75 @@ function ProjectCard({ project, index, onOpen }) {
   );
 }
 
+/**
+ * The featured entry. Penny is a live, always-on service, so it takes the full
+ * measure: label and rule, then title and framing on the left with the verified
+ * stack and status beside them, then the artifact at the width of the page.
+ *
+ * It remains an editorial block — type, hairlines, no filled card — so it
+ * belongs to the same ledger as the two-column entries below. The status is a
+ * badge rather than a link because the bot is private: there is nowhere public
+ * to send the reader, and inventing a destination would misrepresent it.
+ */
+function FeaturedProject({ project }) {
+  return (
+    <article data-featured={project.slug} className="group flex h-full flex-col">
+      <div className="flex items-baseline gap-5 lg:gap-8 pb-5">
+        <span className="font-josefin text-[11px] font-bold tracking-[0.3em] text-accent uppercase tabular-nums shrink-0">
+          {project.label}
+        </span>
+        <span className="hidden md:block flex-1 h-px bg-primary-text/10 dark:bg-primary-text-dark/10" />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-x-12 lg:gap-x-20 gap-y-7">
+        <div className="md:col-span-7">
+          <h3 className="font-editorial font-bold tracking-tight text-[2.5rem] sm:text-[3.5rem] lg:text-[4.25rem] leading-[1.02] md:min-h-[1.04em] text-primary-text dark:text-primary-text-dark">
+            {project.title}
+          </h3>
+
+          <p className="mt-5 max-w-xl font-host text-base lg:text-lg leading-relaxed text-primary-text/70 dark:text-primary-text-dark/70">
+            {project.summary}
+          </p>
+
+          <p className="mt-4 flex items-center gap-3 font-josefin text-[10px] font-bold tracking-[0.18em] uppercase text-primary-text/40 dark:text-primary-text-dark/40">
+            <span aria-hidden="true" className="h-px w-6 shrink-0 bg-accent/50" />
+            {project.note}
+          </p>
+        </div>
+
+        {/* Meta sits beside the title, never under the artifact. */}
+        <div className="md:col-span-5 flex flex-col items-start md:items-end gap-5 md:text-right">
+          <p className="flex max-w-xs flex-wrap items-baseline gap-y-1.5 font-josefin text-[10px] font-bold leading-[1.7] tracking-[0.2em] uppercase text-primary-text/45 dark:text-primary-text-dark/45 md:justify-end">
+            {(project.tech || []).map((tag, i) => (
+              <span key={tag} className="whitespace-nowrap">
+                {i > 0 && (
+                  <span aria-hidden="true" className="mx-2 text-accent/60">
+                    ·
+                  </span>
+                )}
+                {tag}
+              </span>
+            ))}
+          </p>
+
+          <span className="inline-flex items-center gap-2 rounded-full border border-accent/35 px-3.5 py-2 font-josefin text-[9px] font-bold tracking-[0.2em] uppercase text-accent/90">
+            <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-accent/70" />
+            {project.badge}
+          </span>
+        </div>
+      </div>
+
+      <div className="mt-8 lg:mt-10">
+        <ProjectVisual previewType={project.previewType} scale="featured" />
+      </div>
+    </article>
+  );
+}
+
 export default function Projects() {
   const { t } = useLanguage();
   const projects = t('projects.items') || [];
+  const [featured, ...rest] = projects;
 
   return (
     <section
@@ -128,13 +194,26 @@ export default function Projects() {
           here, rather than each section closing itself off. */}
       <div className="relative z-10 mb-16 flex items-baseline gap-5 sm:gap-8">
         <span className="font-josefin text-[11px] font-bold tracking-[0.3em] text-accent uppercase tabular-nums">
-          01 — 04
+          01 — {String(projects.length).padStart(2, '0')}
         </span>
         <span className="hidden sm:block flex-1 h-px bg-primary-text/15 dark:bg-primary-text-dark/15" />
         <span className="font-josefin text-[10px] font-bold tracking-[0.25em] text-primary-text/40 dark:text-primary-text-dark/40 uppercase">
-          {projects.length} works
+          {t('projects.worksCount', { n: projects.length })}
         </span>
       </div>
+
+      {/* ── Featured entry ──────────────────────────────────────────────
+          The first project runs the full measure above the grid. It is not a
+          larger version of the cards below: title and framing sit on the left,
+          the verified stack and status beside them, and the artifact spans the
+          page. The two-column ledger starts underneath. */}
+      {featured && (
+        <div className="relative z-10 mb-20 lg:mb-24">
+          <GridReveal index={0} total={projects.length}>
+            <FeaturedProject project={featured} />
+          </GridReveal>
+        </div>
+      )}
 
       {/* Two columns at desktop, one on mobile. */}
       {/* Two columns from `lg` (1024px) up. Between 640 and 1024 the card
@@ -142,12 +221,13 @@ export default function Projects() {
           constrained previews side by side — one full-width column reads
           better at tablet. */}
       <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-x-16 lg:gap-x-20 gap-y-20 lg:gap-y-28 mb-24">
-        {projects.map((project, index) => (
-          <GridReveal key={project.slug || project.title} index={index} total={projects.length}>
+        {rest.map((project, i) => (
+          <GridReveal key={project.slug || project.title} index={i + 1} total={projects.length}>
             <ProjectCard
               project={project}
-              index={index}
+              index={i + 1}
               onOpen={() => navigate(`/projects/${project.slug}`)}
+              t={t}
             />
           </GridReveal>
         ))}

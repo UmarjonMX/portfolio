@@ -19,8 +19,16 @@
  */
 import { useId } from 'react';
 
+/* Apertures. The grid card is a wide, short aperture; the detail plate is a
+   tall full-measure one.
+
+   The card aperture is sized by the tallest variant — a conversation, which
+   carries a header, three or four bubbles, a session marker and a composer.
+   One shared height keeps the two-column grid on a single baseline instead of
+   leaving one card hanging below its neighbour. */
 const FRAME = {
-  md: 'h-[300px] sm:h-[340px] lg:h-[380px]',
+  md: 'h-[340px] sm:h-[376px] lg:h-[440px]',
+  featured: 'h-[360px] sm:h-[420px] lg:h-[440px]',
   lg: 'h-[360px] sm:h-[460px] lg:h-[600px]',
 };
 
@@ -151,8 +159,8 @@ function Chat() {
           <div className="absolute left-1/2 top-1/2 w-[140%] h-px -translate-x-1/2 -translate-y-1/2 -rotate-45 bg-accent/60" />
         </div>
         <div className="min-w-0 flex-1 space-y-2">
-          <div className="w-[60%] max-w-[18rem]"><Line w="w-full" h="h-[5px] sm:h-[7px]" o="bg-primary-text/28 dark:bg-primary-text-dark/28" /></div>
-          <div className="w-[32%] max-w-[9rem]"><Line w="w-full" h="h-[3px] sm:h-[4px]" /></div>
+          <div className="w-[55%] max-w-[16rem]"><Line w="w-full" h="h-[5px] sm:h-[7px]" o="bg-primary-text/28 dark:bg-primary-text-dark/28" /></div>
+          <div className="w-[30%] max-w-[8rem]"><Line w="w-full" h="h-[3px] sm:h-[4px]" /></div>
         </div>
         <div className="hidden sm:flex items-center gap-2 shrink-0 rounded-full border border-accent/40 px-3.5 py-2">
           <div className="w-1.5 h-1.5 rounded-full bg-accent/70" />
@@ -161,8 +169,8 @@ function Chat() {
           </span>
         </div>
         {/* Session expiry */}
-        <div className="hidden lg:flex flex-col items-end gap-2 shrink-0 w-40">
-          <Line w="w-full" h="h-[3px] sm:h-[4px]" o="bg-primary-text/12 dark:bg-primary-text-dark/12" />
+        <div className="hidden lg:flex flex-col items-end gap-2 shrink-0 w-36">
+          <div className="w-full"><Line w="w-full" h="h-[3px] sm:h-[4px]" o="bg-primary-text/12 dark:bg-primary-text-dark/12" /></div>
           <div className="h-[3px] w-full bg-primary-text/12 dark:bg-primary-text-dark/12 rounded-full overflow-hidden">
             <div className="h-full w-2/3 bg-accent/45" />
           </div>
@@ -170,60 +178,65 @@ function Chat() {
       </div>
 
       {/* Exchange — the product is the conversation, so the bubbles carry the
-          available height. Heights are tuned per breakpoint because the `md`
+          available height. Densities are tuned per breakpoint because the `md`
           aperture (a wide, short card) and the `lg` aperture (a tall plate)
           have very different budgets. */}
-      <div className="flex-1 min-h-0 flex flex-col justify-center gap-1.5 sm:gap-5 py-1.5 sm:py-8">
+      <div className="flex-1 min-h-0 flex flex-col justify-center gap-2 lg:gap-3 py-1">
         <div className="flex items-end gap-2 sm:gap-3.5">
-          <div className="w-5 h-5 sm:w-9 sm:h-9 rounded-full border border-primary-text/12 dark:border-primary-text-dark/16 shrink-0" />
-          <div className={`w-[72%] sm:w-[42%] rounded-2xl rounded-bl-md px-2.5 sm:px-6 py-1 sm:py-4 ${SURFACE_2}`}>
-            <div className="space-y-1 sm:space-y-2.5">
-              <Line w="w-full" h="h-[3px] sm:h-[5px]" />
-              <Line w="w-2/3" h="h-[3px] sm:h-[5px]" />
+          <div className="w-5 h-5 sm:w-8 sm:h-8 rounded-full border border-primary-text/12 dark:border-primary-text-dark/16 shrink-0" />
+          <div className={`w-[72%] lg:w-[42%] rounded-2xl rounded-bl-md px-2.5 sm:px-6 py-1 lg:py-2.5 ${SURFACE_2}`}>
+            <div className="space-y-1 lg:space-y-2">
+              <Line w="w-full" h="h-[3px] lg:h-[5px]" />
+              <Line w="w-2/3" h="h-[3px] lg:h-[5px]" />
             </div>
           </div>
         </div>
 
         <div className="flex justify-end">
-          <div className="w-[68%] sm:w-[36%] rounded-2xl rounded-br-md px-2.5 sm:px-6 py-1 sm:py-4 bg-accent/12 border border-accent/20">
-            <div className="space-y-1 sm:space-y-2.5">
-              <Line w="w-full" h="h-[3px] sm:h-[5px]" o="bg-primary-text/22 dark:bg-primary-text-dark/22" />
-              <Line w="w-1/2" h="h-[3px] sm:h-[5px]" o="bg-primary-text/22 dark:bg-primary-text-dark/22" />
+          <div className="w-[68%] lg:w-[36%] rounded-2xl rounded-br-md px-2.5 sm:px-6 py-1 lg:py-2.5 bg-accent/12 border border-accent/20">
+            <div className="space-y-1 lg:space-y-2">
+              <Line w="w-full" h="h-[3px] lg:h-[5px]" o="bg-primary-text/22 dark:bg-primary-text-dark/22" />
+              <Line w="w-1/2" h="h-[3px] lg:h-[5px]" o="bg-primary-text/22 dark:bg-primary-text-dark/22" />
             </div>
           </div>
         </div>
 
         <div className="flex items-end gap-2 sm:gap-3.5">
-          <div className="w-5 h-5 sm:w-9 sm:h-9 rounded-full border border-primary-text/12 dark:border-primary-text-dark/16 shrink-0" />
-          <div className={`w-[78%] sm:w-[48%] rounded-2xl rounded-bl-md px-2.5 sm:px-6 py-1 sm:py-4 ${SURFACE_2}`}>
-            <div className="space-y-1 sm:space-y-2.5">
-              <Line w="w-full" h="h-[3px] sm:h-[5px]" />
-              <Line w="w-3/4" h="h-[3px] sm:h-[5px]" />
-              <div className="hidden sm:block"><Line w="w-5/6" h="h-[3px] sm:h-[5px]" /></div>
+          <div className="w-5 h-5 sm:w-8 sm:h-8 rounded-full border border-primary-text/12 dark:border-primary-text-dark/16 shrink-0" />
+          <div className={`w-[78%] lg:w-[48%] rounded-2xl rounded-bl-md px-2.5 sm:px-6 py-1 lg:py-2.5 ${SURFACE_2}`}>
+            <div className="space-y-1 lg:space-y-2">
+              <Line w="w-full" h="h-[3px] lg:h-[5px]" />
+              <Line w="w-3/4" h="h-[3px] lg:h-[5px]" />
+              <div className="hidden lg:block"><Line w="w-5/6" h="h-[3px] lg:h-[5px]" /></div>
             </div>
           </div>
         </div>
 
-        <div className="flex justify-end">
-          <div className="w-[56%] sm:w-[30%] rounded-2xl rounded-br-md px-2.5 sm:px-6 py-1 sm:py-4 bg-accent/12 border border-accent/20">
-            <Line w="w-full" h="h-[3px] sm:h-[5px]" o="bg-primary-text/22 dark:bg-primary-text-dark/22" />
+        {/* The closing turn only appears on the tall plate — a short card
+            aperture cannot hold four bubbles, a session marker and a composer
+            without compressing every one of them. */}
+        <div className="hidden lg:flex justify-end">
+          <div className="w-[30%] rounded-2xl rounded-br-md px-6 py-2.5 bg-accent/12 border border-accent/20">
+            <Line w="w-full" h="h-[5px]" o="bg-primary-text/22 dark:bg-primary-text-dark/22" />
           </div>
-        </div>
-
-        {/* Session disposal — the feature the case study is about */}
-        <div className="flex items-center gap-3 pt-0.5 sm:pt-2">
-          <div className="h-px flex-1 bg-primary-text/10 dark:bg-primary-text-dark/10" />
-          <span className="font-josefin text-[8px] sm:text-[9px] font-bold tracking-[0.25em] uppercase text-primary-text/30 dark:text-primary-text-dark/30 shrink-0">
-            Session discarded
-          </span>
-          <div className="h-px flex-1 bg-primary-text/10 dark:bg-primary-text-dark/10" />
         </div>
       </div>
 
+      {/* Session disposal — the feature the case study is about. Its own row
+          outside the exchange, so a short aperture can never make it collide
+          with the composer. */}
+      <div className="shrink-0 flex items-center gap-3 py-1">
+        <div className="h-px flex-1 bg-primary-text/10 dark:bg-primary-text-dark/10" />
+        <span className="font-josefin text-[8px] sm:text-[9px] font-bold tracking-[0.25em] uppercase text-primary-text/30 dark:text-primary-text-dark/30 shrink-0">
+          Session discarded
+        </span>
+        <div className="h-px flex-1 bg-primary-text/10 dark:bg-primary-text-dark/10" />
+      </div>
+
       {/* Composer */}
-      <div className="shrink-0 flex items-center gap-3 sm:gap-4 border-t border-primary-text/12 dark:border-primary-text-dark/12 pt-3 sm:pt-5">
-        <div className="flex-1 h-8 sm:h-12 rounded-full border border-primary-text/10 dark:border-primary-text-dark/14" />
-        <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-full bg-accent/30 shrink-0" />
+      <div className="shrink-0 flex items-center gap-3 sm:gap-4 border-t border-primary-text/12 dark:border-primary-text-dark/12 pt-2.5 sm:pt-4">
+        <div className="flex-1 h-7 sm:h-11 rounded-full border border-primary-text/10 dark:border-primary-text-dark/14" />
+        <div className="w-7 h-7 sm:w-11 sm:h-11 rounded-full bg-accent/30 shrink-0" />
       </div>
     </div>
   );
@@ -394,11 +407,153 @@ function Editorial() {
   );
 }
 
+/* ── Penny — Telegram money manager ───────────────────────────────────────
+   Two surfaces in one frame: the conversation where an entry is saved, and
+   the category ledger it feeds. Bubbles stay deliberately abstract — widths,
+   not amounts — so the preview cannot invent spending data. */
+function Penny() {
+  return (
+    <div className="flex h-full flex-col px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+      {/* Bot header */}
+      <div className="shrink-0 flex items-center gap-3 pb-3 sm:pb-4 border-b border-primary-text/12 dark:border-primary-text-dark/12">
+        <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-full border border-accent/45 bg-accent/[0.08] flex items-center justify-center shrink-0">
+          <div className="w-2 h-2 rounded-full bg-accent/65" />
+        </div>
+        <div className="min-w-0 flex-1 space-y-1.5">
+          <div className="w-24 sm:w-32">
+            <Line w="w-full" h="h-[4px]" o="bg-primary-text/28 dark:bg-primary-text-dark/28" />
+          </div>
+          <div className="w-16 sm:w-20"><Line w="w-full" h="h-[3px]" /></div>
+        </div>
+        <span className="font-josefin text-[8px] sm:text-[9px] font-bold tracking-[0.25em] uppercase text-accent/85 shrink-0">
+          Penny
+        </span>
+        <span className="hidden sm:inline-flex items-center rounded-full border border-accent/30 px-2.5 py-1 font-josefin text-[7px] font-bold tracking-[0.2em] uppercase text-accent/80">
+          Bot
+        </span>
+      </div>
+
+      <div className="flex-1 min-h-0 flex gap-3 sm:gap-5 lg:gap-6 pt-3 sm:pt-5">
+        {/* Conversation */}
+        <div className="flex-1 min-w-0 flex flex-col">
+          {/* Saved marker */}
+          <div className="shrink-0 flex items-center gap-2 pb-2 sm:pb-3">
+            <div className="h-px flex-1 bg-primary-text/10 dark:bg-primary-text-dark/10" />
+            <svg
+              width="9"
+              height="9"
+              viewBox="0 0 10 10"
+              className="text-accent/80 shrink-0"
+              aria-hidden="true"
+            >
+              <circle cx="5" cy="5" r="4.2" fill="none" stroke="currentColor" strokeWidth="0.8" />
+              <path
+                d="M2.9 5.1 4.3 6.5 7.1 3.6"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="0.9"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <span className="font-josefin text-[7px] sm:text-[8px] font-bold tracking-[0.25em] uppercase text-primary-text/35 dark:text-primary-text-dark/35 shrink-0">
+              Saved
+            </span>
+            <div className="h-px flex-1 bg-primary-text/10 dark:bg-primary-text-dark/10" />
+          </div>
+
+          {/* Expense bubbles */}
+          <div className="flex-1 min-h-0 flex flex-col justify-center gap-2 sm:gap-3">
+            {[
+              ['w-4/5', 'w-2/5'],
+              ['w-3/5', 'w-1/3'],
+              ['w-11/12', 'w-2/5'],
+              ['w-3/4', 'w-1/4'],
+            ].map(([note, amount], i) => (
+              <div key={i} className="flex justify-end">
+                <div className="w-[88%] sm:w-[82%] lg:w-[58%] lg:max-w-[30rem] rounded-2xl rounded-br-md border border-accent/20 bg-accent/10 px-2.5 sm:px-3.5 py-2 sm:py-2.5">
+                  <div className="flex items-start gap-2">
+                    <div className="min-w-0 flex-1 space-y-1.5">
+                      <Line
+                        w={note}
+                        h="h-[3px] sm:h-[4px]"
+                        o="bg-primary-text/22 dark:bg-primary-text-dark/22"
+                      />
+                      <Line w={amount} h="h-[2px] sm:h-[3px]" o="bg-accent/45" />
+                    </div>
+                    {/* Tiny edit affordance, not a real control. */}
+                    <span className="mt-0.5 grid h-4 w-4 sm:h-5 sm:w-5 shrink-0 place-items-center rounded-[3px] border border-accent/25 text-accent/60">
+                      <svg width="7" height="7" viewBox="0 0 9 9" aria-hidden="true">
+                        <path
+                          d="M1.2 7.8 1.6 5.9 5.7 1.8 7.2 3.3 3.1 7.4 1.2 7.8Z"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="0.8"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Composer */}
+          <div className="shrink-0 flex items-center gap-2 sm:gap-3 border-t border-primary-text/12 dark:border-primary-text-dark/12 pt-2 sm:pt-3">
+            <div className="flex-1 h-6 sm:h-8 rounded-full border border-primary-text/10 dark:border-primary-text-dark/14" />
+            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-accent/30 shrink-0" />
+          </div>
+        </div>
+
+        <div className="w-px shrink-0 bg-primary-text/10 dark:bg-primary-text-dark/10" />
+
+        {/* Category bars */}
+        <div className="w-[34%] sm:w-[32%] shrink-0 flex flex-col">
+          <div className="shrink-0 flex items-center gap-2">
+            <span className="font-josefin text-[7px] sm:text-[8px] font-bold tracking-[0.22em] uppercase text-accent/80 shrink-0">
+              Categories
+            </span>
+            <div className="h-px flex-1 bg-primary-text/10 dark:bg-primary-text-dark/10" />
+          </div>
+
+          <div className="flex-1 min-h-0 flex flex-col justify-center gap-3 sm:gap-4">
+            {[78, 62, 44, 28].map((width, i) => (
+              <div key={i} className="space-y-1.5">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-accent/55 shrink-0" />
+                  <Line w={i % 2 ? 'w-2/3' : 'w-3/4'} h="h-[2px]" />
+                  <span className="ml-auto font-josefin text-[7px] font-bold tracking-[0.12em] text-primary-text/25 dark:text-primary-text-dark/25 tabular-nums shrink-0">
+                    0{i + 1}
+                  </span>
+                </div>
+                <div className="h-[3px] sm:h-[4px] w-full rounded-full bg-primary-text/10 dark:bg-primary-text-dark/10 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-accent/50"
+                    style={{ width: `${width}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="shrink-0 flex items-center gap-2 pt-2 border-t border-primary-text/10 dark:border-primary-text-dark/10">
+            <Line w="w-12" h="h-[2px]" />
+            <div className="h-px flex-1 bg-primary-text/10 dark:bg-primary-text-dark/10" />
+            <div className="w-1.5 h-1.5 rounded-full bg-accent/40" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const VARIANTS = {
   mobile: Mobile,
   chat: Chat,
   browser: Browser,
   editorial: Editorial,
+  penny: Penny,
 };
 
 export default function ProjectVisual({ previewType, scale = 'md' }) {

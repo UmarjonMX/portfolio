@@ -7,41 +7,111 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="48x48" href="/images/favicon-48x48.png" />
-    <!-- Google Fonts: Host Grotesk, Libre Baskerville, Josefin Slab -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&family=Josefin+Slab:ital,wght@0,300..700;1,300..700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="apple-touch-icon" href="/images/favicon-48x48.png" />
+    <link rel="manifest" href="/site.webmanifest" />
 
-    <!-- Primary Meta Tags -->
-    <title>Umarjon MX - Junior Full-Stack Developer</title>
+    <!-- Self-hosted fonts are preloaded below; Google Fonts is not render-blocking.
+         `display=swap` plus a preconnect keeps first paint from waiting on it. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/fonts/base-neue/BaseNeue-Regular.woff2"
+      crossorigin
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&family=Josefin+Slab:ital,wght@0,300..700;1,300..700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- ── Primary ─────────────────────────────────────────────────────── -->
+    <title>Umarjon MX — AI &amp; Robotics Student &amp; Software Developer</title>
+    <meta
+      name="description"
+      content="Portfolio of Umarjon MX, an AI &amp; Robotics student and software developer building backend systems and full-stack products from Namangan, Uzbekistan."
+    />
+    <link rel="canonical" href="https://umarjonmx.uz/" />
+    <meta name="author" content="Umarjon MX" />
     <meta name="google-site-verification" content="P5yzIuwNdcNdqzLNhVklBv6Dglp8Yl52dmFw11oGfkY" />
-    <meta name="description" content="Portfolio of Umarjon MX, a Junior Full-Stack Developer and AI enthusiast specializing in modern web technologies.">
-    <meta name="keywords" content="Umarjon MX, Full-Stack Developer, Frontend, Backend, AI, Vercel, Portfolio, Web Development">
-    <meta name="author" content="Umarjon MX">
+    <!-- Matches --color-background / --color-background-dark, so the mobile
+         browser chrome follows the theme instead of flashing white. -->
+    <meta name="theme-color" content="#FAF8F4" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1C1C1D" media="(prefers-color-scheme: dark)" />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
 
-    <!-- Open Graph / Facebook -->
-    <meta property="og:title" content="Umarjon MX - Full-Stack Developer">
-    <meta property="og:description" content="Discover the projects and skills of Umarjon MX.">
-    <meta property="og:url" content="https://umarjonmx.uz">
-    <meta property="og:type" content="website">
-    <meta property="og:image" content="/images/favicon-48x48.png">
+    <!-- ── Open Graph ─────────────────────────────────────────────────────
+         `og:image` used to be the 48×48 favicon, which every platform rendered
+         as a postage stamp. It is now a real 1200×630 card (`npm run og`). -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Umarjon MX" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="uz_UZ" />
+    <meta property="og:url" content="https://umarjonmx.uz/" />
+    <meta property="og:title" content="Umarjon MX — Building products people actually use" />
+    <meta
+      property="og:description"
+      content="AI &amp; Robotics student and software developer. Selected projects, technical background, and case studies — built from Namangan, Uzbekistan."
+    />
+    <meta property="og:image" content="https://umarjonmx.uz/images/og.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Umar Builds — Umarjon MX, AI &amp; Robotics student and software developer"
+    />
 
-    <!-- JSON-LD Structured Data -->
+    <!-- ── Twitter / X ───────────────────────────────────────────────────── -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Umarjon MX — Building products people actually use" />
+    <meta
+      name="twitter:description"
+      content="AI &amp; Robotics student and software developer. Selected projects, technical background, and case studies."
+    />
+    <meta name="twitter:image" content="https://umarjonmx.uz/images/og.png" />
+    <meta name="twitter:image:alt" content="Umarjon MX — portfolio" />
+
+    <!-- ── Structured data ────────────────────────────────────────────────
+         `name` matches the branding used everywhere on the site; the previous
+         value ("Muhammad Umar") appeared nowhere else on the page. -->
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Person",
-      "name": "Muhammad Umar",
-      "alternateName": "Umarjon MX",
-      "jobTitle": "Junior Full-Stack Developer",
-      "url": "https://umarjonmx.uz",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "Namangan",
-        "addressCountry": "UZ"
-      },
-      "knowsAbout": ["Web Development", "Artificial Intelligence", "React", "Node.js", "Full-Stack"]
-    }
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "@id": "https://umarjonmx.uz/#person",
+        "name": "Umarjon MX",
+        "alternateName": "Muhammad Umarjonov",
+        "jobTitle": "Software Developer",
+        "description": "AI &amp; Robotics student and software developer working on backend systems and full-stack products.",
+        "url": "https://umarjonmx.uz",
+        "image": "https://umarjonmx.uz/images/og.png",
+        "email": "mailto:umarjonmx@gmail.com",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Namangan",
+          "addressCountry": "UZ"
+        },
+        "alumniOf": {
+          "@type": "CollegeOrUniversity",
+          "name": "International Digital University (IDU)"
+        },
+        "knowsAbout": [
+          "Artificial Intelligence",
+          "Robotics",
+          "Python",
+          "JavaScript",
+          "Backend Development",
+          "Product Engineering"
+        ],
+        "sameAs": [
+          "https://github.com/UmarjonMX",
+          "https://www.linkedin.com/in/umarjon-muhammadjonov-4ba177281",
+          "https://t.me/UmarjonMX",
+          "https://instagram.com/umarjonmx"
+        ]
+      }
     </script>
   </head>
   <body>

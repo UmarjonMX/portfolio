@@ -28,6 +28,16 @@ export default function SectionHeader({ title, number }) {
        and is far smaller than the page's own section padding. No spacer, and
        no change to any page-wide spacing. */
     <div className="sticky top-[88px] z-20 flex justify-center w-full mb-16 pointer-events-none">
+      {/* The shelf the capsule sits on. Full-bleed (the wrapper is inside the
+          section's measure, so `w-screen` is what makes it reach both edges)
+          and masked by a gradient so it has no bottom edge. It is the same
+          tint as the fixed top veil and overlaps it at 48–88px, so the two
+          read as one continuous surface rather than two stacked bands. */}
+      <span
+        aria-hidden="true"
+        className="chapter-veil pointer-events-none absolute left-1/2 top-[-40px] h-[144px] w-screen -translate-x-1/2"
+      />
+
       <div
         style={{
           height: PANEL_HEIGHT,
@@ -59,10 +69,15 @@ export default function SectionHeader({ title, number }) {
         />
         {/* `whitespace-nowrap` is the guarantee behind the shared height: a long
             title in a second language widens the capsule, it never wraps into
-            the box. */}
-        <span className="relative font-josefin text-sm font-bold tracking-[0.25em] text-primary-text dark:text-primary-text-dark uppercase whitespace-nowrap">
+            the box.
+
+            The title is the chapter's heading, so it is an <h2>: every section
+            on the page previously started at <h3>, leaving the document with a
+            single <h1> and no <h2> at all. A reset rule in index.css strips the
+            UA font-size/weight, so the rendered type is unchanged. */}
+        <h2 className="relative m-0 font-josefin text-sm font-bold tracking-[0.25em] text-primary-text dark:text-primary-text-dark uppercase whitespace-nowrap">
           {title}
-        </span>
+        </h2>
       </div>
     </div>
   );
