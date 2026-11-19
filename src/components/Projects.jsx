@@ -169,7 +169,6 @@ export default function Projects() {
     <section
       id="projects"
       data-chapter="projects"
-      style={{ position: 'relative', zIndex: 50, isolation: 'isolate' }}
       className="relative py-32 px-6 sm:px-10 lg:px-16 max-w-[90rem] mx-auto border-b border-primary-text/10 dark:border-primary-text-dark/10"
     >
       {/* Editorial Background: Architecture Wireframes */}

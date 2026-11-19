@@ -26,18 +26,14 @@ export default function SectionHeader({ title, number }) {
        marker pins *below* it rather than across it. The offset clears the
        Navbar's tallest state — the unified bar, 68px — with room to breathe,
        and is far smaller than the page's own section padding. No spacer, and
-       no change to any page-wide spacing. */
-    <div className="sticky top-[88px] z-20 flex justify-center w-full mb-16 pointer-events-none">
-      {/* The shelf the capsule sits on. Full-bleed (the wrapper is inside the
-          section's measure, so `w-screen` is what makes it reach both edges)
-          and masked by a gradient so it has no bottom edge. It is the same
-          tint as the fixed top veil and overlaps it at 48–88px, so the two
-          read as one continuous surface rather than two stacked bands. */}
-      <span
-        aria-hidden="true"
-        className="chapter-veil pointer-events-none absolute left-1/2 top-[-40px] h-[144px] w-screen -translate-x-1/2"
-      />
+       no change to any page-wide spacing.
 
+       z-[66] is only meaningful at the root stacking level: it must stay above
+       the blurred top veil (z-65) and below the Navbar (z-70). The section
+       wrappers therefore carry no z-index of their own — a positioned
+       ancestor with one would trap this capsule below the veil and blur the
+       one header that must stay crisp. */
+    <div className="sticky top-[88px] z-[66] flex justify-center w-full mb-16 pointer-events-none">
       <div
         style={{
           height: PANEL_HEIGHT,

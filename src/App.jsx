@@ -67,8 +67,15 @@ function Chapter({ id, children }) {
   const opacity = useTransform(p, (v) => (reduced ? 1 : seg(v, 0.02, 0.5)));
   const y = useTransform(p, (v) => (reduced ? 0 : 30 * (1 - seg(v, 0.02, 0.55))));
 
+  // Stacking context & sticky positioning guarantee:
+  // Once settled (p >= 0.55 or reduced motion), transform becomes 'none' and
+  // opacity is omitted, ensuring no persistent stacking context or containing block
+  // traps the sticky chapter SectionHeader (z-66) below the fixed top veil (z-65).
+  const transform = useTransform(y, (v) => (v === 0 ? 'none' : `translateY(${v}px)`));
+  const motionOpacity = useTransform(opacity, (v) => (v === 1 ? undefined : v));
+
   return (
-    <motion.div style={{ opacity, y }} className="w-full">
+    <motion.div style={{ opacity: motionOpacity, transform }} className="w-full">
       {children}
     </motion.div>
   );
@@ -190,14 +197,10 @@ function AppContent() {
       
       <ChapterReadout />
 
-      {/* Content scrolling under the fixed Navbar fades out at the top edge
-          instead of showing between its capsules. Sits under the Navbar and
-          under the sticky chapter capsule (whose own shelf takes over at
-          88px), and above every section. */}
-      <div
-        aria-hidden="true"
-        className="top-veil pointer-events-none fixed inset-x-0 top-0 z-[65] h-[88px]"
-      />
+      {/* Content scrolling under the fixed Navbar is softened by a masked
+          backdrop-blur strip (no painted colour). Sits under the Navbar and the
+          sticky chapter capsule, above page content. */}
+      <div aria-hidden="true" className="top-veil" />
 
       <Navbar isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
 
@@ -206,7 +209,7 @@ function AppContent() {
            one background, one scroll position, one document. */
         <main
           id="main-content"
-          style={{ position: 'relative', zIndex: 10 }}
+          style={{ position: 'relative' }}
           className="flex-grow pt-20 w-full overflow-x-clip"
         >
           <Suspense fallback={<div />}>
@@ -216,7 +219,7 @@ function AppContent() {
       ) : (
         <main
           id="main-content"
-          style={{ position: 'relative', zIndex: 10 }}
+          style={{ position: 'relative' }}
           className="flex-grow pt-20 w-full overflow-x-clip"
         >
           <Hero isDarkMode={isDarkMode} />

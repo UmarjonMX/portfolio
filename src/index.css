@@ -80,47 +80,29 @@
   }
 }
 
-/* ── Scroll veils ─────────────────────────────────────────────────────────
-   Two surfaces keep the fixed Navbar and the pinned chapter capsule from
-   having content pass between or across them.
-
-   The tint is sampled from the rendered ambient field at the top of the
-   viewport, not taken from the flat `--color-background` token: the field is
-   what is actually visible behind the page, and it is noticeably warmer and
-   darker than the token, so a token-coloured bar would read as a white strip.
-   The alpha is high enough to erase type (a heading behind 5% of its own ink
-   is still legible) and the long gradient is what makes it read as a fade
-   rather than an edge. No backdrop-filter: at this opacity it would only add
-   a compositor layer without changing a pixel. */
-:root {
-  --veil-rgb: 238, 233, 227;
-}
-
-html.dark {
-  --veil-rgb: 14, 16, 19;
-}
-
-/* Below the Navbar (z-70), above every in-page layer. It ends exactly at the
-   chapter capsule's sticky top (88px) so it never paints over the capsule. */
+/* ── Top veil ────────────────────────────────────────────────────────────
+   A fixed strip that softens content passing under the Navbar/chapter capsule
+   without painting a sampled colour. Backdrop blur is masked so it is fully
+   present at the top and dissolves to nothing below (no hard edge, no tint). */
 .top-veil {
-  background: linear-gradient(
-    to bottom,
-    rgba(var(--veil-rgb), 0.985) 0,
-    rgba(var(--veil-rgb), 0.985) 56px,
-    rgba(var(--veil-rgb), 0) 88px
-  );
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 150px;
+  z-index: 65;
+  pointer-events: none;
+  background: transparent;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 56px, transparent 150px);
+  mask-image: linear-gradient(to bottom, #000 0, #000 56px, transparent 150px);
 }
 
-/* The full-bleed shelf that travels with a pinned SectionHeader. Its solid
-   core covers the 44px capsule and the first few pixels below it; the last
-   56px dissolve into the page. */
-.chapter-veil {
-  background: linear-gradient(
-    to bottom,
-    rgba(var(--veil-rgb), 0.985) 0,
-    rgba(var(--veil-rgb), 0.985) 88px,
-    rgba(var(--veil-rgb), 0) 144px
-  );
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .top-veil {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    /* Fallback: plain mask fade only (no colour painted). */
+  }
 }
 
 html {
@@ -275,4 +257,180 @@ html {
 
 .dark .glass3d {
   --color-glass3d: rgb(255 255 255 / 0.025);
+}
+
+/* ─── Liquid Glass ─────────────────────────────────────────────────────────
+   The optical material of the three navigation capsules.
+
+   The surface is a filtered backdrop, not a painted card: blur to erase the
+   detail but keep the colour, saturation to bring the field's warmth back
+   through the glass, and a very light tint so type keeps its footing. The
+   layers above it are the optics — a light top edge, a dark bottom edge, a
+   soft light band under each rim, and a specular that follows the pointer.
+   No single bright outline around the shape: the top edge carries the light,
+   the sides almost none, the bottom a shade.
+
+   `isolation` keeps the screen-blended specular inside the capsule instead
+   of blending with the page behind it. `--lg-lit` and `--lg-mx/--lg-my` are
+   written by Navbar's pointer listener directly, so the highlight never
+   causes a React render. */
+.liquid-glass {
+  --lg-tint: rgba(255, 253, 248, 0.12);
+  --lg-tint-top: rgba(255, 255, 255, 0.13);
+  --lg-rim-top: rgba(255, 255, 255, 0.85);
+  --lg-rim-top-soft: rgba(255, 255, 255, 0.30);
+  --lg-rim-side: rgba(255, 255, 255, 0.22);
+  --lg-rim-bottom: rgba(28, 26, 22, 0.20);
+  --lg-rim-bottom-soft: rgba(28, 26, 22, 0.16);
+  --lg-refract: rgba(255, 255, 255, 0.16);
+  --lg-bounce: rgba(255, 255, 255, 0.09);
+  --lg-specular: rgba(255, 255, 255, 0.62);
+  --lg-mx: 0.5;
+  --lg-my: 0.2;
+  --lg-lit: 0;
+
+  isolation: isolate;
+  background:
+    linear-gradient(180deg, var(--lg-tint-top) 0%, transparent 30%),
+    var(--lg-tint);
+  -webkit-backdrop-filter: blur(20px) saturate(185%) brightness(1.02);
+  backdrop-filter: blur(20px) saturate(185%) brightness(1.02);
+}
+
+html.dark .liquid-glass {
+  --lg-tint: rgba(16, 18, 22, 0.30);
+  --lg-tint-top: rgba(255, 255, 255, 0.055);
+  --lg-rim-top: rgba(255, 255, 255, 0.40);
+  --lg-rim-top-soft: rgba(255, 255, 255, 0.10);
+  --lg-rim-side: rgba(255, 255, 255, 0.12);
+  --lg-rim-bottom: rgba(0, 0, 0, 0.45);
+  --lg-rim-bottom-soft: rgba(0, 0, 0, 0.30);
+  --lg-refract: rgba(255, 255, 255, 0.07);
+  --lg-bounce: rgba(255, 255, 255, 0.04);
+  --lg-specular: rgba(255, 255, 255, 0.36);
+}
+
+.liquid-glass__layers,
+.liquid-glass__edge,
+.liquid-glass__side,
+.liquid-glass__refract,
+.liquid-glass__specular-wrap,
+.liquid-glass__specular,
+.liquid-glass__sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* The one-pixel rim, weighted by direction: bright along the lit top edge,
+   nearly absent at the sides, shaded at the base. The blurred inner bands
+   just under each rim are the light bending through the thick edge. */
+.liquid-glass__edge {
+  box-shadow:
+    inset 0 1px 0 var(--lg-rim-top),
+    inset 0 6px 9px -8px var(--lg-rim-top-soft),
+    inset 0 -1px 0 var(--lg-rim-bottom),
+    inset 0 -7px 10px -8px var(--lg-rim-bottom-soft);
+}
+
+/* A 1px patch over the joint between two welded pieces. Each capsule's
+   optical layers fill its *padding* box, so the 1px border on each side of a
+   seam leaves a matching 1px gap in the top and bottom rims. This span sits
+   outside the padding box at exactly that gap and carries only the rims and
+   the refraction bands, so the continuous light line across the bar has no
+   notch. It is drawn by the right-hand piece of the joint — the one painted
+   last — and fades out as soon as the pieces start to separate, long before
+   the gap between them is wide enough to notice it. */
+.liquid-glass__seam {
+  display: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 100%;
+  width: 1px;
+  border-radius: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, var(--lg-refract) 0%, transparent 26%),
+    linear-gradient(0deg, var(--lg-bounce) 0%, transparent 24%);
+  box-shadow:
+    inset 0 1px 0 var(--lg-rim-top),
+    inset 0 -1px 0 var(--lg-rim-bottom);
+}
+
+.liquid-glass--seam-left .liquid-glass__seam {
+  display: block;
+}
+
+/* Side rims are a separated-capsule property: while the three pieces are
+   welded into one bar they would draw vertical lines through it, so their
+   opacity follows the Navbar's `detach` response instead. */
+.liquid-glass__side {
+  box-shadow:
+    inset 1px 0 0 var(--lg-rim-side),
+    inset -1px 0 0 var(--lg-rim-side);
+}
+
+/* Curved-edge light: a soft highlight under the top rim and a faint bounce
+   off the bottom, suggesting light entering and leaving a thick edge without
+   sampling the backdrop itself (these are gradients, not refraction).
+
+   Both bands are vertical gradients on purpose. A radial one would restart in
+   each capsule and step at the seams while the bar is welded; a vertical band
+   is identical at every x, so the three pieces share one continuous run of
+   light. */
+.liquid-glass__refract {
+  background:
+    linear-gradient(180deg, var(--lg-refract) 0%, transparent 26%),
+    linear-gradient(0deg, var(--lg-bounce) 0%, transparent 24%);
+}
+
+/* A slow diagonal reflection. Because it is diagonal it is sized to one
+   capsule, so it only makes sense once the bar has split: its opacity follows
+   the Navbar's `detach` response, which also keeps the welded bar free of a
+   step at each seam. It shifts a little with the pointer instead of scanning
+   across the capsule. */
+.liquid-glass__sheen {
+  background: linear-gradient(
+    112deg,
+    transparent 26%,
+    rgba(255, 255, 255, 0.09) 40%,
+    rgba(255, 255, 255, 0.02) 50%,
+    transparent 63%
+  );
+  transform: translateX(calc((var(--lg-mx) - 0.5) * 26%));
+  transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* The pointer highlight. Fades in when the pointer is over the bar, fades
+   out when it leaves; position is written as two CSS variables per frame. */
+.liquid-glass__specular {
+  opacity: var(--lg-lit);
+  mix-blend-mode: screen;
+  background: radial-gradient(
+    170px 90px at calc(var(--lg-mx) * 100%) calc(var(--lg-my) * 100%),
+    var(--lg-specular),
+    transparent 64%
+  );
+  transition: opacity 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* No backdrop filter: keep the optics, but restore enough body that a heading
+   passing underneath cannot be read through the capsules. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .liquid-glass {
+    --lg-tint: rgba(252, 250, 245, 0.90);
+  }
+
+  html.dark .liquid-glass {
+    --lg-tint: rgba(18, 20, 24, 0.92);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liquid-glass__sheen,
+  .liquid-glass__specular {
+    transition: none;
+  }
 }

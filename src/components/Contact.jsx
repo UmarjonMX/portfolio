@@ -91,10 +91,10 @@ export default function Contact() {
   };
 
   return (
-    <section id="contact" data-chapter="contact" className="py-32 relative z-10 w-full overflow-hidden">
+    <section id="contact" data-chapter="contact" className="py-32 relative w-full">
 
       {/* Editorial Background: Signal Waves */}
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-20 dark:opacity-10 text-primary-text dark:text-primary-text-dark flex items-center justify-center">
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-20 dark:opacity-10 text-primary-text dark:text-primary-text-dark flex items-center justify-center overflow-hidden">
         <svg className="w-full h-full opacity-50" xmlns="http://www.w3.org/2000/svg">
           <g stroke="currentColor" strokeWidth="0.5" fill="none">
             <circle cx="50%" cy="50%" r="200" strokeDasharray="1 6" strokeOpacity="0.4" />

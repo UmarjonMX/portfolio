@@ -25,7 +25,7 @@ export default function BuilderDashboard() {
   };
 
   return (
-    <section id="resume" data-chapter="engineering" className="relative py-32 px-6 sm:px-10 lg:px-16 max-w-[90rem] mx-auto z-10 border-b border-primary-text/10 dark:border-primary-text-dark/10">
+    <section id="resume" data-chapter="engineering" className="relative py-32 px-6 sm:px-10 lg:px-16 max-w-[90rem] mx-auto border-b border-primary-text/10 dark:border-primary-text-dark/10">
 
       {/* Editorial Background: Logic / PCB Lines */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-20 dark:opacity-10 text-primary-text dark:text-primary-text-dark flex items-center justify-center overflow-hidden">
