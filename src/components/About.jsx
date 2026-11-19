@@ -32,7 +32,7 @@ export default function About() {
   );
 
   return (
-    <section id="about" data-chapter="about" className="relative py-32 px-6 sm:px-10 lg:px-16 max-w-7xl mx-auto z-10 border-b border-primary-text/10 dark:border-primary-text-dark/10">
+    <section id="about" data-chapter="about" className="relative py-32 px-6 sm:px-10 lg:px-16 max-w-7xl mx-auto border-b border-primary-text/10 dark:border-primary-text-dark/10">
       
       {/* Editorial Background: Neural Paths / System Diagram */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-20 dark:opacity-10 text-primary-text dark:text-primary-text-dark flex items-center justify-center overflow-hidden">
@@ -56,10 +56,18 @@ export default function About() {
         {/* Left: Sticky Portrait */}
         <div className="lg:col-span-5 lg:sticky lg:top-32 w-full max-w-md mx-auto lg:max-w-full">
           <div className="relative w-full aspect-[4/5] sm:aspect-square lg:aspect-[3/4] rounded-2xl overflow-hidden group border border-primary-text/10 dark:border-primary-text-dark/10 shadow-sm">
-            {/* The Image */}
-            <img 
-              src="/images/Umar.jpeg" 
-              alt="Umar - Portrait" 
+            {/* The image. Sized at 900×1200 — a little over 2× the ~440 px it renders
+              at — and lazily decoded: it is the largest paint on the page and
+              it sits below the fold, so it should never compete with the hero.
+              `width`/`height` on a `fill` image are inert but keep the file
+              from being laid out at its intrinsic ratio before CSS loads. */}
+            <img
+              src="/images/Umar.jpg"
+              alt={t('meta.portrait')}
+              width={900}
+              height={1200}
+              loading="lazy"
+              decoding="async"
               className="absolute inset-0 w-full h-full object-cover object-center grayscale hover:grayscale-0 transition-all duration-700 ease-in-out transform group-hover:scale-105"
             />
             {/* Glass Vignette overlay for text integration / premium feel */}
@@ -68,11 +76,11 @@ export default function About() {
           
           <div className="mt-6 flex flex-col sm:flex-row items-center justify-between opacity-80 gap-4">
             <div className="font-josefin text-xs tracking-widest uppercase text-primary-text dark:text-primary-text-dark font-bold">
-              PORTRAIT_01 // SYSTEM_ARCHITECT
+              {t('about.caption')}
             </div>
             <div className="h-[1px] flex-1 bg-primary-text/10 dark:bg-primary-text-dark/10 hidden sm:block mx-4"></div>
             <div className="font-host text-xs text-primary-text/60 dark:text-primary-text-dark/60">
-              EST. 2026
+              {t('about.since')}
             </div>
           </div>
         </div>
@@ -104,7 +112,7 @@ export default function About() {
             <div className="relative sm:pl-12 group">
               <div className="absolute left-0 top-1.5 w-6 h-6 rounded-full border-2 border-background dark:border-background-dark bg-accent shadow-[0_0_15px_rgba(224,122,95,0.4)] hidden sm:block transition-transform duration-300 group-hover:scale-125"></div>
               <div className="font-josefin text-xs font-bold text-accent uppercase tracking-widest mb-4">
-                01. Core Principle
+                01. {t('about.lens.one')}
               </div>
               <h4 className="text-xl sm:text-2xl font-bold mb-4 text-primary-text dark:text-primary-text-dark font-host tracking-tight">
                 {manifesto.focus1.title}
@@ -118,7 +126,7 @@ export default function About() {
             <div className="relative sm:pl-12 group">
               <div className="absolute left-0 top-1.5 w-6 h-6 rounded-full border-2 border-background dark:border-background-dark bg-accent/20 hidden sm:block transition-colors duration-300 group-hover:bg-accent group-hover:shadow-[0_0_15px_rgba(224,122,95,0.4)]"></div>
               <div className="font-josefin text-xs font-bold text-primary-text/40 dark:text-primary-text-dark/40 uppercase tracking-widest mb-4 group-hover:text-accent transition-colors duration-300">
-                02. Engineering
+                02. {t('about.lens.two')}
               </div>
               <h4 className="text-xl sm:text-2xl font-bold mb-4 text-primary-text dark:text-primary-text-dark font-host tracking-tight">
                 {manifesto.focus2.title}
@@ -132,7 +140,7 @@ export default function About() {
             <div className="relative sm:pl-12 group">
               <div className="absolute left-0 top-1.5 w-6 h-6 rounded-full border-2 border-background dark:border-background-dark bg-accent/20 hidden sm:block transition-colors duration-300 group-hover:bg-accent group-hover:shadow-[0_0_15px_rgba(224,122,95,0.4)]"></div>
               <div className="font-josefin text-xs font-bold text-primary-text/40 dark:text-primary-text-dark/40 uppercase tracking-widest mb-4 group-hover:text-accent transition-colors duration-300">
-                03. User Experience
+                03. {t('about.lens.three')}
               </div>
               <h4 className="text-xl sm:text-2xl font-bold mb-4 text-primary-text dark:text-primary-text-dark font-host tracking-tight">
                 {manifesto.focus3.title}

@@ -26,8 +26,14 @@ export default function SectionHeader({ title, number }) {
        marker pins *below* it rather than across it. The offset clears the
        Navbar's tallest state — the unified bar, 68px — with room to breathe,
        and is far smaller than the page's own section padding. No spacer, and
-       no change to any page-wide spacing. */
-    <div className="sticky top-[88px] z-20 flex justify-center w-full mb-16 pointer-events-none">
+       no change to any page-wide spacing.
+
+       z-[66] is only meaningful at the root stacking level: it must stay above
+       the blurred top veil (z-65) and below the Navbar (z-70). The section
+       wrappers therefore carry no z-index of their own — a positioned
+       ancestor with one would trap this capsule below the veil and blur the
+       one header that must stay crisp. */
+    <div className="sticky top-[88px] z-[66] flex justify-center w-full mb-16 pointer-events-none">
       <div
         style={{
           height: PANEL_HEIGHT,
@@ -59,10 +65,15 @@ export default function SectionHeader({ title, number }) {
         />
         {/* `whitespace-nowrap` is the guarantee behind the shared height: a long
             title in a second language widens the capsule, it never wraps into
-            the box. */}
-        <span className="relative font-josefin text-sm font-bold tracking-[0.25em] text-primary-text dark:text-primary-text-dark uppercase whitespace-nowrap">
+            the box.
+
+            The title is the chapter's heading, so it is an <h2>: every section
+            on the page previously started at <h3>, leaving the document with a
+            single <h1> and no <h2> at all. A reset rule in index.css strips the
+            UA font-size/weight, so the rendered type is unchanged. */}
+        <h2 className="relative m-0 font-josefin text-sm font-bold tracking-[0.25em] text-primary-text dark:text-primary-text-dark uppercase whitespace-nowrap">
           {title}
-        </span>
+        </h2>
       </div>
     </div>
   );

@@ -1,2 +1,5 @@
 User-agent: *
 Allow: /
+
+# Build artefacts and the project itself have nothing a crawler needs.
+Disallow: /assets/

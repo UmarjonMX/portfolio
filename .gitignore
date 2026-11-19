@@ -31,3 +31,5 @@ check_errors.cjs
 screenshot.cjs
 screenshot.png
 out.css
+qa/shots/
+*.tmp

@@ -8,6 +8,7 @@ import {
 } from 'framer-motion';
 import { Moon, Sun, Globe } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import LiquidGlass from './LiquidGlass';
 import {
   PANEL_HEIGHT,
   PANEL_PAD_X,
@@ -45,17 +46,18 @@ import {
  * single rounded bar. Verified by walking a scanline across it: at the top of
  * the Hero it is one uninterrupted run of surface; past the Hero, three.
  *
- * `.glass3d` is deliberately not used here. Its `position: relative; z-index: 4`
- * and `.glass3d > * { position: relative; z-index: 6 }` are unlayered rules
- * that would rewrite the positioning of these capsules, and at this size the
- * material reads better as a hard surface than as glass. Glass3D itself is
- * unchanged.
+ * `.glass3d` is still deliberately not used. Its `position: relative;
+ * z-index: 4` and `.glass3d > * { position: relative; z-index: 6 }` are
+ * unlayered rules that would rewrite the positioning of these capsules.
+ * The material is `.liquid-glass` in `index.css`, with its optical layers
+ * in `./LiquidGlass`: a filtered backdrop, a directional rim, a continuous
+ * vertical light band and a pointer specular. Glass3D itself is unchanged.
  *
  * The separated state is not this file's private geometry: its height, radius,
- * padding, surface, outline, highlight and elevation are read from
- * `./floatingPanel`, the same system the numbered chapter capsules are built
- * from. The constants below are therefore only the *unified* bar — its own
- * state, welded shut — plus the values the morph travels between.
+ * padding, outline and elevation are read from `./floatingPanel`, the same
+ * system the numbered chapter capsules are built from. The constants below
+ * are therefore only the *unified* bar — its own state, welded shut — plus the
+ * values the morph travels between.
  */
 
 /* ── Geometry ─────────────────────────────────────────────────────────────
@@ -86,11 +88,32 @@ const MENU_GAP = 6;
 const PANEL_W = 360; // widest the disclosure may become
 const PANEL_W_REST = 460;
 
-/* Windows into the morph. Geometry leads — the pieces move first — and the
-   material follows, so each piece arrives somewhere before it becomes an
-   object. Both are read against the Hero's own pinned runway. */
-const TRAVEL_WINDOW = [0.06, 0.6];
-const MATERIAL_WINDOW = [0.2, 0.68];
+/* ── The separation curve ────────────────────────────────────────────────
+   One normalized progress value drives the whole morph; everything else is a
+   response curve of it, never a second timeline. `travel` is that progress:
+   the scroll window, eased so the pieces leave and arrive without a snap.
+
+   The separation is staged the way iOS separates a notification from its
+   actions. First the shared boundary cracks: the welded rim patch disappears
+   while the gap is still a few pixels. Then `detach` takes over — the adjoining
+   corners round off as each cut face gains its own outline and rim light, so
+   they become the rounded ends of two independent surfaces rather than square
+   slabs. Only after that do the pieces finish drifting to their resting
+   places. The old code had this backwards: the pieces travelled for most of
+   the morph with square inner corners and invisible side edges, which read as
+   rectangular slabs sliding apart rather than one surface coming apart.
+
+   All three curves are pure functions of the same normalized progress, so the
+   separation is identical in both scroll directions and cannot drift. */
+const MORPH_WINDOW = [0.06, 0.6];
+/* Corners begin to turn after the crack has opened (so a radius never cuts a
+   notch into the welded bar) and are fully round as the capsules detach. */
+const DETACH_WINDOW = [0.02, 0.45];
+/* The 1px welded rim patch dissolves naturally across the opening of the crack. */
+const SEAM_WINDOW = [0, 0.08];
+/* The disclosure trigger grows into the right capsule once the three pieces
+   are already independent, so the controls settle last. */
+const MENU_WINDOW = [0.55, 0.9];
 
 /** Smoothstep: no overshoot, no bounce — the pieces settle, they do not snap. */
 const smooth = (v) => v * v * (3 - 2 * v);
@@ -144,6 +167,7 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
 
   const menuRef = useRef(null);
   const toggleRef = useRef(null);
+  const headerRef = useRef(null);
   const firstLinkRef = useRef(null);
   const linksRef = useRef(null);
   const logoRef = useRef(null);
@@ -193,11 +217,20 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
      travelling between them: the same object, the same content, no large
      spatial animation. */
   const morph = useTransform(source, (v) => (reduced ? (v > 0.5 ? 1 : 0) : v));
+  /* The one normalized progress every part of the morph reads. */
   const travel = useTransform(morph, (v) =>
-    smooth(seg(v, TRAVEL_WINDOW[0], TRAVEL_WINDOW[1]))
+    smooth(seg(v, MORPH_WINDOW[0], MORPH_WINDOW[1]))
   );
-  const material = useTransform(morph, (v) =>
-    smooth(seg(v, MATERIAL_WINDOW[0], MATERIAL_WINDOW[1]))
+  /* The detachment response: radii, cut-face outlines and the side rims all
+     come from this, so the boundary opens, the corners round and the optics
+     become per-capsule as one event rather than three that drift apart. */
+  const detach = useTransform(travel, (v) =>
+    smooth(seg(v, DETACH_WINDOW[0], DETACH_WINDOW[1]))
+  );
+  /* The disclosure trigger has its own curve of the same progress: it belongs
+     to the settled right capsule, not to the separation. */
+  const menuReveal = useTransform(travel, (v) =>
+    smooth(seg(v, MENU_WINDOW[0], MENU_WINDOW[1]))
   );
 
   /* ── Viewport ───────────────────────────────────────────────────────────
@@ -213,6 +246,63 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
       window.removeEventListener('orientationchange', onResize);
     };
   }, [vw]);
+
+  /* ── Pointer specular ──────────────────────────────────────────────────
+     The glass reflection follows the pointer without touching React: one
+     passive listener on the header, one rAF, three CSS-variable writes. Fine
+     pointers only, and never under reduced motion. */
+  const finePointer = useMediaQuery('(hover: hover) and (pointer: fine)');
+  useEffect(() => {
+    const header = headerRef.current;
+    if (!header || reduced || !finePointer) return undefined;
+    const pieces = [...header.querySelectorAll('.liquid-glass')];
+    if (!pieces.length) return undefined;
+    let raf = 0;
+    let clientX = 0;
+    let clientY = 0;
+    const apply = () => {
+      raf = 0;
+      for (const el of pieces) {
+        const r = el.getBoundingClientRect();
+        if (r.width < 1 || r.height < 1) continue;
+        const x = Math.min(1, Math.max(0, (clientX - r.left) / r.width));
+        const y = Math.min(1, Math.max(0, (clientY - r.top) / r.height));
+        const inside =
+          clientX >= r.left && clientX <= r.right && clientY >= r.top && clientY <= r.bottom;
+        el.style.setProperty('--lg-mx', x.toFixed(3));
+        el.style.setProperty('--lg-my', y.toFixed(3));
+        el.style.setProperty('--lg-lit', inside ? '1' : '0');
+      }
+    };
+    const onMove = (e) => {
+      clientX = e.clientX;
+      clientY = e.clientY;
+      if (!raf) raf = requestAnimationFrame(apply);
+    };
+    const onLeave = () => {
+      if (raf) {
+        cancelAnimationFrame(raf);
+        raf = 0;
+      }
+      for (const el of pieces) el.style.setProperty('--lg-lit', '0');
+    };
+    /* `pointerleave` does not bubble, and the header itself is
+       `pointer-events: none`, so the direct leaves have to be caught on the
+       capsules. Without this the last capsule under the pointer would keep its
+       frozen highlight after the pointer had already gone. */
+    const onLeavePiece = (e) => {
+      e.currentTarget.style.setProperty('--lg-lit', '0');
+    };
+    for (const el of pieces) el.addEventListener('pointerleave', onLeavePiece);
+    header.addEventListener('pointermove', onMove, { passive: true });
+    header.addEventListener('pointerleave', onLeave);
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      for (const el of pieces) el.removeEventListener('pointerleave', onLeavePiece);
+      header.removeEventListener('pointermove', onMove);
+      header.removeEventListener('pointerleave', onLeave);
+    };
+  }, [finePointer, reduced]);
 
   /* ── Measured content ───────────────────────────────────────────────────
      Three widths: the logo row, the five links, and the always-present
@@ -236,8 +326,8 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
 
   /* The hamburger belongs to the right capsule only once the pieces have
      separated — while they are one bar, its five links are already on screen. */
-  const menuW = useTransform(material, (v) => (isSplit ? MENU_W * v : MENU_W));
-  const menuGap = useTransform(material, (v) => (isSplit ? MENU_GAP * v : MENU_GAP));
+  const menuW = useTransform(menuReveal, (v) => (isSplit ? MENU_W * v : MENU_W));
+  const menuGap = useTransform(menuReveal, (v) => (isSplit ? MENU_GAP * v : MENU_GAP));
 
   /* Widths. The centre tile is the five links plus its own border plus the
      slack that turns them from an inner pill into a capsule. */
@@ -247,7 +337,7 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
   );
   const wLinks = useTransform(linksW, (c) => (c > 20 ? c + LINKS_INSET : 0));
   const wRight = useTransform(
-    [material, travel, controlsW],
+    [menuReveal, travel, controlsW],
     ([m, e, c]) =>
       c + MENU_GAP * m + MENU_W * m + 2 * (PAD_X_REST + (PANEL_PAD_X - PAD_X_REST) * e) + 2
   );
@@ -266,7 +356,10 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
     [restLeft, wLeft, wLinks],
     ([x, l, c]) => x + l - (c > 20 ? WELD : 0)
   );
-  const restRight = useTransform([restLinks, wLinks], ([x, c]) => x + c - (c > 20 ? WELD : 0));
+  const restRight = useTransform(
+    [restLinks, wLinks, restLeft, wLeft],
+    ([x, c, rl, wl]) => (c > 20 ? x + c - WELD : rl + wl - WELD)
+  );
 
   /* Separated geometry — left capsule on the page inset, centre capsule on the
      viewport's centre line, right capsule on the right inset. */
@@ -279,29 +372,54 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
   const xRight = useTransform([restRight, splitRight, travel], ([a, b, e]) => a + (b - a) * e);
 
   /* ── Material ──────────────────────────────────────────────────────────
-     Corners stay square on the faces that are still welded to a neighbour and
-     only round as the gap in front of them opens. */
+     Every material response is a curve of `detach`, never a second timeline:
+     the crack opens (SEAM_WINDOW), the adjoining corners round (`detach`),
+     and each cut face takes on its own outline and rim light at the same
+     moment, so the three events cannot drift apart or step. */
   const outerRadius = useTransform(
-    travel,
+    detach,
     (v) => RADIUS_BAR + (PANEL_RADIUS - RADIUS_BAR) * v
   );
-  const innerRadius = useTransform(travel, (v) => PANEL_RADIUS * smooth(seg(v, 0.45, 1)));
+  const innerRadius = useTransform(detach, (v) => PANEL_RADIUS * v);
   const sheen = useTransform(travel, (v) => 0.25 + 0.75 * v);
+  const edgeLight = useTransform(detach, (v) => smooth(v));
+  /* The 1px joint patch is a welded-state device: it fills the border-width
+     gap between two neighbouring pieces' optical layers. It exists only for
+     the first pixels of the crack, and is gone before the capsule gap reads. */
+  const seamPatch = useTransform(travel, (v) =>
+    1 - smooth(seg(v, SEAM_WINDOW[0], SEAM_WINDOW[1]))
+  );
 
-  /* Surface, outline, top-edge highlight and elevation are the shared panel's, for
-     all three pieces: the separated composition still reads as three objects of
-     the same kind, and those are the same objects as the chapter capsules.
-     Translucent enough to float, opaque enough that a heading passing
-     underneath does not stay readable. */
-  const { surface, panelSurface, edge, tone, edgeAlpha, elevation, sheen: sheenBox } =
+  /* Outline and elevation are the shared panel's, for all three pieces: the
+     separated composition still reads as three objects of the same kind, and
+     those are the same objects as the chapter capsules. The body of the glass
+     is `.liquid-glass`; it is deliberately lighter than the shared opaque
+     `surface`, because the backdrop filter and the optics do the rest. */
+  const { panelSurface, edge, tone, edgeAlpha, elevation } =
     panelMaterial(isDarkMode);
 
-  /* Every piece carries the same 1px outline, welded or separated. That is what
-     makes the unified state read as one bar rather than three: the outline
-     across the top of the bar is the sum of three coincident edges, and the
-     vertical outlines of the inner pieces fall exactly on the seams. No colour
-     needs to animate — the pieces move, and the outline travels with them. */
-  const seam = edge;
+  /* Shadows emerge progressively: subtle grounded bar elevation while welded,
+     blooming into independent floating elevations as capsules detach. */
+  const restElevation = isDarkMode
+    ? '0 1px 4px -1px rgba(0, 0, 0, 0.4), 0 8px 20px -14px rgba(0, 0, 0, 0.7)'
+    : '0 1px 2px rgba(28, 28, 28, 0.04), 0 2px 6px -2px rgba(28, 28, 28, 0.08), 0 8px 18px -12px rgba(28, 28, 28, 0.20)';
+  const splitElevation = elevation;
+  const capsuleShadow = useTransform(
+    detach,
+    [0, 1],
+    [restElevation, splitElevation]
+  );
+
+  /* Every piece carries the same 1px outline, welded or separated, so the bar
+     reads as one object. The seams between the pieces are the exception: at
+     rest the three pieces overlap, and a dark hairline on each shared edge
+     would draw two vertical lines through the unified bar. `seamColor` follows
+     `detach`, the same curve that rounds the cut faces, so an outline appears
+     exactly as the surfaces stop sharing an edge. */
+  const seamColor = useTransform(detach, (v) => {
+    const a = edgeAlpha * smooth(v);
+    return `rgba(${tone}, ${a.toFixed(3)})`;
+  });
   /* And its mirror: the inner outline around the five links, which is what
      marks them as part of the bar until the capsule takes over. */
   const linkSeam = useTransform(
@@ -312,13 +430,17 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
      width change in the piece, not an effect painted over it. */
   const linkGap = useTransform(travel, (v) => 2 + 2 * v);
   const linkScale = useTransform(travel, (v) => 0.985 + 0.015 * v);
-  const menuOpacity = useTransform(material, (v) => smooth(seg(v, 0.25, 0.7)));
+  const menuOpacity = useTransform(menuReveal, (v) => v);
 
   /* One surface, one border and one shadow for all three pieces, so the
      separated composition still reads as three objects of the same kind. */
   const pieceClass =
-    'pointer-events-auto absolute left-0 top-0 flex items-center border backdrop-blur-md';
-  const sheenClass = 'pointer-events-none absolute inset-0 rounded-[inherit]';
+    'liquid-glass pointer-events-auto absolute left-0 top-0 flex items-center border';
+  /* The centre and controls pieces each have a neighbour on their left, so
+     they carry the joint patch that keeps the rim continuous across the 1px
+     seam. The logo has no left-hand neighbour and must not paint outside the
+     bar. */
+  const seamLeftClass = 'liquid-glass--seam-left';
 
   /* ── Disclosure ────────────────────────────────────────────────────────
      The menu hangs from the right capsule: it starts exactly that capsule's
@@ -421,9 +543,9 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
     /* Real floating UI: fixed, and above every in-page layer, so no section
        marker can ever paint across it. pointer-events-none here; the pieces
        and the disclosure re-enable it. */
-    <header className="fixed inset-x-0 top-0 z-[70] pointer-events-none">
+    <header ref={headerRef} className="fixed inset-x-0 top-0 z-[70] pointer-events-none">
       <Motion.nav
-        aria-label="Primary"
+        aria-label={t('meta.primaryNav')}
         style={{ paddingTop: railTop }}
         className="relative w-full"
       >
@@ -436,8 +558,7 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
               x: xLeft,
               width: wLeft,
               height: barH,
-              backgroundColor: surface,
-              boxShadow: elevation,
+              boxShadow: capsuleShadow,
               paddingLeft: padX,
               paddingRight: padX,
               borderTopLeftRadius: outerRadius,
@@ -447,18 +568,14 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
               borderTopColor: edge,
               borderBottomColor: edge,
               borderLeftColor: edge,
-              borderRightColor: seam,
+              borderRightColor: seamColor,
             }}
             className={`${pieceClass} justify-start`}
           >
-            <Motion.span
-              aria-hidden="true"
-              style={{ opacity: sheen, boxShadow: sheenBox }}
-              className={sheenClass}
-            />
+            <LiquidGlass sheen={sheen} edge={edgeLight} seam={seamPatch} />
             <a
               href="#"
-              aria-label="Umar — home"
+              aria-label={`${t('nav.home')} — Umar`}
               className="relative z-10 -m-1 rounded-lg p-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-white transition-opacity duration-200 hover:opacity-70 dark:focus-visible:ring-offset-[#141416]"
             >
               {/* The mark's own box. Both logo PNGs are a 483×517 canvas whose ink
@@ -488,31 +605,26 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
               x: xLinks,
               width: wLinks,
               height: barH,
-              backgroundColor: surface,
-              boxShadow: elevation,
+              boxShadow: capsuleShadow,
               borderTopLeftRadius: innerRadius,
               borderTopRightRadius: innerRadius,
               borderBottomLeftRadius: innerRadius,
               borderBottomRightRadius: innerRadius,
               borderTopColor: edge,
               borderBottomColor: edge,
-              borderLeftColor: seam,
-              borderRightColor: seam,
+              borderLeftColor: seamColor,
+              borderRightColor: seamColor,
             }}
-            className={`${pieceClass} hidden shrink-0 justify-center md:flex`}
+            className={`${pieceClass} ${seamLeftClass} hidden shrink-0 justify-center md:flex`}
           >
-            <Motion.span
-              aria-hidden="true"
-              style={{ opacity: sheen, boxShadow: sheenBox }}
-              className={sheenClass}
-            />
+            <LiquidGlass sheen={sheen} edge={edgeLight} seam={seamPatch} />
 
             {/* The links themselves: one pill, one gap rhythm. shrink-0 and
                 nowrap keep the measured width independent of the tile, so the
                 capsule can be sized without ever squeezing the type. */}
             <Motion.ul
               ref={linksRef}
-              aria-label="Sections"
+              aria-label={t('meta.sections')}
               style={{ gap: linkGap, scale: linkScale, borderColor: linkSeam }}
               className="relative z-10 m-0 flex min-w-max shrink-0 list-none items-center whitespace-nowrap rounded-full border px-0 py-0"
             >
@@ -549,8 +661,7 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
               x: xRight,
               width: wRight,
               height: barH,
-              backgroundColor: surface,
-              boxShadow: elevation,
+              boxShadow: capsuleShadow,
               paddingLeft: padX,
               paddingRight: padX,
               borderTopLeftRadius: innerRadius,
@@ -560,21 +671,17 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
               borderTopColor: edge,
               borderBottomColor: edge,
               borderRightColor: edge,
-              borderLeftColor: seam,
+              borderLeftColor: seamColor,
             }}
-            className={`${pieceClass} justify-start`}
+            className={`${pieceClass} ${seamLeftClass} justify-start`}
           >
-            <Motion.span
-              aria-hidden="true"
-              style={{ opacity: sheen, boxShadow: sheenBox }}
-              className={sheenClass}
-            />
+            <LiquidGlass sheen={sheen} edge={edgeLight} seam={seamPatch} />
 
             <div ref={controlsRef} className="relative z-10 inline-flex min-w-max shrink-0 items-center gap-1.5">
               <button
                 type="button"
                 onClick={toggleLanguage}
-                aria-label={`Change language, current ${lang.toUpperCase()}`}
+                aria-label={t('meta.changeLanguage', { lang: lang.toUpperCase() })}
                 className="flex h-9 items-center gap-1.5 rounded-lg border border-transparent px-2 font-host text-[11px] font-bold uppercase tracking-[0.12em] text-primary-text/65 transition-colors duration-200 hover:border-primary-text/10 hover:text-primary-text dark:text-primary-text-dark/65 dark:hover:border-white/10 dark:hover:text-primary-text-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
               >
                 <Globe size={12} className="shrink-0 opacity-60" />
@@ -584,7 +691,7 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
               <button
                 type="button"
                 onClick={toggleTheme}
-                aria-label={isDarkMode ? 'Switch to light theme' : 'Switch to dark theme'}
+                aria-label={isDarkMode ? t('meta.changeTheme.toLight') : t('meta.changeTheme.toDark')}
                 aria-pressed={isDarkMode}
                 className="rounded-lg border border-transparent p-2 text-primary-text/65 transition-colors duration-200 hover:border-primary-text/10 hover:text-primary-text dark:text-primary-text-dark/65 dark:hover:border-white/10 dark:hover:text-primary-text-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent cursor-pointer"
               >
@@ -609,14 +716,13 @@ export default function Navbar({ toggleTheme, isDarkMode }) {
                 ref={toggleRef}
                 type="button"
                 onClick={() => (isOpen ? (closeMenu(), toggleRef.current?.focus()) : openMenu())}
-                aria-label={isOpen ? 'Close menu' : 'Open menu'}
+                aria-label={isOpen ? t('meta.closeMenu') : t('meta.openMenu')}
                 aria-expanded={isOpen}
                 aria-controls="navbar-menu"
                 tabIndex={menuReachable ? 0 : -1}
                 style={menuReachable ? undefined : { pointerEvents: 'none' }}
                 className="relative h-9 w-9 shrink-0 rounded-lg border border-transparent transition-colors duration-200 hover:border-primary-text/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#141416] cursor-pointer"
               >
-                <span className="sr-only">Menu</span>
                 <span
                   aria-hidden="true"
                   className={`absolute h-px w-4 bg-primary-text dark:bg-primary-text-dark transition-all duration-200 ${

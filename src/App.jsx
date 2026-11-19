@@ -11,8 +11,8 @@ const Contact = lazy(() => import('./components/Contact'));
 import CommandPalette from './components/CommandPalette';
 import ToastProvider from './components/ToastProvider';
 import ErrorBoundary from './components/ErrorBoundary';
-import SceneErrorBoundary from './components/3d/SceneErrorBoundary';
 import FinalStatement from './components/FinalStatement';
+import AmbientField from './components/3d/AmbientField';
 
 import {
   ScrollStage,
@@ -22,10 +22,7 @@ import {
 } from './components/scroll/ScrollStage';
 import ChapterReadout from './components/scroll/ChapterReadout';
 
-const SceneManager = lazy(() => import('./components/3d/SceneManager'));
-const ProjectDetail = lazy(() =>
-  import('./components/ProjectDetail').then((m) => ({ default: m.default }))
-);
+const ProjectDetail = lazy(() => import('./components/ProjectDetail'));
 const ProjectNotFound = lazy(() =>
   import('./components/ProjectDetail').then((m) => ({ default: m.ProjectNotFound }))
 );
@@ -33,6 +30,23 @@ const ProjectNotFound = lazy(() =>
 import { LanguageProvider } from './context/LanguageContext';
 import { useRoute, useHashLinkBridge, projectSlugFrom } from './router';
 import { useLanguage } from './context/LanguageContext';
+
+const origin =
+  typeof window !== 'undefined' && window.location.origin !== 'null'
+    ? window.location.origin
+    : 'https://umarjonmx.uz';
+
+/** Updates a `<meta>` by name or property, creating it only if it is missing. */
+function setMeta(key, value) {
+  const attr = key.startsWith('og:') ? 'property' : 'name';
+  let el = document.head.querySelector(`meta[${attr}="${key}"]`);
+  if (!el) {
+    el = document.createElement('meta');
+    el.setAttribute(attr, key);
+    document.head.appendChild(el);
+  }
+  el.setAttribute('content', value);
+}
 
 /**
  * Chapter entry.
@@ -53,8 +67,15 @@ function Chapter({ id, children }) {
   const opacity = useTransform(p, (v) => (reduced ? 1 : seg(v, 0.02, 0.5)));
   const y = useTransform(p, (v) => (reduced ? 0 : 30 * (1 - seg(v, 0.02, 0.55))));
 
+  // Stacking context & sticky positioning guarantee:
+  // Once settled (p >= 0.55 or reduced motion), transform becomes 'none' and
+  // opacity is omitted, ensuring no persistent stacking context or containing block
+  // traps the sticky chapter SectionHeader (z-66) below the fixed top veil (z-65).
+  const transform = useTransform(y, (v) => (v === 0 ? 'none' : `translateY(${v}px)`));
+  const motionOpacity = useTransform(opacity, (v) => (v === 1 ? undefined : v));
+
   return (
-    <motion.div style={{ opacity, y }} className="w-full">
+    <motion.div style={{ opacity: motionOpacity, transform }} className="w-full">
       {children}
     </motion.div>
   );
@@ -64,10 +85,40 @@ function AppContent() {
   const { pathname } = useRoute();
   useHashLinkBridge();
 
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const projects = t('projects.items') || [];
   const slug = projectSlugFrom(pathname);
   const project = slug ? projects.find((p) => p.slug === slug) : null;
+
+  /**
+   * Document title per route.
+   *
+   * The tab said "Umarjon MX - Junior Full-Stack Developer" on every page,
+   * including project pages and 404s — and on a client-side navigation the
+   * title never changed at all, so two open project tabs were indistinguishable
+   * in the browser's history dropdown. Project pages are real URLs with real
+   * content, so they get their own title.
+   */
+  useEffect(() => {
+    const base = 'Umarjon MX';
+    let title = `${base} — AI & Robotics Student & Software Developer`;
+    let description =
+      'Portfolio of Umarjon MX, an AI & Robotics student and software developer building backend systems and full-stack products from Namangan, Uzbekistan.';
+
+    if (slug) {
+      title = project
+        ? `${project.title} — Umarjon MX`
+        : `Not found — ${base}`;
+      description = project ? project.summary : 'That project does not exist, or it has been renamed.';
+    }
+
+    document.title = title;
+    setMeta('description', description);
+    setMeta('og:title', title);
+    setMeta('og:description', description);
+    setMeta('og:url', origin + (slug ? `/projects/${slug}` : '/'));
+    document.documentElement.lang = lang;
+  }, [slug, project, lang]);
 
   const [isDarkMode, setIsDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -122,7 +173,7 @@ function AppContent() {
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[200] focus:px-4 focus:py-2 focus:bg-accent focus:text-white focus:rounded-lg focus:font-bold focus:text-sm focus:outline-none"
       >
-        Skip to main content
+        {t('meta.skipToContent')}
       </a>
       <CommandPalette isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
       
@@ -139,14 +190,17 @@ function AppContent() {
         </div>
       )}
       
-      {/* Global 3D Ambient Mesh Background — SceneManager positions itself fixed z-[-1] */}
-      <SceneErrorBoundary fallback={null}>
-        <Suspense fallback={null}>
-          <SceneManager isDarkMode={isDarkMode} />
-        </Suspense>
-      </SceneErrorBoundary>
+      {/* Global ambient background — one WebGL quad, fixed at z-[-1]. It owns
+          its own failure handling: if WebGL is unavailable the canvas is simply
+          not created and the page falls back to the theme colour. */}
+      <AmbientField isDarkMode={isDarkMode} />
       
       <ChapterReadout />
+
+      {/* Content scrolling under the fixed Navbar is softened by a masked
+          backdrop-blur strip (no painted colour). Sits under the Navbar and the
+          sticky chapter capsule, above page content. */}
+      <div aria-hidden="true" className="top-veil" />
 
       <Navbar isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
 
@@ -155,7 +209,7 @@ function AppContent() {
            one background, one scroll position, one document. */
         <main
           id="main-content"
-          style={{ position: 'relative', zIndex: 10 }}
+          style={{ position: 'relative' }}
           className="flex-grow pt-20 w-full overflow-x-clip"
         >
           <Suspense fallback={<div />}>
@@ -165,7 +219,7 @@ function AppContent() {
       ) : (
         <main
           id="main-content"
-          style={{ position: 'relative', zIndex: 10 }}
+          style={{ position: 'relative' }}
           className="flex-grow pt-20 w-full overflow-x-clip"
         >
           <Hero isDarkMode={isDarkMode} />

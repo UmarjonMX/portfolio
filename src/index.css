@@ -12,13 +12,6 @@
   --color-border-light: rgba(28, 28, 28, 0.1);
   --color-border-dark: rgba(250, 250, 250, 0.1);
 
-  --animate-fadeInUp: fadeInUp 0.7s ease-out forwards;
-  
-  @keyframes fadeInUp {
-    0% { opacity: 0; transform: translateY(20px); }
-    100% { opacity: 1; transform: translateY(0); }
-  }
-
   --font-sans: "Host Grotesk", sans-serif;
   --font-host: "Host Grotesk", sans-serif;
   --font-baskerville: "Libre Baskerville", serif;
@@ -87,6 +80,31 @@
   }
 }
 
+/* ── Top veil ────────────────────────────────────────────────────────────
+   A fixed strip that softens content passing under the Navbar/chapter capsule
+   without painting a sampled colour. Backdrop blur is masked so it is fully
+   present at the top and dissolves to nothing below (no hard edge, no tint). */
+.top-veil {
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 150px;
+  z-index: 65;
+  pointer-events: none;
+  background: transparent;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 56px, transparent 150px);
+  mask-image: linear-gradient(to bottom, #000 0, #000 56px, transparent 150px);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .top-veil {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    /* Fallback: plain mask fade only (no colour painted). */
+  }
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -103,30 +121,19 @@ html {
   }
 }
 
-/* Screen reader only utility */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
-}
-
-/* Custom design tokens for Umar's Style */
+/* Custom design tokens for Umar's Style.
+   NOTE: `.sr-only` used to be re-declared here, outside any cascade layer.
+   Unlayered rules beat layered ones regardless of specificity, so it silently
+   overrode Tailwind's own `focus:not-sr-only` and kept the skip link clipped
+   to 1×1px while focused — invisible and unreachable for keyboard users. It is
+   now owned solely by Tailwind, which places it in `@layer utilities` where
+   `not-sr-only` can win. Do not re-add it here. */
 .shadow-hard-light {
   box-shadow: 4px 4px 0px 0px rgba(28, 28, 28, 0.95);
 }
 
 .shadow-hard-dark {
   box-shadow: 4px 4px 0px 0px rgba(250, 250, 250, 0.95);
-}
-
-.shadow-hard-accent {
-  box-shadow: 4px 4px 0px 0px var(--color-accent);
 }
 
 .shadow-hard-interactive-light {
@@ -159,16 +166,6 @@ html {
   box-shadow: 2px 2px 0px 0px rgba(250, 250, 250, 0.95);
 }
 
-.recess-inset-light {
-  box-shadow: inset 2px 2px 6px 0px rgba(0, 0, 0, 0.08);
-  background-color: rgba(28, 28, 28, 0.02);
-}
-
-.recess-inset-dark {
-  box-shadow: inset 2px 2px 6px 0px rgba(0, 0, 0, 0.4);
-  background-color: rgba(0, 0, 0, 0.2);
-}
-
 /* Blueprint grids */
 .blueprint-grid-light {
   background-size: 32px 32px;
@@ -182,28 +179,6 @@ html {
   background-image: 
     linear-gradient(to right, rgba(250, 250, 250, 0.015) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(250, 250, 250, 0.015) 1px, transparent 1px);
-}
-
-.blueprint-sheet-label {
-  font-family: 'Josefin Slab', serif;
-  font-size: 0.65rem;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  opacity: 0.5;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.animate-fadeIn {
-  animation: fadeIn 1.5s ease-out forwards;
-}
-
-@keyframes fadeInUp {
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
 }
 
 /* ─── Hero Entrance Reveal ───────────────────────────────────────────────── */
@@ -223,54 +198,6 @@ html {
 .hero-reveal {
   opacity: 0;
   animation: heroReveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.hero-reveal.paused {
-  animation: none;
-  opacity: 0;
-}
-
-/* ─── Button Light Sweep ─────────────────────────────────────────────────── */
-.btn-sweep {
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease, background-color 0.3s ease;
-}
-
-.btn-sweep::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.15),
-    transparent
-  );
-  transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.btn-sweep:hover::after {
-  left: 150%;
-}
-
-.btn-sweep:active {
-  transform: scale(0.98);
-  transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@layer utilities {
-  .delay-100 { transition-delay: 100ms; animation-delay: 100ms; }
-  .delay-200 { transition-delay: 200ms; animation-delay: 200ms; }
-  .delay-300 { transition-delay: 300ms; animation-delay: 300ms; }
-  .delay-400 { transition-delay: 400ms; animation-delay: 400ms; }
-  .delay-500 { transition-delay: 500ms; animation-delay: 500ms; }
-  .delay-600 { transition-delay: 600ms; animation-delay: 600ms; }
-  .delay-700 { transition-delay: 700ms; animation-delay: 700ms; }
-  .delay-1000 { transition-delay: 1000ms; animation-delay: 1000ms; }
 }
 
 /* ─── Glass3D Material ───────────────────────────────────────────────────── */
@@ -330,4 +257,180 @@ html {
 
 .dark .glass3d {
   --color-glass3d: rgb(255 255 255 / 0.025);
+}
+
+/* ─── Liquid Glass ─────────────────────────────────────────────────────────
+   The optical material of the three navigation capsules.
+
+   The surface is a filtered backdrop, not a painted card: blur to erase the
+   detail but keep the colour, saturation to bring the field's warmth back
+   through the glass, and a very light tint so type keeps its footing. The
+   layers above it are the optics — a light top edge, a dark bottom edge, a
+   soft light band under each rim, and a specular that follows the pointer.
+   No single bright outline around the shape: the top edge carries the light,
+   the sides almost none, the bottom a shade.
+
+   `isolation` keeps the screen-blended specular inside the capsule instead
+   of blending with the page behind it. `--lg-lit` and `--lg-mx/--lg-my` are
+   written by Navbar's pointer listener directly, so the highlight never
+   causes a React render. */
+.liquid-glass {
+  --lg-tint: rgba(255, 253, 248, 0.12);
+  --lg-tint-top: rgba(255, 255, 255, 0.13);
+  --lg-rim-top: rgba(255, 255, 255, 0.85);
+  --lg-rim-top-soft: rgba(255, 255, 255, 0.30);
+  --lg-rim-side: rgba(255, 255, 255, 0.22);
+  --lg-rim-bottom: rgba(28, 26, 22, 0.20);
+  --lg-rim-bottom-soft: rgba(28, 26, 22, 0.16);
+  --lg-refract: rgba(255, 255, 255, 0.16);
+  --lg-bounce: rgba(255, 255, 255, 0.09);
+  --lg-specular: rgba(255, 255, 255, 0.62);
+  --lg-mx: 0.5;
+  --lg-my: 0.2;
+  --lg-lit: 0;
+
+  isolation: isolate;
+  background:
+    linear-gradient(180deg, var(--lg-tint-top) 0%, transparent 30%),
+    var(--lg-tint);
+  -webkit-backdrop-filter: blur(20px) saturate(185%) brightness(1.02);
+  backdrop-filter: blur(20px) saturate(185%) brightness(1.02);
+}
+
+html.dark .liquid-glass {
+  --lg-tint: rgba(16, 18, 22, 0.30);
+  --lg-tint-top: rgba(255, 255, 255, 0.055);
+  --lg-rim-top: rgba(255, 255, 255, 0.40);
+  --lg-rim-top-soft: rgba(255, 255, 255, 0.10);
+  --lg-rim-side: rgba(255, 255, 255, 0.12);
+  --lg-rim-bottom: rgba(0, 0, 0, 0.45);
+  --lg-rim-bottom-soft: rgba(0, 0, 0, 0.30);
+  --lg-refract: rgba(255, 255, 255, 0.07);
+  --lg-bounce: rgba(255, 255, 255, 0.04);
+  --lg-specular: rgba(255, 255, 255, 0.36);
+}
+
+.liquid-glass__layers,
+.liquid-glass__edge,
+.liquid-glass__side,
+.liquid-glass__refract,
+.liquid-glass__specular-wrap,
+.liquid-glass__specular,
+.liquid-glass__sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* The one-pixel rim, weighted by direction: bright along the lit top edge,
+   nearly absent at the sides, shaded at the base. The blurred inner bands
+   just under each rim are the light bending through the thick edge. */
+.liquid-glass__edge {
+  box-shadow:
+    inset 0 1px 0 var(--lg-rim-top),
+    inset 0 6px 9px -8px var(--lg-rim-top-soft),
+    inset 0 -1px 0 var(--lg-rim-bottom),
+    inset 0 -7px 10px -8px var(--lg-rim-bottom-soft);
+}
+
+/* A 1px patch over the joint between two welded pieces. Each capsule's
+   optical layers fill its *padding* box, so the 1px border on each side of a
+   seam leaves a matching 1px gap in the top and bottom rims. This span sits
+   outside the padding box at exactly that gap and carries only the rims and
+   the refraction bands, so the continuous light line across the bar has no
+   notch. It is drawn by the right-hand piece of the joint — the one painted
+   last — and fades out as soon as the pieces start to separate, long before
+   the gap between them is wide enough to notice it. */
+.liquid-glass__seam {
+  display: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 100%;
+  width: 1px;
+  border-radius: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, var(--lg-refract) 0%, transparent 26%),
+    linear-gradient(0deg, var(--lg-bounce) 0%, transparent 24%);
+  box-shadow:
+    inset 0 1px 0 var(--lg-rim-top),
+    inset 0 -1px 0 var(--lg-rim-bottom);
+}
+
+.liquid-glass--seam-left .liquid-glass__seam {
+  display: block;
+}
+
+/* Side rims are a separated-capsule property: while the three pieces are
+   welded into one bar they would draw vertical lines through it, so their
+   opacity follows the Navbar's `detach` response instead. */
+.liquid-glass__side {
+  box-shadow:
+    inset 1px 0 0 var(--lg-rim-side),
+    inset -1px 0 0 var(--lg-rim-side);
+}
+
+/* Curved-edge light: a soft highlight under the top rim and a faint bounce
+   off the bottom, suggesting light entering and leaving a thick edge without
+   sampling the backdrop itself (these are gradients, not refraction).
+
+   Both bands are vertical gradients on purpose. A radial one would restart in
+   each capsule and step at the seams while the bar is welded; a vertical band
+   is identical at every x, so the three pieces share one continuous run of
+   light. */
+.liquid-glass__refract {
+  background:
+    linear-gradient(180deg, var(--lg-refract) 0%, transparent 26%),
+    linear-gradient(0deg, var(--lg-bounce) 0%, transparent 24%);
+}
+
+/* A slow diagonal reflection. Because it is diagonal it is sized to one
+   capsule, so it only makes sense once the bar has split: its opacity follows
+   the Navbar's `detach` response, which also keeps the welded bar free of a
+   step at each seam. It shifts a little with the pointer instead of scanning
+   across the capsule. */
+.liquid-glass__sheen {
+  background: linear-gradient(
+    112deg,
+    transparent 26%,
+    rgba(255, 255, 255, 0.09) 40%,
+    rgba(255, 255, 255, 0.02) 50%,
+    transparent 63%
+  );
+  transform: translateX(calc((var(--lg-mx) - 0.5) * 26%));
+  transition: transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* The pointer highlight. Fades in when the pointer is over the bar, fades
+   out when it leaves; position is written as two CSS variables per frame. */
+.liquid-glass__specular {
+  opacity: var(--lg-lit);
+  mix-blend-mode: screen;
+  background: radial-gradient(
+    170px 90px at calc(var(--lg-mx) * 100%) calc(var(--lg-my) * 100%),
+    var(--lg-specular),
+    transparent 64%
+  );
+  transition: opacity 520ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* No backdrop filter: keep the optics, but restore enough body that a heading
+   passing underneath cannot be read through the capsules. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .liquid-glass {
+    --lg-tint: rgba(252, 250, 245, 0.90);
+  }
+
+  html.dark .liquid-glass {
+    --lg-tint: rgba(18, 20, 24, 0.92);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liquid-glass__sheen,
+  .liquid-glass__specular {
+    transition: none;
+  }
 }

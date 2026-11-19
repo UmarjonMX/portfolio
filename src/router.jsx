@@ -30,15 +30,71 @@ function emit() {
 }
 
 if (typeof window !== 'undefined') {
-  window.addEventListener('popstate', emit);
+  // Back/forward between routes also has to land on the right section: the
+  // browser restores a scroll position it remembers for a URL, but it has
+  // never seen `/#projects` as a loaded document, so it restores nothing.
+  window.addEventListener('popstate', () => {
+    emit();
+    const loc = readLocation();
+    if (loc.hash) scrollToHash(loc.hash, 'auto');
+    else window.scrollTo(0, 0);
+  });
+}
+
+/**
+ * Scrolls a `#fragment` into view after a client-side navigation.
+ *
+ * `history.pushState` deliberately does not perform the browser's built-in
+ * fragment scroll, so a link that changes both the path and the hash lands the
+ * reader at the top of the new page with the target thousands of pixels below
+ * them. It also cannot simply look the target up on arrival: the home page's
+ * sections are code-split, so `#contact` does not exist yet at the moment the
+ * route swaps. This waits for the element to appear, then scrolls to it once.
+ *
+ * Honours `prefers-reduced-motion` by jumping instead of animating.
+ */
+function scrollToHash(hash, behavior) {
+  const id = hash.replace(/^#/, '');
+  if (!id) {
+    window.scrollTo(0, 0);
+    return;
+  }
+
+  const reduced =
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const behaviorMode = reduced ? 'auto' : behavior || 'smooth';
+
+  let tries = 0;
+  let raf = 0;
+  const attempt = () => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: behaviorMode, block: 'start' });
+      return;
+    }
+    // ~1.5s of frames: long enough for a lazy chunk to mount and lay out.
+    if (++tries < 90) raf = requestAnimationFrame(attempt);
+  };
+  raf = requestAnimationFrame(attempt);
+  return () => cancelAnimationFrame(raf);
 }
 
 /** Programmatic navigation. `replace` avoids adding a history entry. */
 export function navigate(to, { replace = false } = {}) {
   const url = new URL(to, window.location.origin);
+  const before = readLocation();
   if (replace) window.history.replaceState({}, '', url);
   else window.history.pushState({}, '', url);
   emit();
+
+  const after = readLocation();
+  const changedPage = before.pathname !== after.pathname;
+  if (after.hash && (changedPage || before.hash !== after.hash)) {
+    scrollToHash(after.hash);
+  } else if (changedPage && !after.hash) {
+    window.scrollTo(0, 0);
+  }
 }
 
 export function useRoute() {
@@ -70,6 +126,9 @@ export function projectSlugFrom(pathname) {
  * URL and scroll nowhere, so they are intercepted once, here, and rewritten
  * to the home page. On `/` the browser's native smooth scroll already works,
  * so this stays out of the way.
+ *
+ * `navigate` is what makes the rewrite land on the right section rather than
+ * merely the right URL — see `scrollToHash` above.
  */
 export function useHashLinkBridge() {
   useEffect(() => {
